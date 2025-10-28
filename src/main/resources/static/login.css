@@ -157,6 +157,7 @@ body {
   resize: vertical;
 }
 
+<<<<<<< HEAD
 .password-wrapper {
   position: relative;
   display: flex;
@@ -186,6 +187,8 @@ body {
   color: var(--azul-claro);
 }
 
+=======
+>>>>>>> 2ed3496b48ea96611907d6d4e6238a72f7cc8296
 .field input::placeholder,
 .field textarea::placeholder { color: #9aa4b2; }
 

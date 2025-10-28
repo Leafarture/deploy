@@ -33,8 +33,12 @@ public class FileUploadConfig implements WebMvcConfigurer {
 
         // Mapear URL /uploads/** para a pasta raiz de uploads
         registry.addResourceHandler("/uploads/**")
+<<<<<<< HEAD
                 .addResourceLocations("file:" + rootUploadDir.getAbsolutePath() + "/");
         
+=======
+                .addResourceLocations("file:" + rootUploadDir.getAbsolutePath() + "/");        
+>>>>>>> 2ed3496b48ea96611907d6d4e6238a72f7cc8296
         System.out.println("📁 Uploads configurados em: " + rootUploadDir.getAbsolutePath());
     }
 }
