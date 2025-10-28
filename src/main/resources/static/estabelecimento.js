@@ -313,4 +313,25 @@ document.addEventListener('DOMContentLoaded', () => {
             if (primeiroErro) primeiroErro.focus();
         }
     });
+
+    // Toggle de mostrar senha
+    const passwordToggles = document.querySelectorAll('.password-toggle');
+    passwordToggles.forEach(function(toggle) {
+        toggle.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Alternar ícone
+            const icon = this.querySelector('i');
+            if (type === 'password') {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        });
+    });
 });

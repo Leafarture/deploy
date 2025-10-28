@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="Usuario.css">
     <link rel="stylesheet" href="notification.css">
     <link rel="stylesheet" href="./header-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 <main class="page">
@@ -117,15 +118,23 @@
             <div class="field field--split">
                 <div class="field">
                     <label for="senha">Senha</label>
-                    <input id="senha" name="senha" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" required>
+                    <div class="password-wrapper">
+                        <input id="senha" name="senha" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" required>
+                        <button type="button" class="password-toggle" data-target="senha" aria-label="Mostrar senha">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                     <p class="error" id="erro-senha" role="alert" aria-live="polite"></p>
-
                 </div>
                 <div class="field">
                     <label for="confirmar">Confirmar senha</label>
-                    <input id="confirmar" name="confirmar" type="password" autocomplete="new-password" placeholder="Repita a senha" required>
+                    <div class="password-wrapper">
+                        <input id="confirmar" name="confirmar" type="password" autocomplete="new-password" placeholder="Repita a senha" required>
+                        <button type="button" class="password-toggle" data-target="confirmar" aria-label="Mostrar senha">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                     <p class="error" id="erro-confirmar" role="alert" aria-live="polite"></p>
-
                 </div>
             </div>
 

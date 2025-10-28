@@ -198,6 +198,35 @@ body {
   .field--split { grid-template-columns: 1fr 1fr; }
 }
 
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input[type="password"],
+.password-wrapper input[type="text"] {
+  padding-right: 42px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--texto-suave);
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 180ms ease;
+}
+
+.password-toggle:hover {
+  color: var(--azul-claro);
+}
+
 .field--checkbox {
   display: flex;
   align-items: center;
