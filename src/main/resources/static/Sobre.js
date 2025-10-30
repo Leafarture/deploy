@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ===== EFEITOS HOVER =====
-    const interactiveElements = document.querySelectorAll('.card, .pillar-card, .step, .impact-card, .btn, .nav-link');
+    const interactiveElements = document.querySelectorAll('.card, .pilar-card, .step, .impact-card, .btn, .nav-link');
 
     interactiveElements.forEach(element => {
         element.addEventListener('mouseenter', function() {
