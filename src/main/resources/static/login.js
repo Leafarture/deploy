@@ -1,7 +1,6 @@
 // Atualizar o ano no footer
 document.getElementById('ano').textContent = new Date().getFullYear();
 
-<<<<<<< HEAD
 // Toggle de mostrar senha
 const togglePassword = document.getElementById('togglePassword');
 const passwordInput = document.getElementById('password');
@@ -21,8 +20,6 @@ togglePassword.addEventListener('click', function() {
     }
 });
 
-=======
->>>>>>> 2ed3496b48ea96611907d6d4e6238a72f7cc8296
 document.getElementById('loginForm').addEventListener('submit', async function(e){
     e.preventDefault();
 

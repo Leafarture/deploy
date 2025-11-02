@@ -305,7 +305,6 @@ document.addEventListener("DOMContentLoaded", () => {
             e.target.value = e.target.value.replace(/\D/g, '');
         });
     }
-<<<<<<< HEAD
 
     // Toggle de mostrar senha
     const passwordToggles = document.querySelectorAll('.password-toggle');
@@ -327,6 +326,4 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
-=======
->>>>>>> 2ed3496b48ea96611907d6d4e6238a72f7cc8296
 });
