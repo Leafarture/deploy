@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
@@ -29,8 +30,12 @@ public class SecurityConfig {
                         .requestMatchers("/auth/login", "/auth/registro", "/auth/cadastros").permitAll()
                         .requestMatchers("/login.html", "/cadastro_perfil.html", "/Estabelecimento.html", "/Usuario.html", "/index.html", "/").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/static/**").permitAll()
-                        .requestMatchers("/doacoes").permitAll()  // Permitir acesso público para listar doações
-                        .requestMatchers("/doacoes/**").authenticated()  // Outras operações requerem autenticação
+                        // Permitir GETs públicos em doações (listar, ver detalhes, buscar próximas)
+                        .requestMatchers(HttpMethod.GET, "/doacoes").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/doacoes/proximas").permitAll()  // Deve vir antes de /doacoes/*
+                        .requestMatchers(HttpMethod.GET, "/doacoes/*").permitAll()  // Permite GET /doacoes/{qualquer-id}
+                        // Outras operações em doações requerem autenticação
+                        .requestMatchers("/doacoes/**").authenticated()
                         .requestMatchers("/api/user/me").authenticated()
                         .requestMatchers("/**").permitAll()
                         .anyRequest().authenticated()

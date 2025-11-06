@@ -260,6 +260,16 @@ function createDoacaoCard(doacao, isNew = false) {
     const card = document.createElement('div');
     card.className = isNew ? 'doacao-card new-donation' : 'doacao-card';
     
+    // ===== ADICIONAR EVENT LISTENER PARA CLIQUE NO CARD INTEIRO =====
+    card.addEventListener('click', function(e) {
+        // Evitar navegação se o clique foi no botão
+        if (e.target.closest('.btn-request')) {
+            return;
+        }
+        // Navegar para detalhes ao clicar no card
+        verDetalhes(doacao.id);
+    });
+    
     // ===== FORMATAÇÃO DE DATAS =====
     let dataFormatada = 'Não informado';
     let diasRestantes = null;
@@ -333,19 +343,31 @@ function createDoacaoCard(doacao, isNew = false) {
             <div class="doacao-details">
                 <div class="detail-item">
                     <i class="fas fa-balance-scale"></i>
-                    <span><strong>Quantidade:</strong> ${doacao.quantidade || 'N/A'}${doacao.unidade ? ' ' + doacao.unidade : ''}</span>
+                    <div>
+                        <span class="detail-label">Quantidade</span>
+                        <span class="detail-value">${doacao.quantidade || 'N/A'}${doacao.unidade ? ' ' + doacao.unidade : ''}</span>
+                    </div>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-calendar-alt"></i>
-                    <span><strong>Validade:</strong> ${dataFormatada}</span>
+                    <div>
+                        <span class="detail-label">Validade</span>
+                        <span class="detail-value">${dataFormatada}</span>
+                    </div>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-clock"></i>
-                    <span><strong>Restam:</strong> ${diasRestantes !== null ? (diasRestantes >= 0 ? diasRestantes + ' dias' : 'Vencido') : 'Não informado'}</span>
+                    <div>
+                        <span class="detail-label">Restam</span>
+                        <span class="detail-value">${diasRestantes !== null ? (diasRestantes >= 0 ? diasRestantes + ' dias' : 'Vencido') : 'Não informado'}</span>
+                    </div>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-map-marker-alt"></i>
-                    <span><strong>Local:</strong> ${doacao.cidade || 'Não informado'}</span>
+                    <div>
+                        <span class="detail-label">Local</span>
+                        <span class="detail-value">${doacao.cidade || 'Não informado'}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -356,9 +378,9 @@ function createDoacaoCard(doacao, isNew = false) {
                 <i class="fas fa-user"></i>
                 <span>${doacao.doador?.nome || doacao.estabelecimento?.nome || 'Doador Anônimo'}</span>
             </div>
-            <button class="btn-request" onclick="solicitarDoacao(${doacao.id})" title="Solicitar esta doação">
-                <i class="fas fa-hand-holding-heart"></i>
-                Solicitar
+            <button class="btn-request" onclick="event.stopPropagation(); verDetalhes(${doacao.id})" title="Ver detalhes desta doação">
+                <i class="fas fa-eye"></i>
+                Ver Detalhes
             </button>
         </div>
     `;
@@ -371,36 +393,19 @@ function createDoacaoCard(doacao, isNew = false) {
     return card;
 }
 
-// Função para solicitar doação
+/**
+ * ===== NAVEGAR PARA PÁGINA DE DETALHES =====
+ * Redireciona o usuário para a página de detalhes do alimento
+ * @param {number} doacaoId - ID da doação
+ */
+function verDetalhes(doacaoId) {
+    window.location.href = `detalhes-alimento.html?id=${doacaoId}`;
+}
+
+// Função para solicitar doação (mantida por compatibilidade)
 async function solicitarDoacao(doacaoId) {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-        alert('Você precisa fazer login para solicitar uma doação.');
-        window.location.href = 'login.html';
-        return;
-    }
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/doacoes/${doacaoId}/solicitar`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Erro ao solicitar doação');
-        }
-        
-        alert('Solicitação de doação enviada com sucesso!');
-        
-    } catch (error) {
-        console.error('Erro ao solicitar doação:', error);
-        alert('Erro ao solicitar doação: ' + error.message);
-    }
+    // Agora redireciona para a página de detalhes
+    verDetalhes(doacaoId);
 }
 
 // Função para aplicar filtros
