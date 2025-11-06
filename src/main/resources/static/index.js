@@ -858,8 +858,9 @@ function updateHeaderActions() {
         // Inicial do nome para avatar
         const userInitial = user.nome ? user.nome.charAt(0).toUpperCase() : 'U';
         
-        // Buscar avatar com cache busting (mesma lógica do headerUser.js)
-        const avatarUrl = user.avatarUrl || localStorage.getItem('userAvatar');
+        // IMPORTANTE: Sempre usar user.avatarUrl do backend (via JWT), nunca localStorage global
+        // localStorage.getItem('userAvatar') é global e pode conter avatar de outro usuário
+        const avatarUrl = user?.avatarUrl || null;
         const cacheBust = localStorage.getItem('avatarUpdatedAt') || Date.now();
         const urlWithVersion = avatarUrl ? (avatarUrl + (avatarUrl.includes('?') ? '&' : '?') + 'v=' + cacheBust) : null;
         
@@ -867,7 +868,7 @@ function updateHeaderActions() {
             <div class="profile-dropdown">
                 <button class="avatar-btn" id="avatar-btn">
                     ${urlWithVersion ? 
-                        `<img src="${urlWithVersion}" alt="${user.nome}" style="display: block;">` : 
+                        `<img id="header-avatar-img" src="${urlWithVersion}" alt="${user.nome}" style="display: block;">` : 
                         `<span id="user-avatar-placeholder" style="display: flex;">${userInitial}</span>`
                     }
                 </button>
@@ -884,6 +885,30 @@ function updateHeaderActions() {
                 </div>
             </div>
         `;
+        
+        // Configurar tratamento de erro para avatar (se a imagem não existir)
+        if (urlWithVersion) {
+            const avatarImg = document.getElementById('header-avatar-img');
+            const avatarBtn = document.getElementById('avatar-btn');
+            if (avatarImg && avatarBtn) {
+                avatarImg.addEventListener('error', () => {
+                    console.warn('Avatar não encontrado:', avatarUrl);
+                    avatarImg.style.display = 'none';
+                    // Criar placeholder se não existir
+                    let avatarPlaceholder = document.getElementById('user-avatar-placeholder');
+                    if (!avatarPlaceholder) {
+                        avatarPlaceholder = document.createElement('span');
+                        avatarPlaceholder.id = 'user-avatar-placeholder';
+                        avatarPlaceholder.style.display = 'flex';
+                        avatarPlaceholder.textContent = userInitial;
+                        avatarBtn.appendChild(avatarPlaceholder);
+                    } else {
+                        avatarPlaceholder.style.display = 'flex';
+                        avatarPlaceholder.textContent = userInitial;
+                    }
+                });
+            }
+        }
         
         // Configurar eventos
         const avatarBtn = document.getElementById('avatar-btn');

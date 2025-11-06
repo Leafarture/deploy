@@ -235,7 +235,7 @@ function displayDonorInfo(doacao) {
         
         // Se houver imagem do doador
         if (doacao.doador.avatar) {
-            avatarContent = `<img src="${doacao.doador.avatar}" alt="${nome}">`;
+            avatarContent = `<img src="${doacao.doador.avatar}" alt="${nome}" class="donor-avatar-img">`;
         } else {
             // Usar inicial do nome
             const inicial = nome.charAt(0).toUpperCase();
@@ -246,7 +246,7 @@ function displayDonorInfo(doacao) {
         tipo = 'Estabelecimento';
         
         if (doacao.estabelecimento.logo) {
-            avatarContent = `<img src="${doacao.estabelecimento.logo}" alt="${nome}">`;
+            avatarContent = `<img src="${doacao.estabelecimento.logo}" alt="${nome}" class="donor-avatar-img">`;
         } else {
             const inicial = nome.charAt(0).toUpperCase();
             avatarContent = inicial;
@@ -254,6 +254,16 @@ function displayDonorInfo(doacao) {
     }
     
     donorAvatar.innerHTML = avatarContent;
+    
+    // Adicionar tratamento de erro para imagens de avatar
+    const avatarImg = donorAvatar.querySelector('.donor-avatar-img');
+    if (avatarImg) {
+        avatarImg.addEventListener('error', () => {
+            console.warn('Avatar do doador não encontrado:', avatarImg.src);
+            const inicial = nome.charAt(0).toUpperCase();
+            donorAvatar.innerHTML = inicial;
+        });
+    }
     donorName.textContent = nome;
     donorType.textContent = tipo;
 }

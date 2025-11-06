@@ -20,6 +20,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const expiryDateInput = document.getElementById('expiryDate');
     const collectionDateInput = document.getElementById('collectionDate');
 
+    // Verificar se está em modo de edição
+    const urlParams = new URLSearchParams(window.location.search);
+    const editId = urlParams.get('edit');
+    let isEditMode = false;
+    let currentDonationId = null;
+
+    if (editId) {
+        isEditMode = true;
+        currentDonationId = editId;
+        loadDonationForEdit(editId);
+        
+        // Atualizar título da página
+        const sectionTitle = document.querySelector('.section-title');
+        if (sectionTitle) {
+            sectionTitle.innerHTML = '<i class="fas fa-edit"></i> Editar Doação';
+        }
+        
+        // Atualizar texto do botão
+        if (btnSubmit) {
+            btnSubmit.textContent = 'Salvar Alterações';
+        }
+    }
+
     // --- Configurar datas mínimas ---
     // Data de hoje no formato YYYY-MM-DD
     const hoje = new Date();
@@ -310,6 +333,96 @@ document.addEventListener('DOMContentLoaded', () => {
         return isValid;
     }
 
+    // Função para carregar dados da doação para edição
+    async function loadDonationForEdit(donationId) {
+        try {
+            showNotification('Carregando dados da doação...', 'info', 2000);
+            
+            const response = await fetch(`/doacoes/${donationId}`);
+            
+            if (!response.ok) {
+                throw new Error('Erro ao carregar dados da doação');
+            }
+            
+            const donation = await response.json();
+            
+            // Preencher campos do formulário
+            if (document.getElementById('foodName')) document.getElementById('foodName').value = donation.titulo || '';
+            if (document.getElementById('foodType')) document.getElementById('foodType').value = donation.tipoAlimento || '';
+            if (document.getElementById('description')) document.getElementById('description').value = donation.descricao || '';
+            if (document.getElementById('quantity')) document.getElementById('quantity').value = donation.quantidade || '';
+            if (document.getElementById('unit')) document.getElementById('unit').value = donation.unidade || '';
+            
+            // Datas
+            if (donation.dataValidade) {
+                const dataValidade = new Date(donation.dataValidade + 'T00:00:00');
+                const dataValidadeStr = dataValidade.toISOString().split('T')[0];
+                if (expiryDateInput) expiryDateInput.value = dataValidadeStr;
+            }
+            
+            if (donation.dataColeta) {
+                const dataColeta = new Date(donation.dataColeta + 'T00:00:00');
+                const dataColetaStr = dataColeta.toISOString().split('T')[0];
+                if (collectionDateInput) collectionDateInput.value = dataColetaStr;
+            }
+            
+            // Endereço
+            if (donation.cep && cepInput) cepInput.value = donation.cep;
+            if (donation.rua && streetInput) streetInput.value = donation.rua;
+            if (donation.numero && numberInput) numberInput.value = donation.numero;
+            if (donation.cidade && cityInput) cityInput.value = donation.cidade;
+            if (donation.estado && stateInput) stateInput.value = donation.estado;
+            if (donation.complemento && complementInput) complementInput.value = donation.complemento;
+            if (donation.endereco && addressInput) addressInput.value = donation.endereco;
+            
+            // Coordenadas
+            if (donation.latitude && document.getElementById('lat')) {
+                document.getElementById('lat').value = donation.latitude;
+            }
+            if (donation.longitude && document.getElementById('lng')) {
+                document.getElementById('lng').value = donation.longitude;
+            }
+            
+            // Imagem
+            if (donation.imagem && photoPreview) {
+                photoPreview.src = donation.imagem;
+                photoPreview.style.display = 'block';
+                const icon = photoPreview.previousElementSibling;
+                if (icon) icon.style.display = 'none';
+            }
+            
+            // Gerar endereço completo (chamar após preencher todos os campos)
+            setTimeout(() => {
+                if (typeof generateFullAddress === 'function') {
+                    generateFullAddress();
+                } else {
+                    // Fallback: gerar endereço manualmente
+                    const street = streetInput.value.trim();
+                    const number = numberInput.value.trim();
+                    const city = cityInput.value.trim();
+                    const state = stateInput.value.trim();
+                    const complement = complementInput.value.trim();
+                    
+                    if (street && number && city && state) {
+                        let fullAddress = `${street}, ${number}`;
+                        if (complement) {
+                            fullAddress += `, ${complement}`;
+                        }
+                        fullAddress += `, ${city} - ${state}`;
+                        addressInput.value = fullAddress;
+                    } else if (donation.endereco) {
+                        addressInput.value = donation.endereco;
+                    }
+                }
+            }, 100);
+            
+            showNotification('Dados carregados com sucesso!', 'success', 2000);
+        } catch (error) {
+            console.error('Erro ao carregar doação:', error);
+            showNotification('Erro ao carregar dados da doação. Tente novamente.', 'error', 5000);
+        }
+    }
+
     // --- Lógica de Submissão ---
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -319,11 +432,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        btnSubmit.textContent = 'Enviando...';
+        btnSubmit.textContent = isEditMode ? 'Salvando...' : 'Enviando...';
         btnSubmit.disabled = true;
 
         try {
-            // 1. Fazer upload da imagem primeiro
+            // 1. Fazer upload da imagem primeiro (apenas se houver nova imagem)
             let imageUrl = null;
             const photoFile = photoInput.files[0];
             
@@ -353,6 +466,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageUrl = imageResult.imageUrl;
                 
                 console.log('✅ Imagem enviada:', imageUrl);
+            } else if (isEditMode && photoPreview && photoPreview.src) {
+                // Se estiver editando e não houver nova imagem, manter a imagem existente
+                imageUrl = photoPreview.src;
             }
 
             // 2. Coletar dados do formulário
@@ -390,11 +506,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 numero: data.number,
                 estado: data.state,
                 complemento: data.complement || '',
-                imagem: imageUrl  // ✅ URL da imagem
+                imagem: imageUrl,  // ✅ URL da imagem
+                ativo: true  // Manter ativo ao editar
             };
 
-            // 4. Enviar doação
-            showNotification('Salvando doação...', 'info', 2000);
+            // 4. Enviar doação (POST para criar, PUT para editar)
+            showNotification(isEditMode ? 'Salvando alterações...' : 'Salvando doação...', 'info', 2000);
             const token = localStorage.getItem('token');
             const headers = {
                 'Content-Type': 'application/json'
@@ -404,27 +521,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers['Authorization'] = `Bearer ${token}`;
             }
 
-            const response = await fetch('/doacoes', {
-                method: 'POST',
+            const url = isEditMode ? `/doacoes/${currentDonationId}` : '/doacoes';
+            const method = isEditMode ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
                 headers: headers,
                 body: JSON.stringify(payload)
             });
 
             if (response.ok) {
                 const result = await response.json();
-                showNotification('Alimento cadastrado com sucesso! Redirecionando...', 'success', 3000);
+                showNotification(
+                    isEditMode ? 'Doação atualizada com sucesso! Redirecionando...' : 'Alimento cadastrado com sucesso! Redirecionando...', 
+                    'success', 
+                    3000
+                );
                 
-                // Notificar sistema de tempo real
-                if (typeof notifyNewDonation === 'function') {
-                    notifyNewDonation(result);
-                } else {
-                    const newDonationEvent = new CustomEvent('newDonationCreated', {
-                        detail: {
-                            doacao: result,
-                            timestamp: new Date().toISOString()
-                        }
-                    });
-                    window.dispatchEvent(newDonationEvent);
+                // Notificar sistema de tempo real (apenas para novas doações)
+                if (!isEditMode) {
+                    if (typeof notifyNewDonation === 'function') {
+                        notifyNewDonation(result);
+                    } else {
+                        const newDonationEvent = new CustomEvent('newDonationCreated', {
+                            detail: {
+                                doacao: result,
+                                timestamp: new Date().toISOString()
+                            }
+                        });
+                        window.dispatchEvent(newDonationEvent);
+                    }
                 }
                 
                 form.reset();
@@ -434,13 +560,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 2000);
             } else {
                 const errorText = await response.text();
-                showNotification(`Erro ao cadastrar alimento: ${errorText}`, 'error', 5000);
+                showNotification(
+                    isEditMode ? `Erro ao atualizar doação: ${errorText}` : `Erro ao cadastrar alimento: ${errorText}`, 
+                    'error', 
+                    5000
+                );
             }
         } catch (error) {
             console.error('Erro na requisição:', error);
             showNotification('Erro de conexão. Verifique sua internet e tente novamente.', 'error', 5000);
         } finally {
-            btnSubmit.textContent = 'Cadastrar Alimento para Doação';
+            btnSubmit.textContent = isEditMode ? 'Salvar Alterações' : 'Cadastrar Alimento para Doação';
             btnSubmit.disabled = false;
         }
     });

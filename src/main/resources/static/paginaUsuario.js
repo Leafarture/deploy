@@ -185,8 +185,22 @@ class ProfileManager {
         const avatarContainer = avatarImg ? avatarImg.closest('.avatar-container') : null;
         
         if (this.currentUser.avatarUrl) {
-            // Salvar avatar no localStorage para compatibilidade com index.js e headerUser.js
-            localStorage.setItem('userAvatar', this.currentUser.avatarUrl);
+            // NÃO salvar userAvatar globalmente - o avatar sempre vem do objeto user (identificado via JWT)
+            
+            // Configurar handler de erro se ainda não foi configurado
+            if (avatarImg && !avatarImg.hasAttribute('data-error-handler')) {
+                avatarImg.setAttribute('data-error-handler', 'true');
+                avatarImg.addEventListener('error', () => {
+                    console.warn('Avatar não encontrado:', this.currentUser.avatarUrl);
+                    if (avatarImg) avatarImg.style.display = 'none';
+                    if (avatarPlaceholder) {
+                        avatarPlaceholder.style.display = 'flex';
+                        const userInitial = this.currentUser.nome ? this.currentUser.nome.charAt(0).toUpperCase() : 'U';
+                        avatarPlaceholder.textContent = userInitial;
+                    }
+                    if (avatarContainer) avatarContainer.classList.remove('has-avatar');
+                });
+            }
             
             // Adicionar cache-busting para garantir que a imagem atualize
             const updatedAt = localStorage.getItem('avatarUpdatedAt');
@@ -711,10 +725,7 @@ class ProfileManager {
                     // Atualizar localStorage com os dados mais recentes
                     localStorage.setItem('user', JSON.stringify(this.currentUser));
                     
-                    // Se o usuário tem avatar, salvar também separadamente para compatibilidade
-                    if (this.currentUser.avatarUrl) {
-                        localStorage.setItem('userAvatar', this.currentUser.avatarUrl);
-                    }
+                    // NÃO salvar userAvatar globalmente - o avatar sempre vem do objeto user (identificado via JWT)
                     
                     this.closeEditModal();
                     this.showNotification('Perfil atualizado com sucesso!', 'success');
@@ -738,10 +749,7 @@ class ProfileManager {
                 Object.assign(this.currentUser, updatedData);
                 localStorage.setItem('user', JSON.stringify(this.currentUser));
                 
-                // Se o usuário tem avatar, salvar também separadamente para compatibilidade
-                if (this.currentUser.avatarUrl) {
-                    localStorage.setItem('userAvatar', this.currentUser.avatarUrl);
-                }
+                // NÃO salvar userAvatar globalmente - o avatar sempre vem do objeto user (identificado via JWT)
                 
                 this.updateProfileDisplay();
                 this.closeEditModal();
@@ -781,8 +789,8 @@ class ProfileManager {
                     const mergedUser = { ...storedUser, ...this.currentUser, avatarUrl: data.avatarUrl };
                     localStorage.setItem('user', JSON.stringify(mergedUser));
                     
-                    // Salvar também o avatarUrl separadamente para compatibilidade com index.js e headerUser.js
-                    localStorage.setItem('userAvatar', data.avatarUrl);
+                    // NÃO salvar userAvatar globalmente - cada usuário deve ter seu próprio avatar no objeto user
+                    // O avatar sempre vem do objeto user que é identificado via JWT
 
                     // Avisar o header para atualizar a imagem (com cache-busting)
                     localStorage.setItem('avatarUpdatedAt', Date.now().toString());

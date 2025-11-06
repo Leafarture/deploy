@@ -262,11 +262,30 @@ class HeaderUserManager {
 
     /**
      * Atualiza o avatar do usuário
+     * IMPORTANTE: Sempre usa user.avatarUrl do backend (via JWT), nunca localStorage global
      */
     updateUserAvatar(userAvatarImg, userAvatarPlaceholder, user) {
-        const avatarUrl = user.avatarUrl || localStorage.getItem('userAvatar');
+        // SEMPRE usar avatarUrl do objeto user que vem do backend (via JWT)
+        // NÃO usar localStorage.getItem('userAvatar') pois é global e pode ser de outro usuário
+        const avatarUrl = user?.avatarUrl || null;
         
         if (avatarUrl && userAvatarImg && userAvatarPlaceholder) {
+            // Remover listener anterior se existir (usando uma flag para evitar múltiplos)
+            if (!userAvatarImg.hasAttribute('data-error-handler')) {
+                userAvatarImg.setAttribute('data-error-handler', 'true');
+                
+                // Configurar handler de erro para quando a imagem não existir
+                userAvatarImg.addEventListener('error', () => {
+                    console.warn('Avatar não encontrado:', avatarUrl);
+                    userAvatarImg.style.display = 'none';
+                    if (userAvatarPlaceholder) {
+                        userAvatarPlaceholder.style.display = 'flex';
+                        const userInitial = this.getUserInitial(user.nome || 'Usuário');
+                        userAvatarPlaceholder.textContent = userInitial;
+                    }
+                });
+            }
+            
             // Cache busting para garantir atualização imediata da imagem
             const cacheBust = localStorage.getItem('avatarUpdatedAt') || Date.now();
             const urlWithVersion = avatarUrl + (avatarUrl.includes('?') ? '&' : '?') + 'v=' + cacheBust;
