@@ -12,6 +12,7 @@ public interface MensagemRepository extends JpaRepository<Mensagem, Long> {
 
     @Query("SELECT m FROM Mensagem m WHERE (m.remetente = :a AND m.destinatario = :b) OR (m.remetente = :b AND m.destinatario = :a) ORDER BY m.criadoEm ASC")
     List<Mensagem> conversaEntre(@Param("a") Usuario a, @Param("b") Usuario b);
+    @Query("SELECT DISTINCT CASE WHEN m.remetente = :u THEN m.destinatario ELSE m.remetente END " +
+           "FROM Mensagem m WHERE m.remetente = :u OR m.destinatario = :u")
+    List<Usuario> findContacts(@Param("u") Usuario u);
 }
-
-
