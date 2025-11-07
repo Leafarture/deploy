@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./index.css">
     <link rel="stylesheet" href="./header-styles.css">
+    <link rel="stylesheet" href="./chat.css">
     <style>
         .my-donations-header {
             background: rgba(255, 255, 255, 0.95);
@@ -289,7 +290,272 @@
         body {
             padding-top: 80px;
         }
+
+        /* Estilos para o chat widget flutuante */
+        .chat-widget-container {
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            z-index: 9999 !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            pointer-events: auto !important;
+        }
+
+        .chat-widget-button {
+            width: 60px !important;
+            height: 60px !important;
+            min-width: 60px !important;
+            min-height: 60px !important;
+            border-radius: 50% !important;
+            background: linear-gradient(135deg, #2196F3 0%, #ea1d2c 100%) !important;
+            background-color: #2196F3 !important;
+            border: none !important;
+            color: white !important;
+            font-size: 1.5rem !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4) !important;
+            transition: all 0.3s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            position: relative !important;
+            z-index: 10000 !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        .chat-widget-button i {
+            color: white !important;
+            font-size: 1.5rem !important;
+        }
+
+        .chat-widget-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(33, 150, 243, 0.6);
+        }
+
+        .chat-widget-button:active {
+            transform: scale(0.95);
+        }
+
+        .chat-widget-button i {
+            transition: transform 0.3s ease;
+        }
+
+        .chat-widget-panel.active ~ .chat-widget-button i {
+            transform: rotate(180deg);
+        }
+
+        .chat-widget-button .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+
+        .chat-widget-panel {
+            position: absolute !important;
+            bottom: 80px !important;
+            right: 0 !important;
+            width: 380px !important;
+            height: 600px !important;
+            background: white !important;
+            border-radius: 20px !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
+            display: none !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+            animation: slideUp 0.3s ease !important;
+            border: 1px solid rgba(33, 150, 243, 0.1) !important;
+            z-index: 9998 !important;
+        }
+        
+        .chat-widget-panel.active {
+            display: flex !important;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Adaptar o chat para widget */
+        .chat-widget-panel .app-container {
+            height: 100% !important;
+            max-width: 100% !important;
+            margin: 0;
+            box-shadow: none;
+            display: flex !important;
+            flex-direction: row !important;
+        }
+
+        .chat-widget-panel .sidebar {
+            width: 100% !important;
+            height: 100% !important;
+            position: relative !important;
+            transform: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        .chat-widget-panel .sidebar.hidden {
+            display: none !important;
+        }
+
+        .chat-widget-panel .chat-area {
+            width: 100% !important;
+            height: 100% !important;
+            display: none !important;
+            flex-direction: column !important;
+        }
+        
+        .chat-widget-panel .chat-area.active {
+            display: flex !important;
+        }
+
+        .chat-widget-panel .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        /* Ajustar tamanhos para widget */
+        .chat-widget-panel .sidebar-header h1 {
+            font-size: 1.2rem;
+        }
+
+        .chat-widget-panel .chat-header {
+            padding: 0.75rem;
+        }
+
+        .chat-widget-panel .contact-info h2 {
+            font-size: 1rem;
+        }
+
+        .chat-widget-panel .message {
+            max-width: 80%;
+            font-size: 0.9rem;
+        }
+
+        .chat-widget-panel .chat-input-container {
+            padding: 0.75rem;
+        }
+
+        /* Esconder elementos desnecessários no widget */
+        .chat-widget-panel .chat-action-btn:not(#chatMinimizeBtn):not(#chatCloseBtn) {
+            display: none;
+        }
+
+        /* Melhorar visualização no widget */
+        .chat-widget-panel .connection-status {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.7rem;
+            padding: 6px 10px;
+        }
+
+        /* Garantir que o chat não interfira no body da página */
+        body {
+            height: auto !important;
+            overflow: visible !important;
+        }
+        
+        /* Sobrescrever estilos do chat.css que podem esconder elementos */
+        html, body {
+            overflow-x: visible !important;
+            overflow-y: auto !important;
+        }
+
+        /* Sobrescrever estilos do chat.css que podem interferir */
+        .chat-widget-panel * {
+            box-sizing: border-box;
+        }
+
+        .chat-widget-panel .app-container {
+            height: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        /* Garantir que o body do chat.css não afete a página */
+        body .chat-widget-container {
+            display: block !important;
+        }
+
+        /* Responsividade para mobile */
+        @media (max-width: 768px) {
+            .chat-widget-panel {
+                width: calc(100vw - 40px);
+                height: calc(100vh - 120px);
+                bottom: 80px;
+                right: 20px;
+                left: 20px;
+            }
+
+            .chat-widget-button {
+                width: 56px;
+                height: 56px;
+                font-size: 1.3rem;
+            }
+
+            .chat-widget-panel .sidebar {
+                width: 100%;
+            }
+        }
+
+        /* Animações suaves */
+        .chat-widget-panel {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Melhorar scrollbar no widget */
+        .chat-widget-panel .chats-list::-webkit-scrollbar,
+        .chat-widget-panel .messages-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-widget-panel .chats-list::-webkit-scrollbar-thumb,
+        .chat-widget-panel .messages-container::-webkit-scrollbar-thumb {
+            background: rgba(33, 150, 243, 0.3);
+            border-radius: 2px;
+        }
     </style>
+    <script>
+        // Forçar exibição do chat widget imediatamente
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const chatContainer = document.querySelector('.chat-widget-container');
+                const chatButton = document.getElementById('chatWidgetToggle');
+                
+                if (chatContainer) {
+                    chatContainer.style.cssText = 'position: fixed !important; bottom: 20px !important; right: 20px !important; z-index: 99999 !important; display: block !important; visibility: visible !important; pointer-events: auto !important;';
+                }
+                
+                if (chatButton) {
+                    chatButton.style.cssText = 'width: 60px !important; height: 60px !important; display: flex !important; visibility: visible !important; opacity: 1 !important; background: linear-gradient(135deg, #2196F3 0%, #ea1d2c 100%) !important; border-radius: 50% !important; border: none !important; color: white !important; cursor: pointer !important; box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4) !important; align-items: center !important; justify-content: center !important; position: relative !important;';
+                    console.log('Chat button forçado a aparecer');
+                }
+            }, 100);
+        });
+    </script>
 </head>
 <body>
 <!-- Header -->
@@ -397,8 +663,549 @@
         </main>
     </div>
 
+    <!-- Chat Widget Flutuante -->
+    <div class="chat-widget-container" id="chatWidgetContainer" style="position: fixed !important; bottom: 20px !important; right: 20px !important; z-index: 99999 !important; display: block !important; visibility: visible !important; pointer-events: auto !important; width: 60px !important; height: 60px !important;">
+        <button class="chat-widget-button" id="chatWidgetToggle" aria-label="Abrir chat" style="width: 60px !important; height: 60px !important; min-width: 60px !important; min-height: 60px !important; display: flex !important; visibility: visible !important; opacity: 1 !important; background: linear-gradient(135deg, #2196F3 0%, #ea1d2c 100%) !important; background-color: #2196F3 !important; border-radius: 50% !important; border: 3px solid white !important; color: white !important; cursor: pointer !important; box-shadow: 0 4px 20px rgba(33, 150, 243, 0.6) !important; align-items: center !important; justify-content: center !important; position: relative !important; margin: 0 !important; padding: 0 !important;">
+            <i class="fas fa-comments" style="color: white !important; font-size: 1.5rem !important; display: block !important;"></i>
+            <span class="notification-badge" id="chatNotificationBadge" style="display: none; position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; border: 2px solid white;">0</span>
+        </button>
+        
+        <div class="chat-widget-panel" id="chatWidgetPanel">
+            <div class="app-container">
+                <!-- Sidebar com lista de conversas -->
+                <div class="sidebar" id="sidebar">
+                    <div class="sidebar-header">
+                        <h1>Prato Justo</h1>
+                        <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
+                    <div class="search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Buscar conversas..." aria-label="Buscar conversas">
+                        </div>
+                    </div>
+                    <div class="chats-list" id="chatsList">
+                        <!-- Lista de conversas será preenchida via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Área principal do chat -->
+                <div class="chat-area">
+                    <div class="chat-header">
+                        <div class="chat-contact">
+                            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <div class="contact-avatar" id="contactAvatar">RJ</div>
+                            <div class="contact-info">
+                                <h2 id="contactName">Restaurante Jardim</h2>
+                                <div class="contact-status" id="contactStatus">
+                                    <span class="status-online">online</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-actions">
+                            <button class="chat-action-btn" id="chatMinimizeBtn" aria-label="Minimizar chat">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button class="chat-action-btn" id="chatCloseBtn" aria-label="Fechar chat">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="messages-container" id="messagesContainer">
+                        <!-- Mensagens serão preenchidas via JavaScript -->
+
+                        <div class="typing-indicator" id="typingIndicator">
+                            <div class="typing-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-container">
+                        <button class="emoji-btn" id="emojiBtn" aria-label="Abrir emojis">
+                            <i class="far fa-smile"></i>
+                        </button>
+                        <textarea class="message-input" id="messageInput" placeholder="Digite sua mensagem..." rows="1"
+                            aria-label="Campo de mensagem"></textarea>
+                        <button class="send-btn" id="sendBtn" aria-label="Enviar mensagem">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="connection-status online" id="connectionStatus" style="display: none;">
+        <i class="fas fa-wifi"></i>
+        <span>Conectado</span>
+    </div>
+
     <script src="auth.js"></script>
     <script src="headerUser.js"></script>
     <script src="minhas-doacoes.js"></script>
+    <script src="chat.js"></script>
+    <script>
+        // Integração do chat widget com a página
+        let chatInitialized = false;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatToggle = document.getElementById('chatWidgetToggle');
+            const chatPanel = document.getElementById('chatWidgetPanel');
+            const chatCloseBtn = document.getElementById('chatCloseBtn');
+            const chatMinimizeBtn = document.getElementById('chatMinimizeBtn');
+            const notificationBadge = document.getElementById('chatNotificationBadge');
+            const chatContainer = document.querySelector('.chat-widget-container');
+            
+            // Garantir que o botão esteja visível
+            if (chatToggle) {
+                chatToggle.style.display = 'flex';
+                chatToggle.style.visibility = 'visible';
+                chatToggle.style.opacity = '1';
+                console.log('Chat widget button encontrado e visível');
+            } else {
+                console.error('Chat widget button não encontrado!');
+            }
+            
+            if (chatContainer) {
+                chatContainer.style.display = 'block';
+                chatContainer.style.visibility = 'visible';
+                console.log('Chat widget container encontrado');
+            }
+
+            // Garantir visibilidade após um pequeno delay (caso algum script esconda)
+            setTimeout(() => {
+                if (chatToggle) {
+                    chatToggle.style.display = 'flex';
+                    chatToggle.style.visibility = 'visible';
+                    chatToggle.style.opacity = '1';
+                }
+                if (chatContainer) {
+                    chatContainer.style.display = 'block';
+                    chatContainer.style.visibility = 'visible';
+                }
+            }, 500);
+            
+            // Verificar periodicamente se o botão está visível
+            setInterval(() => {
+                const btn = document.getElementById('chatWidgetToggle');
+                const container = document.querySelector('.chat-widget-container');
+                
+                if (btn && (btn.style.display === 'none' || btn.style.visibility === 'hidden' || btn.style.opacity === '0')) {
+                    btn.style.display = 'flex';
+                    btn.style.visibility = 'visible';
+                    btn.style.opacity = '1';
+                    console.log('Botão de chat foi reativado');
+                }
+                
+                if (container && (container.style.display === 'none' || container.style.visibility === 'hidden')) {
+                    container.style.display = 'block';
+                    container.style.visibility = 'visible';
+                }
+            }, 2000);
+
+            // Toggle do chat
+            if (chatToggle) {
+                chatToggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    chatPanel.classList.toggle('active');
+                
+                // Garantir que sidebar apareça e chat-area fique escondida
+                const sidebar = document.getElementById('sidebar');
+                const chatArea = document.querySelector('.chat-area');
+                if (sidebar) {
+                    sidebar.classList.remove('hidden');
+                }
+                if (chatArea) {
+                    chatArea.classList.remove('active');
+                }
+                
+                if (chatPanel.classList.contains('active') && !chatInitialized) {
+                    // Aguardar um pouco para garantir que o DOM está pronto
+                    setTimeout(() => {
+                        // Inicializar chat quando aberto pela primeira vez
+                        try {
+                            // Verificar se os elementos DOM existem
+                            const sidebar = document.getElementById('sidebar');
+                            const chatsList = document.getElementById('chatsList');
+                            const messagesContainer = document.getElementById('messagesContainer');
+                            const messageInput = document.getElementById('messageInput');
+                            const sendBtn = document.getElementById('sendBtn');
+                            
+                            if (!sidebar || !chatsList || !messagesContainer || !messageInput || !sendBtn) {
+                                console.error('Elementos do chat não encontrados!');
+                                return;
+                            }
+                            
+                            // Garantir que sidebar esteja visível
+                            sidebar.classList.remove('hidden');
+                            const chatArea = document.querySelector('.chat-area');
+                            if (chatArea) chatArea.classList.remove('active');
+                            
+                            // Inicializar chat se a função existir
+                            if (typeof initializeApp === 'function') {
+                                initializeApp();
+                                chatInitialized = true;
+                                console.log('Chat inicializado com sucesso!');
+                            } else {
+                                // Tentar inicializar manualmente se a função não existir
+                                console.log('Função initializeApp não encontrada, inicializando manualmente...');
+                                initializeChatManually();
+                                chatInitialized = true;
+                            }
+                        } catch (error) {
+                            console.error('Erro ao inicializar chat:', error);
+                            // Tentar inicializar manualmente mesmo com erro
+                            try {
+                                initializeChatManually();
+                                chatInitialized = true;
+                            } catch (e) {
+                                console.error('Erro ao inicializar chat manualmente:', e);
+                            }
+                        }
+                    }, 200);
+                }
+                });
+            }
+
+            // Fechar chat
+            if (chatCloseBtn) {
+                chatCloseBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    chatPanel.classList.remove('active');
+                });
+            }
+
+            // Minimizar chat
+            if (chatMinimizeBtn) {
+                chatMinimizeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    chatPanel.classList.remove('active');
+                });
+            }
+            
+            // Botão de voltar na sidebar (menu toggle)
+            const menuToggle = document.getElementById('menuToggle');
+            if (menuToggle) {
+                menuToggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const sidebar = document.getElementById('sidebar');
+                    const chatArea = document.querySelector('.chat-area');
+                    if (sidebar) sidebar.classList.remove('hidden');
+                    if (chatArea) chatArea.classList.remove('active');
+                });
+            }
+
+            // Prevenir fechamento ao clicar dentro do chat
+            chatPanel.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            // Atualizar badge de notificações
+            function updateNotificationBadge(count) {
+                if (count > 0) {
+                    notificationBadge.textContent = count > 9 ? '9+' : count;
+                    notificationBadge.style.display = 'flex';
+                    // Animação de pulso
+                    notificationBadge.style.animation = 'pulse 1s ease-in-out';
+                } else {
+                    notificationBadge.style.display = 'none';
+                }
+            }
+
+            // Expor função para atualizar notificações
+            window.updateChatNotification = updateNotificationBadge;
+
+            // Função para inicializar o chat manualmente se necessário
+            function initializeChatManually() {
+                console.log('Inicializando chat manualmente...');
+                
+                // Verificar se o state existe
+                if (typeof state === 'undefined') {
+                    console.error('State do chat não encontrado!');
+                    return;
+                }
+                
+                // Verificar se os elementos existem
+                const elements = {
+                    sidebar: document.getElementById('sidebar'),
+                    chatsList: document.getElementById('chatsList'),
+                    messagesContainer: document.getElementById('messagesContainer'),
+                    messageInput: document.getElementById('messageInput'),
+                    sendBtn: document.getElementById('sendBtn'),
+                    emojiBtn: document.getElementById('emojiBtn'),
+                    contactName: document.getElementById('contactName'),
+                    contactAvatar: document.getElementById('contactAvatar'),
+                    contactStatus: document.getElementById('contactStatus'),
+                    typingIndicator: document.getElementById('typingIndicator'),
+                    connectionStatus: document.getElementById('connectionStatus'),
+                    themeToggle: document.getElementById('themeToggle'),
+                    menuToggle: document.getElementById('menuToggle')
+                };
+                
+                // Inicializar state se não existir
+                if (typeof state === 'undefined') {
+                    window.state = {
+                        currentChatId: null,
+                        messages: [],
+                        chats: [],
+                        isTyping: false,
+                        isOnline: true,
+                        theme: 'light',
+                        wsConnection: null,
+                        currentUser: null
+                    };
+                }
+                
+                // Carregar conversas
+                if (typeof apiClient !== 'undefined' && apiClient.fetchChats) {
+                    apiClient.fetchChats().then(chats => {
+                        if (typeof state !== 'undefined') {
+                            state.chats = chats;
+                            renderChatList();
+                        }
+                    }).catch(err => {
+                        console.error('Erro ao carregar conversas:', err);
+                        // Usar dados mockados
+                        const mockChats = [
+                            {
+                                id: 1,
+                                name: "Restaurante Jardim",
+                                avatar: "RJ",
+                                lastMessage: "Temos pães e legumes disponíveis hoje",
+                                timestamp: new Date().toISOString(),
+                                unread: 0,
+                                type: "restaurant",
+                                online: true
+                            },
+                            {
+                                id: 2,
+                                name: "ONG Comida Para Todos",
+                                avatar: "CT",
+                                lastMessage: "Precisamos de voluntários para sábado",
+                                timestamp: new Date(Date.now() - 86400000).toISOString(),
+                                unread: 2,
+                                type: "ong",
+                                online: false
+                            },
+                            {
+                                id: 3,
+                                name: "Mercado Saúde",
+                                avatar: "MS",
+                                lastMessage: "As frutas chegaram, venham buscar!",
+                                timestamp: new Date(Date.now() - 172800000).toISOString(),
+                                unread: 0,
+                                type: "market",
+                                online: true
+                            }
+                        ];
+                        if (typeof state !== 'undefined') {
+                            state.chats = mockChats;
+                            renderChatList();
+                        }
+                    });
+                } else {
+                    // Usar dados mockados diretamente
+                    const mockChats = [
+                        {
+                            id: 1,
+                            name: "Restaurante Jardim",
+                            avatar: "RJ",
+                            lastMessage: "Temos pães e legumes disponíveis hoje",
+                            timestamp: new Date().toISOString(),
+                            unread: 0,
+                            type: "restaurant",
+                            online: true
+                        },
+                        {
+                            id: 2,
+                            name: "ONG Comida Para Todos",
+                            avatar: "CT",
+                            lastMessage: "Precisamos de voluntários para sábado",
+                            timestamp: new Date(Date.now() - 86400000).toISOString(),
+                            unread: 2,
+                            type: "ong",
+                            online: false
+                        }
+                    ];
+                    if (typeof state !== 'undefined') {
+                        state.chats = mockChats;
+                        renderChatList();
+                    }
+                }
+                
+                // Configurar event listeners básicos
+                if (elements.sendBtn && elements.messageInput) {
+                    elements.sendBtn.addEventListener('click', sendMessage);
+                    elements.messageInput.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage();
+                        }
+                    });
+                }
+                
+                // Função para renderizar lista de chats
+                function renderChatList() {
+                    const chatsList = document.getElementById('chatsList');
+                    if (!chatsList || typeof state === 'undefined' || !state.chats) return;
+                    
+                    chatsList.innerHTML = '';
+                    
+                    if (state.chats.length === 0) {
+                        chatsList.innerHTML = `
+                            <div class="empty-state" style="padding: 2rem; text-align: center; color: #999;">
+                                <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                <p>Nenhuma conversa encontrada</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    state.chats.forEach(chat => {
+                        const chatElement = document.createElement('div');
+                        chatElement.className = `chat-item ${chat.id === state.currentChatId ? 'active' : ''}`;
+                        chatElement.innerHTML = `
+                            <div class="chat-avatar">${chat.avatar || chat.name.charAt(0)}</div>
+                            <div class="chat-info">
+                                <div class="chat-info-header">
+                                    <div class="chat-name">${chat.name}</div>
+                                    <div class="chat-time">${new Date(chat.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
+                                </div>
+                                <div class="chat-preview">${chat.lastMessage || ''}</div>
+                            </div>
+                        `;
+                        chatElement.addEventListener('click', () => {
+                            // Atualizar chat ativo
+                            document.querySelectorAll('.chat-item').forEach(item => {
+                                item.classList.remove('active');
+                            });
+                            chatElement.classList.add('active');
+                            
+                            if (typeof state !== 'undefined') {
+                                state.currentChatId = chat.id;
+                            }
+                            
+                            // Mostrar área de chat e esconder sidebar
+                            const sidebar = document.getElementById('sidebar');
+                            const chatArea = document.querySelector('.chat-area');
+                            if (sidebar) sidebar.classList.add('hidden');
+                            if (chatArea) chatArea.classList.add('active');
+                            
+                            // Atualizar header do chat
+                            const contactName = document.getElementById('contactName');
+                            const contactAvatar = document.getElementById('contactAvatar');
+                            if (contactName) contactName.textContent = chat.name;
+                            if (contactAvatar) contactAvatar.textContent = chat.avatar || chat.name.charAt(0);
+                            
+                            // Limpar mensagens e mostrar área de chat
+                            const messagesContainer = document.getElementById('messagesContainer');
+                            if (messagesContainer) {
+                                messagesContainer.innerHTML = `
+                                    <div class="typing-indicator" id="typingIndicator">
+                                        <div class="typing-dots">
+                                            <span></span>
+                                            <span></span>
+                                            <span></span>
+                                        </div>
+                                    </div>
+                                `;
+                                
+                                // Adicionar mensagem de boas-vindas
+                                const welcomeMsg = document.createElement('div');
+                                welcomeMsg.className = 'message received';
+                                welcomeMsg.innerHTML = `
+                                    <div class="message-text">Olá! Como posso ajudar?</div>
+                                    <div class="message-time">${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
+                                `;
+                                messagesContainer.insertBefore(welcomeMsg, document.getElementById('typingIndicator'));
+                            }
+                            
+                            // Carregar histórico se a função existir
+                            if (typeof loadChat === 'function') {
+                                loadChat(chat.id);
+                            }
+                        });
+                        chatsList.appendChild(chatElement);
+                    });
+                }
+                
+                // Função para enviar mensagem
+                function sendMessage() {
+                    const messageInput = document.getElementById('messageInput');
+                    const messagesContainer = document.getElementById('messagesContainer');
+                    
+                    if (!messageInput || !messagesContainer) return;
+                    
+                    const text = messageInput.value.trim();
+                    if (!text) return;
+                    
+                    // Limpar input
+                    messageInput.value = '';
+                    
+                    // Adicionar mensagem à interface
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message sent';
+                    messageElement.innerHTML = `
+                        <div class="message-text">${text}</div>
+                        <div class="message-time">${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
+                    `;
+                    messagesContainer.insertBefore(messageElement, document.getElementById('typingIndicator'));
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    
+                    // Simular resposta automática após 2 segundos
+                    setTimeout(() => {
+                        const replyElement = document.createElement('div');
+                        replyElement.className = 'message received';
+                        const replies = [
+                            "Olá! Recebemos sua mensagem 😊",
+                            "Obrigado pelo contato!",
+                            "Em breve retornaremos."
+                        ];
+                        const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                        replyElement.innerHTML = `
+                            <div class="message-text">${randomReply}</div>
+                            <div class="message-time">${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
+                        `;
+                        messagesContainer.insertBefore(replyElement, document.getElementById('typingIndicator'));
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }, 2000);
+                }
+            }
+
+            // Adicionar animação de pulso
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes pulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.2); }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Atualizar notificações quando houver novas mensagens
+            // Isso pode ser conectado ao sistema de chat quando houver novas mensagens
+            if (typeof state !== 'undefined' && state.chats) {
+                const updateBadgeFromChats = () => {
+                    const unreadCount = state.chats.reduce((sum, chat) => sum + (chat.unread || 0), 0);
+                    updateNotificationBadge(unreadCount);
+                };
+                
+                // Observar mudanças no estado do chat (se disponível)
+                setInterval(() => {
+                    if (typeof state !== 'undefined' && state.chats) {
+                        updateBadgeFromChats();
+                    }
+                }, 2000);
+            }
+        });
+    </script>
 </body>
 </html>

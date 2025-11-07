@@ -376,9 +376,23 @@ const elements = {
 	menuToggle: document.getElementById('menuToggle')
 };
 
-// Inicialização
+// Inicialização - apenas se os elementos existirem
 document.addEventListener('DOMContentLoaded', async () => {
-	await initializeApp();
+	// Verificar se os elementos do chat existem antes de inicializar
+	const sidebar = document.getElementById('sidebar');
+	const chatsList = document.getElementById('chatsList');
+	
+	// Só inicializar automaticamente se os elementos estiverem disponíveis
+	// Caso contrário, deixar para inicialização manual
+	if (sidebar && chatsList) {
+		try {
+			await initializeApp();
+		} catch (error) {
+			console.log('[Chat] Inicialização automática falhou, aguardando inicialização manual:', error);
+		}
+	} else {
+		console.log('[Chat] Elementos não encontrados, aguardando inicialização manual');
+	}
 });
 
 async function initializeApp() {
