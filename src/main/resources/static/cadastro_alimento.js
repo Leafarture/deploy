@@ -336,15 +336,65 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para carregar dados da doação para edição
     async function loadDonationForEdit(donationId) {
         try {
+            // Verificar se o usuário está autenticado
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('Você precisa estar logado para editar uma doação.', 'error', 5000);
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+
+            // Obter dados do usuário logado
+            let currentUser = null;
+            if (window.authManager && window.authManager.isAuthenticated()) {
+                currentUser = window.authManager.getCurrentUser();
+            } else {
+                // Tentar buscar do localStorage
+                const userData = localStorage.getItem('user');
+                if (userData) {
+                    currentUser = JSON.parse(userData);
+                }
+            }
+
+            if (!currentUser || !currentUser.id) {
+                showNotification('Erro ao verificar autenticação. Faça login novamente.', 'error', 5000);
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+
             showNotification('Carregando dados da doação...', 'info', 2000);
             
             const response = await fetch(`/doacoes/${donationId}`);
             
             if (!response.ok) {
-                throw new Error('Erro ao carregar dados da doação');
+                if (response.status === 404) {
+                    showNotification('Doação não encontrada.', 'error', 5000);
+                    setTimeout(() => {
+                        window.location.href = 'minhas-doacoes.html';
+                    }, 2000);
+                } else {
+                    throw new Error('Erro ao carregar dados da doação');
+                }
+                return;
             }
             
             const donation = await response.json();
+
+            // Verificar se o usuário logado é o dono da doação
+            // O doador pode vir como objeto ou apenas com ID
+            const doadorId = donation.doador ? (donation.doador.id || donation.doador) : null;
+            
+            if (!doadorId || doadorId !== currentUser.id) {
+                showNotification('Você não tem permissão para editar esta doação. Apenas o criador pode editá-la.', 'error', 5000);
+                setTimeout(() => {
+                    window.location.href = 'minhas-doacoes.html';
+                }, 3000);
+                return;
+            }
             
             // Preencher campos do formulário
             if (document.getElementById('foodName')) document.getElementById('foodName').value = donation.titulo || '';

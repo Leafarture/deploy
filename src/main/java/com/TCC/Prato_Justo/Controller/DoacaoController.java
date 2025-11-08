@@ -128,8 +128,80 @@ public class DoacaoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Doacao> atualizar(@PathVariable Long id, @RequestBody Doacao dto) {
-        return ResponseEntity.ok(doacaoService.atualizar(id, dto));
+    public ResponseEntity<?> atualizar(@PathVariable Long id, 
+                                      @RequestBody Doacao dto,
+                                      @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            // Verificar se o token foi fornecido
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Token não fornecido. É necessário estar autenticado para editar uma doação.");
+            }
+
+            String token = authHeader.substring(7);
+            if (!authService.isTokenValid(token)) {
+                return ResponseEntity.status(401).body("Token inválido ou expirado.");
+            }
+
+            Usuario usuario = authService.getCurrentUser(token);
+            if (usuario == null) {
+                return ResponseEntity.status(404).body("Usuário não encontrado.");
+            }
+
+            // Verificar se a doação existe
+            Optional<Doacao> doacaoOptional = doacaoService.obter(id);
+            if (doacaoOptional.isEmpty()) {
+                return ResponseEntity.status(404).body("Doação não encontrada.");
+            }
+
+            Doacao doacao = doacaoOptional.get();
+
+            // Verificar se o usuário logado é o dono da doação
+            if (doacao.getDoador() == null || !doacao.getDoador().getId().equals(usuario.getId())) {
+                return ResponseEntity.status(403).body("Você não tem permissão para editar esta doação. Apenas o criador pode editá-la.");
+            }
+
+            // Validar campos obrigatórios
+            if (dto.getTitulo() == null || dto.getTitulo().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Título é obrigatório");
+            }
+            if (dto.getCidade() == null || dto.getCidade().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Cidade é obrigatória");
+            }
+            if (dto.getEndereco() == null || dto.getEndereco().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Endereço é obrigatório");
+            }
+
+            // Validar datas
+            LocalDate hoje = LocalDate.now();
+            
+            if (dto.getDataValidade() != null) {
+                if (!dto.getDataValidade().isAfter(hoje)) {
+                    return ResponseEntity.badRequest().body("A data de validade deve ser posterior a hoje");
+                }
+            }
+            
+            if (dto.getDataColeta() != null) {
+                if (dto.getDataColeta().isBefore(hoje)) {
+                    return ResponseEntity.badRequest().body("A data de coleta não pode ser anterior a hoje");
+                }
+            }
+            
+            if (dto.getDataValidade() != null && dto.getDataColeta() != null) {
+                if (!dto.getDataValidade().isAfter(dto.getDataColeta())) {
+                    return ResponseEntity.badRequest().body("A data de validade deve ser posterior à data de coleta");
+                }
+            }
+
+            // Atualizar a doação
+            Doacao atualizada = doacaoService.atualizar(id, dto);
+            return ResponseEntity.ok(atualizada);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Erro ao atualizar doação: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")

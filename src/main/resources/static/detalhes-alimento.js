@@ -221,49 +221,62 @@ function displayLocation(doacao) {
  * ===== EXIBIR INFORMAÇÕES DO DOADOR =====
  */
 function displayDonorInfo(doacao) {
-    const donorAvatar = document.getElementById('donor-avatar');
+    const donorAvatarImg = document.getElementById('donor-avatar-img');
+    const donorAvatarPlaceholder = document.getElementById('donor-avatar-placeholder');
     const donorName = document.getElementById('donor-name');
     const donorType = document.getElementById('donor-type');
     
     let nome = 'Doador Anônimo';
     let tipo = 'Pessoa física';
-    let avatarContent = '<i class="fas fa-user"></i>';
+    let avatarUrl = null;
     
     if (doacao.doador) {
         nome = doacao.doador.nome || 'Doador';
         tipo = getTipoUsuarioLabel(doacao.doador.tipoUsuario);
-        
-        // Se houver imagem do doador
-        if (doacao.doador.avatar) {
-            avatarContent = `<img src="${doacao.doador.avatar}" alt="${nome}" class="donor-avatar-img">`;
-        } else {
-            // Usar inicial do nome
-            const inicial = nome.charAt(0).toUpperCase();
-            avatarContent = inicial;
-        }
+        // Usar avatarUrl (padrão do sistema) ou avatar (fallback)
+        avatarUrl = doacao.doador.avatarUrl || doacao.doador.avatar || null;
     } else if (doacao.estabelecimento) {
         nome = doacao.estabelecimento.nome || 'Estabelecimento';
         tipo = 'Estabelecimento';
-        
-        if (doacao.estabelecimento.logo) {
-            avatarContent = `<img src="${doacao.estabelecimento.logo}" alt="${nome}" class="donor-avatar-img">`;
-        } else {
-            const inicial = nome.charAt(0).toUpperCase();
-            avatarContent = inicial;
+        avatarUrl = doacao.estabelecimento.logo || null;
+    }
+    
+    // Obter inicial do nome para placeholder
+    const inicial = nome.charAt(0).toUpperCase();
+    
+    // Configurar avatar (mesma lógica do sistema de perfil)
+    if (avatarUrl && donorAvatarImg && donorAvatarPlaceholder) {
+        // Configurar handler de erro se ainda não foi configurado
+        if (!donorAvatarImg.hasAttribute('data-error-handler')) {
+            donorAvatarImg.setAttribute('data-error-handler', 'true');
+            donorAvatarImg.addEventListener('error', () => {
+                console.warn('Avatar do doador não encontrado:', avatarUrl);
+                if (donorAvatarImg) donorAvatarImg.style.display = 'none';
+                if (donorAvatarPlaceholder) {
+                    donorAvatarPlaceholder.style.display = 'flex';
+                    donorAvatarPlaceholder.textContent = inicial;
+                    donorAvatarPlaceholder.querySelector('i')?.remove();
+                }
+            });
         }
+        
+        // Adicionar cache-busting para garantir que a imagem atualize
+        const updatedAt = localStorage.getItem('avatarUpdatedAt');
+        const urlWithVersion = avatarUrl + (avatarUrl.includes('?') ? '&' : '?') + 'v=' + (updatedAt || Date.now());
+        donorAvatarImg.src = urlWithVersion;
+        donorAvatarImg.alt = nome;
+        donorAvatarImg.style.display = 'block';
+        donorAvatarPlaceholder.style.display = 'none';
+    } else if (donorAvatarImg && donorAvatarPlaceholder) {
+        // Sem avatar, mostrar inicial
+        donorAvatarImg.style.display = 'none';
+        donorAvatarPlaceholder.style.display = 'flex';
+        // Remover ícone e adicionar inicial
+        const icon = donorAvatarPlaceholder.querySelector('i');
+        if (icon) icon.remove();
+        donorAvatarPlaceholder.textContent = inicial;
     }
     
-    donorAvatar.innerHTML = avatarContent;
-    
-    // Adicionar tratamento de erro para imagens de avatar
-    const avatarImg = donorAvatar.querySelector('.donor-avatar-img');
-    if (avatarImg) {
-        avatarImg.addEventListener('error', () => {
-            console.warn('Avatar do doador não encontrado:', avatarImg.src);
-            const inicial = nome.charAt(0).toUpperCase();
-            donorAvatar.innerHTML = inicial;
-        });
-    }
     donorName.textContent = nome;
     donorType.textContent = tipo;
 }

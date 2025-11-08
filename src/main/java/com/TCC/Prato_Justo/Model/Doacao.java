@@ -1,5 +1,6 @@
 package com.TCC.Prato_Justo.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,8 +14,9 @@ public class Doacao {
     @Column(name = "id_doacao")
     private Long id;
 
-    @ManyToOne(optional = true)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "id_doador")
+    @JsonIgnoreProperties({"senhaUsuario", "dataCadastro", "statusAtivo", "verificado"})
     private Usuario doador;
 
     @ManyToOne

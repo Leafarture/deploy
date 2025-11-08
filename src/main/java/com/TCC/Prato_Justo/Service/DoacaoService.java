@@ -49,7 +49,18 @@ public class DoacaoService {
             d.setEndereco(atualizada.getEndereco());
             d.setLatitude(atualizada.getLatitude());
             d.setLongitude(atualizada.getLongitude());
-            d.setAtivo(atualizada.getAtivo());
+            d.setDataValidade(atualizada.getDataValidade());
+            d.setDataColeta(atualizada.getDataColeta());
+            d.setCep(atualizada.getCep());
+            d.setRua(atualizada.getRua());
+            d.setNumero(atualizada.getNumero());
+            d.setEstado(atualizada.getEstado());
+            d.setComplemento(atualizada.getComplemento());
+            d.setUnidade(atualizada.getUnidade());
+            if (atualizada.getImagem() != null) {
+                d.setImagem(atualizada.getImagem());
+            }
+            d.setAtivo(atualizada.getAtivo() != null ? atualizada.getAtivo() : d.getAtivo());
             return doacaoRepository.save(d);
         }).orElseThrow(() -> new IllegalArgumentException("Doação não encontrada"));
     }
