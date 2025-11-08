@@ -1,5 +1,6 @@
 package com.TCC.Prato_Justo.Service;
 
+import com.TCC.Prato_Justo.Interface.DoacaoRepository;
 import com.TCC.Prato_Justo.Interface.SolicitacaoRepository;
 import com.TCC.Prato_Justo.Model.Doacao;
 import com.TCC.Prato_Justo.Model.Solicitacao;
@@ -14,9 +15,11 @@ import java.util.Optional;
 public class SolicitacaoService {
 
     private final SolicitacaoRepository solicitacaoRepository;
+    private final DoacaoRepository doacaoRepository;
 
-    public SolicitacaoService(SolicitacaoRepository solicitacaoRepository) {
+    public SolicitacaoService(SolicitacaoRepository solicitacaoRepository, DoacaoRepository doacaoRepository) {
         this.solicitacaoRepository = solicitacaoRepository;
+        this.doacaoRepository = doacaoRepository;
     }
 
     public Solicitacao criar(Doacao doacao, Usuario solicitante) {
@@ -62,6 +65,88 @@ public class SolicitacaoService {
             .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
         solicitacao.setStatus(StatusSolicitacao.CANCELADA);
         solicitacaoRepository.save(solicitacao);
+    }
+
+    public List<Solicitacao> listarPorDoacao(Long doacaoId) {
+        return solicitacaoRepository.findByDoacaoId(doacaoId);
+    }
+
+    public Solicitacao aceitar(Long solicitacaoId, Long doadorId) {
+        Solicitacao solicitacao = solicitacaoRepository.findById(solicitacaoId)
+            .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+        
+        // Verificar se o doador é o dono da doação
+        if (solicitacao.getDoacao().getDoador() == null || 
+            !solicitacao.getDoacao().getDoador().getId().equals(doadorId)) {
+            throw new IllegalArgumentException("Você não tem permissão para aceitar esta solicitação");
+        }
+        
+        // Verificar se a solicitação está no status correto
+        if (solicitacao.getStatus() != StatusSolicitacao.SOLICITADA) {
+            throw new IllegalArgumentException("Apenas solicitações pendentes podem ser aceitas");
+        }
+        
+        // Mudar status para EM_ANDAMENTO
+        solicitacao.setStatus(StatusSolicitacao.EM_ANDAMENTO);
+        
+        // Cancelar outras solicitações pendentes para a mesma doação
+        List<Solicitacao> outrasSolicitacoes = solicitacaoRepository.findByDoacaoId(solicitacao.getDoacao().getId());
+        outrasSolicitacoes.forEach(s -> {
+            if (!s.getId().equals(solicitacaoId) && s.getStatus() == StatusSolicitacao.SOLICITADA) {
+                s.setStatus(StatusSolicitacao.CANCELADA);
+                solicitacaoRepository.save(s);
+            }
+        });
+        
+        return solicitacaoRepository.save(solicitacao);
+    }
+
+    public Solicitacao recusar(Long solicitacaoId, Long doadorId) {
+        Solicitacao solicitacao = solicitacaoRepository.findById(solicitacaoId)
+            .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+        
+        // Verificar se o doador é o dono da doação
+        if (solicitacao.getDoacao().getDoador() == null || 
+            !solicitacao.getDoacao().getDoador().getId().equals(doadorId)) {
+            throw new IllegalArgumentException("Você não tem permissão para recusar esta solicitação");
+        }
+        
+        // Verificar se a solicitação está no status correto
+        if (solicitacao.getStatus() != StatusSolicitacao.SOLICITADA) {
+            throw new IllegalArgumentException("Apenas solicitações pendentes podem ser recusadas");
+        }
+        
+        solicitacao.setStatus(StatusSolicitacao.CANCELADA);
+        return solicitacaoRepository.save(solicitacao);
+    }
+
+    public Solicitacao marcarColetada(Long solicitacaoId, Long usuarioId) {
+        Solicitacao solicitacao = solicitacaoRepository.findById(solicitacaoId)
+            .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
+        
+        // Verificar se o usuário é o doador ou o solicitante
+        boolean isDoador = solicitacao.getDoacao().getDoador() != null && 
+                          solicitacao.getDoacao().getDoador().getId().equals(usuarioId);
+        boolean isSolicitante = solicitacao.getSolicitante().getId().equals(usuarioId);
+        
+        if (!isDoador && !isSolicitante) {
+            throw new IllegalArgumentException("Você não tem permissão para marcar esta solicitação como coletada");
+        }
+        
+        // Verificar se a solicitação está em andamento
+        if (solicitacao.getStatus() != StatusSolicitacao.EM_ANDAMENTO) {
+            throw new IllegalArgumentException("Apenas solicitações em andamento podem ser marcadas como coletadas");
+        }
+        
+        // Mudar status para CONCLUIDA
+        solicitacao.setStatus(StatusSolicitacao.CONCLUIDA);
+        
+        // Desativar a doação
+        Doacao doacao = solicitacao.getDoacao();
+        doacao.setAtivo(false);
+        doacaoRepository.save(doacao);
+        
+        return solicitacaoRepository.save(solicitacao);
     }
 }
 

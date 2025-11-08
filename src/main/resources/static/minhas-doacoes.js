@@ -2,6 +2,7 @@ class MinhasDoacoesApp {
     constructor() {
         this.currentUser = null;
         this.myDonations = [];
+        this.donationRequests = {}; // Map<doacaoId, solicitações>
         this.currentFilter = 'todas'; // todas, ativas, inativas, vencidas, urgentes
         this.init();
     }
@@ -10,9 +11,63 @@ class MinhasDoacoesApp {
         await this.checkAuth();
         if (this.currentUser) {
             this.setupEventListeners();
+            this.setupRealtimeListeners();
             await this.loadMyDonations();
             this.calculateStats();
         }
+    }
+
+    setupRealtimeListeners() {
+        // Escutar eventos de nova solicitação
+        if (typeof window.realtimeManager !== 'undefined') {
+            window.realtimeManager.on('novaSolicitacao', (data) => {
+                // Verificar se a solicitação é para uma das doações do usuário
+                if (data.doacao && data.doacao.doador && 
+                    data.doacao.doador.id === this.currentUser.id) {
+                    this.handleNewSolicitacao(data);
+                }
+            });
+
+            window.realtimeManager.on('solicitacaoAceita', (data) => {
+                this.handleSolicitacaoAceita(data);
+            });
+
+            window.realtimeManager.on('solicitacaoRecusada', (data) => {
+                this.handleSolicitacaoRecusada(data);
+            });
+        }
+
+        // Escutar eventos customizados
+        window.addEventListener('novaSolicitacao', (e) => {
+            if (e.detail && e.detail.doacao && e.detail.doacao.doador && 
+                e.detail.doacao.doador.id === this.currentUser.id) {
+                this.handleNewSolicitacao(e.detail);
+            }
+        });
+    }
+
+    handleNewSolicitacao(data) {
+        // Mostrar notificação
+        if (typeof showNotification === 'function') {
+            showNotification(
+                `Nova solicitação recebida para: ${data.doacao.titulo || 'sua doação'}`,
+                'info',
+                5000
+            );
+        }
+
+        // Recarregar doações para mostrar nova solicitação
+        this.loadMyDonations();
+    }
+
+    handleSolicitacaoAceita(data) {
+        // Atualizar interface se necessário
+        this.loadMyDonations();
+    }
+
+    handleSolicitacaoRecusada(data) {
+        // Atualizar interface se necessário
+        this.loadMyDonations();
     }
 
     async checkAuth() {
@@ -146,6 +201,8 @@ class MinhasDoacoesApp {
 
             if (response.ok) {
                 this.myDonations = await response.json();
+                // Carregar solicitações para cada doação
+                await this.loadRequestsForAllDonations();
                 this.renderMyDonations();
             } else if (response.status === 401) {
                 localStorage.removeItem('token');
@@ -159,6 +216,27 @@ class MinhasDoacoesApp {
             this.showError('Erro ao carregar suas doações. Tente novamente.');
         } finally {
             loading.style.display = 'none';
+        }
+    }
+
+    async loadRequestsForAllDonations() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        for (const donation of this.myDonations) {
+            try {
+                const response = await fetch(`/doacoes/${donation.id}/solicitacoes`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    this.donationRequests[donation.id] = await response.json();
+                }
+            } catch (error) {
+                console.error(`Erro ao carregar solicitações da doação ${donation.id}:`, error);
+                this.donationRequests[donation.id] = [];
+            }
         }
     }
 
@@ -248,6 +326,45 @@ class MinhasDoacoesApp {
             '<span class="status-badge active">Ativa</span>' : 
             '<span class="status-badge inactive">Inativa</span>';
 
+        // Carregar solicitações desta doação
+        const requests = this.donationRequests[donation.id] || [];
+        const pendingRequests = requests.filter(r => r.status === 'solicitada');
+        const inProgressRequests = requests.filter(r => r.status === 'em_andamento');
+        const completedRequests = requests.filter(r => r.status === 'concluida');
+
+        // Seção de solicitações
+        let requestsSection = '';
+        if (requests.length > 0) {
+            requestsSection = `
+                <div class="requests-section" style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <h4 style="margin: 0; color: #667eea; font-size: 1rem;">
+                            <i class="fas fa-users"></i> Solicitações (${requests.length})
+                        </h4>
+                    </div>
+                    ${pendingRequests.length > 0 ? `
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong style="color: #856404;">Pendentes: ${pendingRequests.length}</strong>
+                        </div>
+                    ` : ''}
+                    ${inProgressRequests.length > 0 ? `
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong style="color: #084298;">Em Andamento: ${inProgressRequests.length}</strong>
+                        </div>
+                    ` : ''}
+                    ${completedRequests.length > 0 ? `
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong style="color: #0f5132;">Concluídas: ${completedRequests.length}</strong>
+                        </div>
+                    ` : ''}
+                    <button class="btn-view-requests" onclick="event.stopPropagation(); viewRequests(${donation.id})" 
+                            style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
+                        <i class="fas fa-eye"></i> Ver Solicitações
+                    </button>
+                </div>
+            `;
+        }
+
         // Estrutura HTML do card (mesmo estilo de doacoes.js)
         card.innerHTML = `
             <!-- Imagem do Alimento -->
@@ -305,6 +422,7 @@ class MinhasDoacoesApp {
                         </div>
                     </div>
                 </div>
+                ${requestsSection}
             </div>
             
             <!-- Footer com Status e Ações -->
@@ -552,6 +670,302 @@ function showNotification(message, type = 'info', duration = 3000) {
         notification.style.animation = 'slideOutRight 0.3s ease';
         setTimeout(() => notification.remove(), 300);
     }, duration);
+}
+
+// Função para visualizar e gerenciar solicitações de uma doação
+async function viewRequests(donationId) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showNotification('Você precisa estar logado.', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/doacoes/${donationId}/solicitacoes`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao carregar solicitações');
+        }
+
+        const requests = await response.json();
+        showRequestsModal(donationId, requests);
+    } catch (error) {
+        console.error('Erro:', error);
+        showNotification('Erro ao carregar solicitações.', 'error');
+    }
+}
+
+// Modal para gerenciar solicitações
+function showRequestsModal(donationId, requests) {
+    const modal = document.createElement('div');
+    modal.className = 'requests-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 2rem;
+        overflow-y: auto;
+    `;
+
+    const statusLabels = {
+        'solicitada': { text: 'Pendente', class: 'status-solicitada', icon: 'fa-clock' },
+        'em_andamento': { text: 'Em Andamento', class: 'status-em-andamento', icon: 'fa-spinner' },
+        'concluida': { text: 'Concluída', class: 'status-concluida', icon: 'fa-check-circle' },
+        'cancelada': { text: 'Cancelada', class: 'status-cancelada', icon: 'fa-times-circle' }
+    };
+
+    let requestsHTML = '';
+    if (requests.length === 0) {
+        requestsHTML = '<p style="text-align: center; color: #64748b; padding: 2rem;">Nenhuma solicitação encontrada.</p>';
+    } else {
+        requestsHTML = requests.map(req => {
+            const statusInfo = statusLabels[req.status] || statusLabels['solicitada'];
+            const dataSolicitacao = req.dataSolicitacao 
+                ? new Date(req.dataSolicitacao).toLocaleDateString('pt-BR')
+                : 'Data não informada';
+
+            let actionsHTML = '';
+            if (req.status === 'solicitada') {
+                actionsHTML = `
+                    <button class="btn-accept" onclick="acceptRequest(${req.id}, ${donationId})" 
+                            style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; margin-right: 0.5rem;">
+                        <i class="fas fa-check"></i> Aceitar
+                    </button>
+                    <button class="btn-reject" onclick="rejectRequest(${req.id}, ${donationId})" 
+                            style="padding: 0.5rem 1rem; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        <i class="fas fa-times"></i> Recusar
+                    </button>
+                `;
+            } else if (req.status === 'em_andamento') {
+                actionsHTML = `
+                    <button class="btn-chat" onclick="openChat(${req.solicitante.id}, ${req.id})" 
+                            style="padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; margin-right: 0.5rem;">
+                        <i class="fas fa-comments"></i> Chat
+                    </button>
+                    <button class="btn-collect" onclick="markAsCollected(${req.id}, ${donationId})" 
+                            style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        <i class="fas fa-check-circle"></i> Marcar como Coletada
+                    </button>
+                `;
+            }
+
+            return `
+                <div class="request-item" style="background: white; padding: 1rem; border-radius: 10px; margin-bottom: 1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                        <div>
+                            <h4 style="margin: 0 0 0.25rem 0; color: #1e293b;">
+                                <i class="fas fa-user"></i> ${req.solicitante.nome || 'Usuário'}
+                            </h4>
+                            <p style="margin: 0; color: #64748b; font-size: 0.85rem;">
+                                <i class="fas fa-calendar"></i> Solicitado em: ${dataSolicitacao}
+                            </p>
+                        </div>
+                        <span class="request-status-badge ${statusInfo.class}" style="padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+                            <i class="fas ${statusInfo.icon}"></i> ${statusInfo.text}
+                        </span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        ${actionsHTML}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    modal.innerHTML = `
+        <div style="background: white; border-radius: 20px; padding: 2rem; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; color: #667eea;">
+                    <i class="fas fa-users"></i> Solicitações
+                </h2>
+                <button onclick="this.closest('.requests-modal').remove()" 
+                        style="background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 0.5rem;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="requests-list">
+                ${requestsHTML}
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Fechar ao clicar fora
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
+
+// Função para aceitar solicitação
+async function acceptRequest(requestId, donationId) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showNotification('Você precisa estar logado.', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/doacoes/solicitacoes/${requestId}/aceitar`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            showNotification('Solicitação aceita com sucesso!', 'success');
+            
+            // Fechar modal e recarregar
+            document.querySelector('.requests-modal')?.remove();
+            
+            // Notificar sistema de tempo real
+            if (typeof notifySolicitacaoAceita === 'function') {
+                notifySolicitacaoAceita(data);
+            } else if (typeof window.realtimeManager !== 'undefined') {
+                window.realtimeManager.notifySolicitacaoAceita(data);
+            }
+            
+            // Recarregar doações
+            if (window.minhasDoacoesApp) {
+                await window.minhasDoacoesApp.loadMyDonations();
+            }
+            
+            // Abrir chat se disponível
+            if (data.solicitante && data.solicitante.id) {
+                setTimeout(() => openChat(data.solicitante.id, requestId), 1000);
+            }
+        } else {
+            const error = await response.text();
+            showNotification(`Erro: ${error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        showNotification('Erro ao aceitar solicitação.', 'error');
+    }
+}
+
+// Função para recusar solicitação
+async function rejectRequest(requestId, donationId) {
+    if (!confirm('Tem certeza que deseja recusar esta solicitação?')) {
+        return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showNotification('Você precisa estar logado.', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/doacoes/solicitacoes/${requestId}/recusar`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            showNotification('Solicitação recusada.', 'success');
+            
+            // Notificar sistema de tempo real
+            if (typeof notifySolicitacaoRecusada === 'function') {
+                notifySolicitacaoRecusada(data);
+            } else if (typeof window.realtimeManager !== 'undefined') {
+                window.realtimeManager.notifySolicitacaoRecusada(data);
+            }
+            
+            // Fechar modal e recarregar
+            document.querySelector('.requests-modal')?.remove();
+            
+            if (window.minhasDoacoesApp) {
+                await window.minhasDoacoesApp.loadMyDonations();
+            }
+        } else {
+            const error = await response.text();
+            showNotification(`Erro: ${error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        showNotification('Erro ao recusar solicitação.', 'error');
+    }
+}
+
+// Função para marcar como coletada
+async function markAsCollected(requestId, donationId) {
+    if (!confirm('Confirmar que a coleta/entrega foi realizada?')) {
+        return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showNotification('Você precisa estar logado.', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/doacoes/solicitacoes/${requestId}/marcar-coletada`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            showNotification('Solicitação marcada como coletada!', 'success');
+            
+            // Fechar modal e recarregar
+            document.querySelector('.requests-modal')?.remove();
+            
+            if (window.minhasDoacoesApp) {
+                await window.minhasDoacoesApp.loadMyDonations();
+            }
+            
+            // Solicitar avaliação
+            setTimeout(() => {
+                showEvaluationModal(requestId);
+            }, 1500);
+        } else {
+            const error = await response.text();
+            showNotification(`Erro: ${error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        showNotification('Erro ao marcar como coletada.', 'error');
+    }
+}
+
+// Função para abrir chat
+function openChat(userId, requestId) {
+    // Redirecionar para chat com o usuário
+    window.location.href = `chat.html?userId=${userId}&requestId=${requestId}`;
+}
+
+// Função para mostrar modal de avaliação
+function showEvaluationModal(requestId) {
+    if (typeof window.showEvaluationModal === 'function') {
+        window.showEvaluationModal(requestId);
+    } else {
+        console.log('Sistema de avaliação não carregado');
+    }
 }
 
 // Adicionar estilos de animação

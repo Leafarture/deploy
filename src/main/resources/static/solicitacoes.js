@@ -367,6 +367,16 @@ class SolicitacoesApp {
                         <i class="fas fa-eye"></i>
                         Ver Detalhes
                     </button>
+                    ${status === 'em_andamento' ? `
+                        <button class="btn-chat" onclick="event.stopPropagation(); openChat(${doacao.doador?.id || 'null'}, ${request.id})" title="Abrir chat">
+                            <i class="fas fa-comments"></i>
+                            Chat
+                        </button>
+                        <button class="btn-collect" onclick="event.stopPropagation(); confirmCollection(${request.id}, event)" title="Confirmar coleta">
+                            <i class="fas fa-check-circle"></i>
+                            Confirmar Coleta
+                        </button>
+                    ` : ''}
                     ${status === 'solicitada' || status === 'em_andamento' ? `
                         <button class="btn-cancel" onclick="event.stopPropagation(); cancelRequest(${request.id}, event)" title="Cancelar solicitação">
                             <i class="fas fa-times"></i>
@@ -473,6 +483,81 @@ async function cancelRequest(requestId, event) {
             cancelBtn.disabled = false;
             cancelBtn.innerHTML = '<i class="fas fa-times"></i> Cancelar';
         }
+    }
+}
+
+async function confirmCollection(requestId, event) {
+    const confirmed = confirm('Confirmar que você coletou/recebeu a doação?');
+    if (!confirmed) return;
+
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Você precisa estar logado.');
+            return;
+        }
+
+        // Mostrar loading
+        const collectBtn = event.target.closest('.btn-collect');
+        const originalContent = collectBtn ? collectBtn.innerHTML : '';
+        if (collectBtn) {
+            collectBtn.disabled = true;
+            collectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Confirmando...';
+        }
+
+        const response = await fetch(`/doacoes/solicitacoes/${requestId}/marcar-coletada`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            alert('Coleta confirmada com sucesso!');
+            
+            // Recarregar solicitações
+            if (window.solicitacoesApp) {
+                await window.solicitacoesApp.loadRequests();
+                window.solicitacoesApp.calculateStats();
+            }
+            
+            // Solicitar avaliação
+            setTimeout(() => {
+                showEvaluationModal(requestId);
+            }, 1500);
+        } else {
+            const error = await response.text();
+            alert(`Erro: ${error}`);
+            if (collectBtn) {
+                collectBtn.disabled = false;
+                collectBtn.innerHTML = originalContent;
+            }
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao confirmar coleta. Tente novamente.');
+        const collectBtn = event.target.closest('.btn-collect');
+        if (collectBtn) {
+            collectBtn.disabled = false;
+            collectBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar Coleta';
+        }
+    }
+}
+
+function openChat(userId, requestId) {
+    if (!userId) {
+        alert('Informações do doador não disponíveis.');
+        return;
+    }
+    window.location.href = `chat.html?userId=${userId}&requestId=${requestId}`;
+}
+
+function showEvaluationModal(requestId) {
+    if (typeof window.showEvaluationModal === 'function') {
+        window.showEvaluationModal(requestId);
+    } else {
+        console.log('Sistema de avaliação não carregado');
     }
 }
 

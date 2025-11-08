@@ -97,17 +97,50 @@ class RealtimeManager {
         this.emit('newDonationCreated', { doacao, timestamp: new Date().toISOString() });
         this.broadcastToOtherTabs('newDonation', { doacao, timestamp: new Date().toISOString() });
     }
+
+    // Método de conveniência para nova solicitação
+    notifyNewSolicitacao(solicitacao, doacao) {
+        this.emit('novaSolicitacao', { solicitacao, doacao, timestamp: new Date().toISOString() });
+        this.broadcastToOtherTabs('novaSolicitacao', { solicitacao, doacao, timestamp: new Date().toISOString() });
+    }
+
+    // Método de conveniência para solicitação aceita
+    notifySolicitacaoAceita(solicitacao) {
+        this.emit('solicitacaoAceita', { solicitacao, timestamp: new Date().toISOString() });
+        this.broadcastToOtherTabs('solicitacaoAceita', { solicitacao, timestamp: new Date().toISOString() });
+    }
+
+    // Método de conveniência para solicitação recusada
+    notifySolicitacaoRecusada(solicitacao) {
+        this.emit('solicitacaoRecusada', { solicitacao, timestamp: new Date().toISOString() });
+        this.broadcastToOtherTabs('solicitacaoRecusada', { solicitacao, timestamp: new Date().toISOString() });
+    }
 }
 
 // Instância global
 const realtimeManager = new RealtimeManager();
 
-// Função global para facilitar o uso
+// Funções globais para facilitar o uso
 function notifyNewDonation(doacao) {
     realtimeManager.notifyNewDonation(doacao);
+}
+
+function notifyNewSolicitacao(solicitacao, doacao) {
+    realtimeManager.notifyNewSolicitacao(solicitacao, doacao);
+}
+
+function notifySolicitacaoAceita(solicitacao) {
+    realtimeManager.notifySolicitacaoAceita(solicitacao);
+}
+
+function notifySolicitacaoRecusada(solicitacao) {
+    realtimeManager.notifySolicitacaoRecusada(solicitacao);
 }
 
 // Exportar para uso em outros arquivos
 window.RealtimeManager = RealtimeManager;
 window.realtimeManager = realtimeManager;
 window.notifyNewDonation = notifyNewDonation;
+window.notifyNewSolicitacao = notifyNewSolicitacao;
+window.notifySolicitacaoAceita = notifySolicitacaoAceita;
+window.notifySolicitacaoRecusada = notifySolicitacaoRecusada;

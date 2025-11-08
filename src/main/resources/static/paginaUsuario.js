@@ -8,6 +8,7 @@ class ProfileManager {
         this.userStats = {
             totalDonations: 0,
             averageRating: 0,
+            totalRatings: 0,
             daysActive: 0
         };
         this.userDonations = [];
@@ -368,9 +369,45 @@ class ProfileManager {
      * Carrega as avaliações do usuário
      */
     async loadUserRatings() {
-        // Simulado - não há API específica para avaliações do usuário
-        this.userRatings = [];
+        try {
+            if (window.authManager && window.authManager.isAuthenticated()) {
+                const token = window.authManager.getToken();
+                
+                // Buscar avaliações recebidas (avaliações de solicitações)
+                const avaliacoesResponse = await fetch(`/avaliacoes-solicitacao/usuario/${this.currentUser.id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (avaliacoesResponse.ok) {
+                    this.userRatings = await avaliacoesResponse.json();
+                } else {
+                    this.userRatings = [];
+                }
+
+                // Buscar média de avaliações
+                const mediaResponse = await fetch(`/avaliacoes-solicitacao/usuario/${this.currentUser.id}/media`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (mediaResponse.ok) {
+                    const mediaData = await mediaResponse.json();
+                    this.userStats.averageRating = mediaData.media || 0.0;
+                    this.userStats.totalRatings = mediaData.total || 0;
+                }
+            } else {
+                this.userRatings = [];
+            }
+        } catch (error) {
+            console.error('Erro ao carregar avaliações:', error);
+            this.userRatings = [];
+        }
+
         this.displayUserRatings();
+        this.updateStatsDisplay();
     }
 
     /**
@@ -378,6 +415,7 @@ class ProfileManager {
      */
     displayUserRatings() {
         const ratingsList = document.getElementById('ratings-list');
+        if (!ratingsList) return;
         
         if (this.userRatings.length === 0) {
             ratingsList.innerHTML = `
@@ -389,7 +427,63 @@ class ProfileManager {
             return;
         }
 
-        // Implementar exibição das avaliações quando houver dados
+        // Mostrar as últimas 5 avaliações
+        const recentRatings = this.userRatings.slice(0, 5);
+        
+        ratingsList.innerHTML = recentRatings.map(avaliacao => {
+            const starsHTML = Array(5).fill(0).map((_, i) => 
+                i < avaliacao.nota 
+                    ? '<i class="fas fa-star" style="color: #fbbf24;"></i>'
+                    : '<i class="far fa-star" style="color: #d1d5db;"></i>'
+            ).join('');
+
+            const avaliadorNome = avaliacao.avaliador?.nome || 'Usuário';
+            const dataFormatada = avaliacao.criadoEm 
+                ? new Date(avaliacao.criadoEm).toLocaleDateString('pt-BR')
+                : 'Data não informada';
+
+            return `
+                <div class="rating-item" style="padding: 1rem; border-bottom: 1px solid #e5e7eb; margin-bottom: 0.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; margin-bottom: 0.25rem;">
+                                ${avaliadorNome}
+                            </div>
+                            <div style="font-size: 0.85rem; color: #64748b;">
+                                ${dataFormatada}
+                            </div>
+                        </div>
+                        <div style="font-size: 1.2rem;">
+                            ${starsHTML}
+                        </div>
+                    </div>
+                    ${avaliacao.comentario ? `
+                        <p style="margin: 0; color: #475569; font-size: 0.9rem; line-height: 1.5;">
+                            "${avaliacao.comentario}"
+                        </p>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+
+        // Se houver mais de 5 avaliações, adicionar link para ver todas
+        if (this.userRatings.length > 5) {
+            ratingsList.innerHTML += `
+                <div style="text-align: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+                    <button onclick="viewAllRatings()" style="
+                        background: #667eea;
+                        color: white;
+                        border: none;
+                        padding: 0.5rem 1.5rem;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-weight: 600;
+                    ">
+                        Ver todas as ${this.userRatings.length} avaliações
+                    </button>
+                </div>
+            `;
+        }
     }
 
     /**
@@ -400,29 +494,49 @@ class ProfileManager {
         try {
             if (window.authManager && window.authManager.isAuthenticated()) {
                 const token = window.authManager.getToken();
-                const response = await fetch('/api/user/me/stats', {
+                
+                // Buscar estatísticas de doações
+                const statsResponse = await fetch('/api/user/me/stats', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
-                if (response.ok) {
-                    const stats = await response.json();
+                if (statsResponse.ok) {
+                    const stats = await statsResponse.json();
                     this.userStats.totalDonations = stats.totalDonations || 0;
-                    this.userStats.averageRating = stats.averageRating || 0.0;
                 } else {
                     // Fallback para dados locais
                     this.userStats.totalDonations = this.userDonations.length;
-                    this.userStats.averageRating = 0.0;
+                }
+
+                // Buscar média de avaliações de solicitações
+                if (this.currentUser && this.currentUser.id) {
+                    const mediaResponse = await fetch(`/avaliacoes-solicitacao/usuario/${this.currentUser.id}/media`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (mediaResponse.ok) {
+                        const mediaData = await mediaResponse.json();
+                        this.userStats.averageRating = mediaData.media || 0.0;
+                        this.userStats.totalRatings = mediaData.total || 0;
+                    } else {
+                        this.userStats.averageRating = 0.0;
+                        this.userStats.totalRatings = 0;
+                    }
                 }
             } else {
                 this.userStats.totalDonations = this.userDonations.length;
                 this.userStats.averageRating = 0.0;
+                this.userStats.totalRatings = 0;
             }
         } catch (error) {
             console.error('Erro ao carregar estatísticas:', error);
             this.userStats.totalDonations = this.userDonations.length;
             this.userStats.averageRating = 0.0;
+            this.userStats.totalRatings = 0;
         }
 
         this.updateStatsDisplay();
@@ -440,8 +554,14 @@ class ProfileManager {
         document.getElementById('average-rating-stat').textContent = this.userStats.averageRating.toFixed(1);
 
         // Avaliações
-        document.getElementById('rating-average').textContent = this.userStats.averageRating.toFixed(1);
-        document.getElementById('rating-count').textContent = this.userRatings.length;
+        const ratingAverageEl = document.getElementById('rating-average');
+        const ratingCountEl = document.getElementById('rating-count');
+        if (ratingAverageEl) {
+            ratingAverageEl.textContent = this.userStats.averageRating.toFixed(1);
+        }
+        if (ratingCountEl) {
+            ratingCountEl.textContent = this.userStats.totalRatings || this.userRatings.length;
+        }
 
         // Atualizar estrelas
         this.updateStarsDisplay(this.userStats.averageRating);
@@ -868,6 +988,89 @@ class ProfileManager {
             // Fallback: alert simples
             alert(message);
         }
+    }
+}
+
+// Função global para ver todas as avaliações
+function viewAllRatings() {
+    if (window.profileManager && window.profileManager.userRatings) {
+        // Criar modal para mostrar todas as avaliações
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 2rem;
+            overflow-y: auto;
+        `;
+
+        const ratingsHTML = window.profileManager.userRatings.map(avaliacao => {
+            const starsHTML = Array(5).fill(0).map((_, i) => 
+                i < avaliacao.nota 
+                    ? '<i class="fas fa-star" style="color: #fbbf24;"></i>'
+                    : '<i class="far fa-star" style="color: #d1d5db;"></i>'
+            ).join('');
+
+            const avaliadorNome = avaliacao.avaliador?.nome || 'Usuário';
+            const dataFormatada = avaliacao.criadoEm 
+                ? new Date(avaliacao.criadoEm).toLocaleDateString('pt-BR')
+                : 'Data não informada';
+
+            return `
+                <div style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; margin-bottom: 0.25rem; font-size: 1.1rem;">
+                                ${avaliadorNome}
+                            </div>
+                            <div style="font-size: 0.9rem; color: #64748b;">
+                                <i class="fas fa-calendar"></i> ${dataFormatada}
+                            </div>
+                        </div>
+                        <div style="font-size: 1.5rem;">
+                            ${starsHTML}
+                        </div>
+                    </div>
+                    ${avaliacao.comentario ? `
+                        <p style="margin: 0; color: #475569; font-size: 1rem; line-height: 1.6; padding-top: 0.75rem; border-top: 1px solid #e5e7eb;">
+                            "${avaliacao.comentario}"
+                        </p>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+
+        modal.innerHTML = `
+            <div style="background: white; border-radius: 20px; padding: 2rem; max-width: 700px; width: 100%; max-height: 80vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0; color: #667eea;">
+                        <i class="fas fa-star"></i> Todas as Avaliações (${window.profileManager.userRatings.length})
+                    </h2>
+                    <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" 
+                            style="background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 0.5rem;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div>
+                    ${ratingsHTML}
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
     }
 }
 

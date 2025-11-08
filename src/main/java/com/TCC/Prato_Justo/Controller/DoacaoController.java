@@ -364,12 +364,16 @@ public class DoacaoController {
             // Criar solicitação
             com.TCC.Prato_Justo.Model.Solicitacao solicitacao = solicitacaoService.criar(doacao, solicitante);
             
+            // Notificar doador sobre nova solicitação (será feito no frontend via realtime-manager)
+            // O frontend escutará o evento quando a solicitação for criada
+            
             // Retornar resposta formatada para o frontend
             Map<String, Object> response = new HashMap<>();
             response.put("id", solicitacao.getId());
             response.put("doacao", doacao);
             response.put("status", solicitacao.getStatus().getValor());
             response.put("dataSolicitacao", solicitacao.getDataSolicitacao());
+            response.put("solicitante", solicitacao.getSolicitante());
             
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
@@ -422,6 +426,54 @@ public class DoacaoController {
         }
     }
 
+    @GetMapping("/solicitacoes/{id}")
+    public ResponseEntity<?> obterSolicitacao(@PathVariable Long id,
+                                                @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Token não fornecido");
+            }
+
+            String token = authHeader.substring(7);
+            if (!authService.isTokenValid(token)) {
+                return ResponseEntity.status(401).body("Token inválido");
+            }
+
+            Usuario usuario = authService.getCurrentUser(token);
+            if (usuario == null) {
+                return ResponseEntity.status(404).body("Usuário não encontrado");
+            }
+
+            Optional<com.TCC.Prato_Justo.Model.Solicitacao> solicitacaoOpt = solicitacaoService.obter(id);
+            if (solicitacaoOpt.isEmpty()) {
+                return ResponseEntity.status(404).body("Solicitação não encontrada");
+            }
+
+            com.TCC.Prato_Justo.Model.Solicitacao solicitacao = solicitacaoOpt.get();
+            
+            // Verificar se o usuário tem permissão (doador ou solicitante)
+            boolean isDoador = solicitacao.getDoacao().getDoador() != null && 
+                              solicitacao.getDoacao().getDoador().getId().equals(usuario.getId());
+            boolean isSolicitante = solicitacao.getSolicitante().getId().equals(usuario.getId());
+            
+            if (!isDoador && !isSolicitante) {
+                return ResponseEntity.status(403).body("Você não tem permissão para ver esta solicitação");
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", solicitacao.getId());
+            response.put("doacao", solicitacao.getDoacao());
+            response.put("solicitante", solicitacao.getSolicitante());
+            response.put("status", solicitacao.getStatus().getValor());
+            response.put("dataSolicitacao", solicitacao.getDataSolicitacao());
+            response.put("dataAtualizacao", solicitacao.getDataAtualizacao());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
+        }
+    }
+
     @PostMapping("/solicitacoes/{id}/cancelar")
     public ResponseEntity<?> cancelarSolicitacao(@PathVariable Long id,
                                                   @RequestHeader(value = "Authorization", required = false) String authHeader) {
@@ -453,6 +505,155 @@ public class DoacaoController {
 
             solicitacaoService.cancelar(id);
             return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/solicitacoes")
+    public ResponseEntity<?> listarSolicitacoesDaDoacao(@PathVariable Long id,
+                                                          @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Token não fornecido");
+            }
+
+            String token = authHeader.substring(7);
+            if (!authService.isTokenValid(token)) {
+                return ResponseEntity.status(401).body("Token inválido");
+            }
+
+            Usuario usuario = authService.getCurrentUser(token);
+            if (usuario == null) {
+                return ResponseEntity.status(404).body("Usuário não encontrado");
+            }
+
+            // Verificar se a doação existe e se o usuário é o dono
+            Optional<Doacao> doacaoOpt = doacaoService.obter(id);
+            if (doacaoOpt.isEmpty()) {
+                return ResponseEntity.status(404).body("Doação não encontrada");
+            }
+
+            Doacao doacao = doacaoOpt.get();
+            if (doacao.getDoador() == null || !doacao.getDoador().getId().equals(usuario.getId())) {
+                return ResponseEntity.status(403).body("Você não tem permissão para ver as solicitações desta doação");
+            }
+
+            List<com.TCC.Prato_Justo.Model.Solicitacao> solicitacoes = solicitacaoService.listarPorDoacao(id);
+            
+            // Formatar resposta para o frontend
+            List<Map<String, Object>> response = solicitacoes.stream().map(s -> {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", s.getId());
+                item.put("solicitante", s.getSolicitante());
+                item.put("status", s.getStatus().getValor());
+                item.put("dataSolicitacao", s.getDataSolicitacao());
+                item.put("dataAtualizacao", s.getDataAtualizacao());
+                return item;
+            }).collect(java.util.stream.Collectors.toList());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/solicitacoes/{id}/aceitar")
+    public ResponseEntity<?> aceitarSolicitacao(@PathVariable Long id,
+                                                @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Token não fornecido");
+            }
+
+            String token = authHeader.substring(7);
+            if (!authService.isTokenValid(token)) {
+                return ResponseEntity.status(401).body("Token inválido");
+            }
+
+            Usuario usuario = authService.getCurrentUser(token);
+            if (usuario == null) {
+                return ResponseEntity.status(404).body("Usuário não encontrado");
+            }
+
+            com.TCC.Prato_Justo.Model.Solicitacao solicitacao = solicitacaoService.aceitar(id, usuario.getId());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", solicitacao.getId());
+            response.put("status", solicitacao.getStatus().getValor());
+            response.put("doacao", solicitacao.getDoacao());
+            response.put("solicitante", solicitacao.getSolicitante());
+            response.put("message", "Solicitação aceita com sucesso");
+            
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/solicitacoes/{id}/recusar")
+    public ResponseEntity<?> recusarSolicitacao(@PathVariable Long id,
+                                                 @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Token não fornecido");
+            }
+
+            String token = authHeader.substring(7);
+            if (!authService.isTokenValid(token)) {
+                return ResponseEntity.status(401).body("Token inválido");
+            }
+
+            Usuario usuario = authService.getCurrentUser(token);
+            if (usuario == null) {
+                return ResponseEntity.status(404).body("Usuário não encontrado");
+            }
+
+            com.TCC.Prato_Justo.Model.Solicitacao solicitacao = solicitacaoService.recusar(id, usuario.getId());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", solicitacao.getId());
+            response.put("status", solicitacao.getStatus().getValor());
+            response.put("message", "Solicitação recusada");
+            
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/solicitacoes/{id}/marcar-coletada")
+    public ResponseEntity<?> marcarColetada(@PathVariable Long id,
+                                             @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Token não fornecido");
+            }
+
+            String token = authHeader.substring(7);
+            if (!authService.isTokenValid(token)) {
+                return ResponseEntity.status(401).body("Token inválido");
+            }
+
+            Usuario usuario = authService.getCurrentUser(token);
+            if (usuario == null) {
+                return ResponseEntity.status(404).body("Usuário não encontrado");
+            }
+
+            com.TCC.Prato_Justo.Model.Solicitacao solicitacao = solicitacaoService.marcarColetada(id, usuario.getId());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", solicitacao.getId());
+            response.put("status", solicitacao.getStatus().getValor());
+            response.put("message", "Solicitação marcada como coletada/entregue");
+            
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
         }

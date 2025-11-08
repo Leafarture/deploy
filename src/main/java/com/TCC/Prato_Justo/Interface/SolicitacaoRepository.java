@@ -21,5 +21,8 @@ public interface SolicitacaoRepository extends JpaRepository<Solicitacao, Long> 
     @Query("SELECT s FROM Solicitacao s WHERE s.doacao.id = :doacaoId AND s.solicitante.id = :solicitanteId")
     Optional<Solicitacao> findByDoacaoIdAndSolicitanteId(@Param("doacaoId") Long doacaoId, 
                                                           @Param("solicitanteId") Long solicitanteId);
+    
+    @Query("SELECT s FROM Solicitacao s WHERE s.doacao.doador.id = :doadorId")
+    List<Solicitacao> findByDoacaoDoadorId(@Param("doadorId") Long doadorId);
 }
 
