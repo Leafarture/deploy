@@ -496,6 +496,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const imageFormData = new FormData();
                 imageFormData.append('image', photoFile);
                 
+                // Se estiver editando, passar o ID da doação para substituir a imagem antiga
+                if (isEditMode && currentDonationId) {
+                    imageFormData.append('doacaoId', currentDonationId);
+                }
+                
                 const token = localStorage.getItem('token');
                 const imageHeaders = {};
                 if (token) {

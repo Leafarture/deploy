@@ -117,6 +117,146 @@
         body {
             padding-top: 80px;
         }
+
+        /* Filtros em formato oval */
+        .filters-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .filters-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+            white-space: nowrap;
+        }
+
+        .filter-btn i {
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active:hover {
+            background: #f8f9fa;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Status badges para solicitações */
+        .request-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .request-status-badge.status-solicitada {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .request-status-badge.status-em-andamento {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .request-status-badge.status-concluida {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .request-status-badge.status-cancelada {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .btn-view, .btn-cancel {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-cancel {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: linear-gradient(135deg, #c0392b, #a93226);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .filters-wrapper {
+                flex-direction: column;
+                border-radius: 30px;
+            }
+
+            .filter-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -181,6 +321,32 @@
             </div>
         </div>
 
+        <!-- Filtros -->
+        <div class="filters-container">
+            <div class="filters-wrapper">
+                <button class="filter-btn active" data-filter="todas">
+                    <i class="fas fa-list"></i>
+                    Todas
+                </button>
+                <button class="filter-btn" data-filter="solicitadas">
+                    <i class="fas fa-clock"></i>
+                    Solicitadas
+                </button>
+                <button class="filter-btn" data-filter="em_andamento">
+                    <i class="fas fa-spinner"></i>
+                    Em Andamento
+                </button>
+                <button class="filter-btn" data-filter="concluidas">
+                    <i class="fas fa-check-circle"></i>
+                    Concluídas
+                </button>
+                <button class="filter-btn" data-filter="canceladas">
+                    <i class="fas fa-times-circle"></i>
+                    Canceladas
+                </button>
+            </div>
+        </div>
+
         <main class="main-content">
             <div id="loading" class="loading">
                 <i class="fas fa-spinner fa-spin"></i> Carregando suas solicitações...
@@ -201,45 +367,7 @@
 
     <script src="auth.js"></script>
     <script src="headerUser.js"></script>
-    <script>
-        // Verificar autenticação
-        document.addEventListener('DOMContentLoaded', function() {
-            const token = localStorage.getItem('token');
-            const userInfo = localStorage.getItem('user');
-            
-            if (token && userInfo) {
-                // Usuário autenticado
-                document.getElementById('authenticated-content').style.display = 'block';
-                document.getElementById('user-actions').style.display = 'flex';
-                
-                try {
-                    const user = JSON.parse(userInfo);
-                    document.getElementById('user-name').textContent = user.nome || 'Usuário';
-                } catch (e) {
-                    console.error('Erro ao parsear usuário:', e);
-                }
-                
-                // Carregar solicitações
-                loadRequests();
-            } else {
-                // Usuário não autenticado
-                document.getElementById('auth-required').style.display = 'block';
-            }
-            
-            // Logout
-            document.getElementById('logout-btn')?.addEventListener('click', function() {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.location.href = 'login.html';
-            });
-        });
-        
-        function loadRequests() {
-            // Esta função será implementada quando houver backend para solicitações
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('no-requests').style.display = 'block';
-        }
-    </script>
+    <script src="solicitacoes.js"></script>
 </body>
 </html>
 

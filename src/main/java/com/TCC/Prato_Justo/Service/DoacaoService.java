@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 public class DoacaoService {
 
     private final DoacaoRepository doacaoRepository;
+    
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private FileUploadService fileUploadService;
 
     public DoacaoService(DoacaoRepository doacaoRepository) {
         this.doacaoRepository = doacaoRepository;
@@ -23,7 +26,18 @@ public class DoacaoService {
         if (doador != null) {
             nova.setDoador(doador);
         }
-        return doacaoRepository.save(nova);
+        Doacao salva = doacaoRepository.save(nova);
+        
+        // Renomear arquivo temporário se existir
+        if (fileUploadService != null && salva.getImagem() != null && salva.getImagem().contains("food_temp_")) {
+            String novaUrl = fileUploadService.renameFoodImage(salva.getImagem(), salva.getId());
+            if (!novaUrl.equals(salva.getImagem())) {
+                salva.setImagem(novaUrl);
+                salva = doacaoRepository.save(salva);
+            }
+        }
+        
+        return salva;
     }
 
     public List<Doacao> listarAtivas(String tipoAlimento, String cidade) {

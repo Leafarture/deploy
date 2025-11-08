@@ -2,6 +2,7 @@ class MinhasDoacoesApp {
     constructor() {
         this.currentUser = null;
         this.myDonations = [];
+        this.currentFilter = 'todas'; // todas, ativas, inativas, vencidas, urgentes
         this.init();
     }
 
@@ -64,6 +65,66 @@ class MinhasDoacoesApp {
                 this.showAuthRequired();
             });
         }
+
+        // Filtros
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const filter = e.currentTarget.dataset.filter;
+                this.setFilter(filter);
+            });
+        });
+    }
+
+    setFilter(filter) {
+        this.currentFilter = filter;
+        
+        // Atualizar botões ativos
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.filter === filter) {
+                btn.classList.add('active');
+            }
+        });
+
+        // Filtrar e renderizar
+        this.renderMyDonations();
+    }
+
+    getFilteredDonations() {
+        if (this.currentFilter === 'todas') {
+            return this.myDonations;
+        }
+
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+
+        return this.myDonations.filter(donation => {
+            if (this.currentFilter === 'ativas') {
+                return donation.ativo === true;
+            }
+            
+            if (this.currentFilter === 'inativas') {
+                return donation.ativo === false;
+            }
+
+            if (this.currentFilter === 'vencidas') {
+                if (!donation.dataValidade) return false;
+                const dataVal = new Date(donation.dataValidade + 'T00:00:00');
+                dataVal.setHours(0, 0, 0, 0);
+                return dataVal < hoje;
+            }
+
+            if (this.currentFilter === 'urgentes') {
+                if (!donation.dataValidade) return false;
+                const dataVal = new Date(donation.dataValidade + 'T00:00:00');
+                dataVal.setHours(0, 0, 0, 0);
+                const diasRestantes = Math.ceil((dataVal - hoje) / (1000 * 60 * 60 * 24));
+                return diasRestantes >= 0 && diasRestantes <= 3;
+            }
+
+            return true;
+        });
     }
 
     async loadMyDonations() {
@@ -105,17 +166,21 @@ class MinhasDoacoesApp {
         const container = document.getElementById('doacoes-container');
         const noDonations = document.getElementById('no-donations');
 
+        if (!container) return;
+
         container.innerHTML = '';
 
-        if (this.myDonations.length === 0) {
-            noDonations.style.display = 'block';
+        const filteredDonations = this.getFilteredDonations();
+
+        if (filteredDonations.length === 0) {
+            if (noDonations) noDonations.style.display = 'block';
             return;
         }
 
-        noDonations.style.display = 'none';
+        if (noDonations) noDonations.style.display = 'none';
 
         // Animação escalonada para os cards
-        this.myDonations.forEach((donation, index) => {
+        filteredDonations.forEach((donation, index) => {
             const card = this.createMyDonationCard(donation);
             
             // Configurar animação inicial

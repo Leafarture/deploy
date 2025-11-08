@@ -29,6 +29,9 @@ public class DoacaoController {
     @Autowired
     private FileUploadService fileUploadService;
 
+    @Autowired
+    private com.TCC.Prato_Justo.Service.SolicitacaoService solicitacaoService;
+
     public DoacaoController(DoacaoService doacaoService) {
         this.doacaoService = doacaoService;
     }
@@ -160,6 +163,11 @@ public class DoacaoController {
                 return ResponseEntity.status(403).body("Você não tem permissão para editar esta doação. Apenas o criador pode editá-la.");
             }
 
+            // Deletar imagem antiga se uma nova imagem foi fornecida
+            if (dto.getImagem() != null && !dto.getImagem().equals(doacao.getImagem()) && doacao.getImagem() != null) {
+                fileUploadService.deleteFoodImage(doacao.getImagem());
+            }
+
             // Validar campos obrigatórios
             if (dto.getTitulo() == null || dto.getTitulo().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("Título é obrigatório");
@@ -244,12 +252,14 @@ public class DoacaoController {
     @PostMapping("/upload-image")
     public ResponseEntity<?> uploadFoodImage(
             @RequestParam("image") MultipartFile file,
+            @RequestParam(value = "doacaoId", required = false) Long doacaoId,
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
         try {
             System.out.println("=== RECEBENDO UPLOAD DE IMAGEM DE ALIMENTO ===");
             System.out.println("Nome do arquivo: " + file.getOriginalFilename());
             System.out.println("Tamanho: " + file.getSize() + " bytes");
             System.out.println("Tipo: " + file.getContentType());
+            System.out.println("Doação ID: " + doacaoId);
 
             // Validar token (opcional, mas recomendado)
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -257,10 +267,26 @@ public class DoacaoController {
                 if (!authService.isTokenValid(token)) {
                     return ResponseEntity.status(401).body("Token inválido");
                 }
+                
+                // Se doacaoId fornecido, verificar se o usuário é o dono
+                if (doacaoId != null) {
+                    Usuario usuario = authService.getCurrentUser(token);
+                    Optional<Doacao> doacaoOptional = doacaoService.obter(doacaoId);
+                    if (doacaoOptional.isPresent()) {
+                        Doacao doacao = doacaoOptional.get();
+                        if (doacao.getDoador() == null || !doacao.getDoador().getId().equals(usuario.getId())) {
+                            return ResponseEntity.status(403).body("Você não tem permissão para editar esta doação");
+                        }
+                        // Deletar imagem antiga
+                        if (doacao.getImagem() != null) {
+                            fileUploadService.deleteFoodImage(doacao.getImagem());
+                        }
+                    }
+                }
             }
 
             // Salvar a imagem
-            String imageUrl = fileUploadService.saveFoodImage(file, null);
+            String imageUrl = fileUploadService.saveFoodImage(file, doacaoId);
             
             System.out.println("✅ Imagem salva em: " + imageUrl);
 
@@ -277,6 +303,158 @@ public class DoacaoController {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
             return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    @PostMapping("/{id}/solicitar")
+    public ResponseEntity<?> solicitarDoacao(@PathVariable Long id,
+                                             @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            // Validar autenticação
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                Map<String, String> error = new HashMap<>();
+                error.put("message", "Token não fornecido. É necessário estar autenticado para solicitar uma doação.");
+                error.put("error", "Token não fornecido. É necessário estar autenticado para solicitar uma doação.");
+                return ResponseEntity.status(401).body(error);
+            }
+
+            String token = authHeader.substring(7);
+            if (!authService.isTokenValid(token)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("message", "Token inválido ou expirado.");
+                error.put("error", "Token inválido ou expirado.");
+                return ResponseEntity.status(401).body(error);
+            }
+
+            Usuario solicitante = authService.getCurrentUser(token);
+            if (solicitante == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("message", "Usuário não encontrado.");
+                error.put("error", "Usuário não encontrado.");
+                return ResponseEntity.status(404).body(error);
+            }
+
+            // Verificar se a doação existe
+            Optional<Doacao> doacaoOptional = doacaoService.obter(id);
+            if (doacaoOptional.isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("message", "Doação não encontrada.");
+                error.put("error", "Doação não encontrada.");
+                return ResponseEntity.status(404).body(error);
+            }
+
+            Doacao doacao = doacaoOptional.get();
+
+            // Verificar se a doação está ativa
+            if (!doacao.getAtivo()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("message", "Esta doação não está mais disponível.");
+                error.put("error", "Esta doação não está mais disponível.");
+                return ResponseEntity.badRequest().body(error);
+            }
+
+            // Verificar se o usuário não é o dono da doação
+            if (doacao.getDoador() != null && doacao.getDoador().getId().equals(solicitante.getId())) {
+                Map<String, String> error = new HashMap<>();
+                error.put("message", "Você não pode solicitar sua própria doação.");
+                error.put("error", "Você não pode solicitar sua própria doação.");
+                return ResponseEntity.badRequest().body(error);
+            }
+
+            // Criar solicitação
+            com.TCC.Prato_Justo.Model.Solicitacao solicitacao = solicitacaoService.criar(doacao, solicitante);
+            
+            // Retornar resposta formatada para o frontend
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", solicitacao.getId());
+            response.put("doacao", doacao);
+            response.put("status", solicitacao.getStatus().getValor());
+            response.put("dataSolicitacao", solicitacao.getDataSolicitacao());
+            
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        } catch (Exception e) {
+            System.err.println("Erro ao solicitar doação: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Erro interno: " + e.getMessage());
+            error.put("error", "Erro interno: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    @GetMapping("/minhas-solicitacoes")
+    public ResponseEntity<?> minhasSolicitacoes(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Token não fornecido");
+            }
+
+            String token = authHeader.substring(7);
+            if (!authService.isTokenValid(token)) {
+                return ResponseEntity.status(401).body("Token inválido");
+            }
+
+            Usuario usuario = authService.getCurrentUser(token);
+            if (usuario == null) {
+                return ResponseEntity.status(404).body("Usuário não encontrado");
+            }
+
+            List<com.TCC.Prato_Justo.Model.Solicitacao> solicitacoes = solicitacaoService.listarPorSolicitante(usuario.getId());
+            
+            // Formatar resposta para o frontend
+            List<Map<String, Object>> response = solicitacoes.stream().map(s -> {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", s.getId());
+                item.put("doacao", s.getDoacao());
+                item.put("status", s.getStatus().getValor());
+                item.put("dataSolicitacao", s.getDataSolicitacao());
+                return item;
+            }).collect(java.util.stream.Collectors.toList());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/solicitacoes/{id}/cancelar")
+    public ResponseEntity<?> cancelarSolicitacao(@PathVariable Long id,
+                                                  @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Token não fornecido");
+            }
+
+            String token = authHeader.substring(7);
+            if (!authService.isTokenValid(token)) {
+                return ResponseEntity.status(401).body("Token inválido");
+            }
+
+            Usuario usuario = authService.getCurrentUser(token);
+            if (usuario == null) {
+                return ResponseEntity.status(404).body("Usuário não encontrado");
+            }
+
+            // Verificar se a solicitação pertence ao usuário
+            Optional<com.TCC.Prato_Justo.Model.Solicitacao> solicitacaoOpt = solicitacaoService.obter(id);
+            if (solicitacaoOpt.isEmpty()) {
+                return ResponseEntity.status(404).body("Solicitação não encontrada");
+            }
+
+            com.TCC.Prato_Justo.Model.Solicitacao solicitacao = solicitacaoOpt.get();
+            if (!solicitacao.getSolicitante().getId().equals(usuario.getId())) {
+                return ResponseEntity.status(403).body("Você não tem permissão para cancelar esta solicitação");
+            }
+
+            solicitacaoService.cancelar(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
         }
     }
 }

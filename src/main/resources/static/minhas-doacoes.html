@@ -291,6 +291,79 @@
             padding-top: 80px;
         }
 
+        /* Filtros em formato oval */
+        .filters-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .filters-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+            white-space: nowrap;
+        }
+
+        .filter-btn i {
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active:hover {
+            background: #f8f9fa;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .filters-wrapper {
+                flex-direction: column;
+                border-radius: 30px;
+            }
+
+            .filter-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
         /* Estilos para o chat widget flutuante */
         .chat-widget-container {
             position: fixed !important;
@@ -642,6 +715,32 @@
             <div class="stat-card">
                 <div class="stat-number" id="total-quantity">0</div>
                 <div class="stat-label">Total (kg)</div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-container">
+            <div class="filters-wrapper">
+                <button class="filter-btn active" data-filter="todas">
+                    <i class="fas fa-list"></i>
+                    Todas
+                </button>
+                <button class="filter-btn" data-filter="ativas">
+                    <i class="fas fa-check-circle"></i>
+                    Ativas
+                </button>
+                <button class="filter-btn" data-filter="inativas">
+                    <i class="fas fa-pause-circle"></i>
+                    Inativas
+                </button>
+                <button class="filter-btn" data-filter="vencidas">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Vencidas
+                </button>
+                <button class="filter-btn" data-filter="urgentes">
+                    <i class="fas fa-clock"></i>
+                    Urgentes
+                </button>
             </div>
         </div>
 

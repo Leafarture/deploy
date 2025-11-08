@@ -168,6 +168,9 @@ function displayDoacaoDetails(doacao) {
     // Informações do doador
     displayDonorInfo(doacao);
     
+    // Verificar se o usuário é o dono e ocultar botão de solicitar se for
+    checkIfUserIsOwner(doacao);
+    
     // Exibir conteúdo principal
     mainContent.style.display = 'block';
 }
@@ -214,6 +217,38 @@ function displayLocation(doacao) {
                 </div>
             </div>
         `;
+    }
+}
+
+/**
+ * ===== VERIFICAR SE USUÁRIO É O DONO =====
+ */
+function checkIfUserIsOwner(doacao) {
+    const token = localStorage.getItem('token');
+    const userInfo = localStorage.getItem('user');
+    const btnSolicitar = document.getElementById('btn-solicitar');
+    
+    if (!btnSolicitar) return;
+    
+    // Se não estiver logado, manter botão visível (será tratado no modal)
+    if (!token || !userInfo) {
+        return;
+    }
+    
+    try {
+        const user = JSON.parse(userInfo);
+        
+        // Verificar se o usuário é o dono da doação
+        if (doacao.doador && doacao.doador.id && user.id && doacao.doador.id === user.id) {
+            // Usuário é o dono, ocultar botão de solicitar
+            btnSolicitar.style.display = 'none';
+        } else {
+            // Usuário não é o dono, mostrar botão
+            btnSolicitar.style.display = 'block';
+        }
+    } catch (e) {
+        console.error('Erro ao verificar se usuário é dono:', e);
+        // Em caso de erro, manter botão visível
     }
 }
 
@@ -338,11 +373,40 @@ async function confirmarSolicitacao() {
         });
         
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Erro ao solicitar doação');
+            let errorMessage = 'Erro ao solicitar doação';
+            const contentType = response.headers.get('content-type');
+            
+            try {
+                if (contentType && contentType.includes('application/json')) {
+                    const errorData = await response.json();
+                    // Tentar extrair mensagem de diferentes formatos possíveis
+                    if (typeof errorData === 'string') {
+                        errorMessage = errorData;
+                    } else if (errorData.message) {
+                        errorMessage = errorData.message;
+                    } else if (errorData.error) {
+                        errorMessage = errorData.error;
+                    } else if (typeof errorData === 'object') {
+                        // Se for um objeto, tentar converter para string útil
+                        errorMessage = JSON.stringify(errorData);
+                    } else {
+                        errorMessage = String(errorData);
+                    }
+                } else {
+                    // Se não for JSON, tentar ler como texto
+                    const errorText = await response.text();
+                    errorMessage = errorText || errorMessage;
+                }
+            } catch (e) {
+                console.error('Erro ao processar resposta de erro:', e);
+                errorMessage = `Erro ${response.status}: ${response.statusText}`;
+            }
+            
+            throw new Error(errorMessage);
         }
         
         // Sucesso
+        const result = await response.json();
         closeModal();
         showSuccessMessage('Solicitação enviada com sucesso!');
         
@@ -353,7 +417,30 @@ async function confirmarSolicitacao() {
         
     } catch (error) {
         console.error('Erro ao solicitar doação:', error);
-        alert('Erro ao solicitar doação: ' + error.message);
+        
+        // Extrair mensagem de erro de forma mais robusta
+        let errorMessage = 'Erro ao solicitar doação';
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        } else if (typeof error === 'string') {
+            errorMessage = error;
+        } else if (error && typeof error === 'object') {
+            // Se for um objeto, tentar extrair mensagem
+            if (error.message) {
+                errorMessage = error.message;
+            } else if (error.error) {
+                errorMessage = error.error;
+            } else {
+                // Último recurso: converter objeto para string legível
+                try {
+                    errorMessage = JSON.stringify(error);
+                } catch (e) {
+                    errorMessage = String(error);
+                }
+            }
+        }
+        
+        alert('Erro ao solicitar doação: ' + errorMessage);
     } finally {
         btnConfirmar.disabled = false;
         btnConfirmar.innerHTML = '<i class="fas fa-check"></i> Confirmar Solicitação';
