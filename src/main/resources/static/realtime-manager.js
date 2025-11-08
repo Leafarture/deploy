@@ -115,6 +115,12 @@ class RealtimeManager {
         this.emit('solicitacaoRecusada', { solicitacao, timestamp: new Date().toISOString() });
         this.broadcastToOtherTabs('solicitacaoRecusada', { solicitacao, timestamp: new Date().toISOString() });
     }
+
+    // Método de conveniência para solicitação cancelada
+    notifySolicitacaoCancelada(solicitacao) {
+        this.emit('solicitacaoCancelada', { solicitacao, timestamp: new Date().toISOString() });
+        this.broadcastToOtherTabs('solicitacaoCancelada', { solicitacao, timestamp: new Date().toISOString() });
+    }
 }
 
 // Instância global
@@ -137,6 +143,10 @@ function notifySolicitacaoRecusada(solicitacao) {
     realtimeManager.notifySolicitacaoRecusada(solicitacao);
 }
 
+function notifySolicitacaoCancelada(solicitacao) {
+    realtimeManager.notifySolicitacaoCancelada(solicitacao);
+}
+
 // Exportar para uso em outros arquivos
 window.RealtimeManager = RealtimeManager;
 window.realtimeManager = realtimeManager;
@@ -144,3 +154,4 @@ window.notifyNewDonation = notifyNewDonation;
 window.notifyNewSolicitacao = notifyNewSolicitacao;
 window.notifySolicitacaoAceita = notifySolicitacaoAceita;
 window.notifySolicitacaoRecusada = notifySolicitacaoRecusada;
+window.notifySolicitacaoCancelada = notifySolicitacaoCancelada;

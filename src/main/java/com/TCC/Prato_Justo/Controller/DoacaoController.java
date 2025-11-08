@@ -163,6 +163,21 @@ public class DoacaoController {
                 return ResponseEntity.status(403).body("Você não tem permissão para editar esta doação. Apenas o criador pode editá-la.");
             }
 
+            // Verificar se há solicitações concluídas para esta doação
+            List<com.TCC.Prato_Justo.Model.Solicitacao> solicitacoes = solicitacaoService.listarPorDoacao(id);
+            boolean temSolicitacaoConcluida = solicitacoes.stream()
+                .anyMatch(s -> s.getStatus() == com.TCC.Prato_Justo.Model.StatusSolicitacao.CONCLUIDA);
+            
+            // Se houver solicitação concluída, não permitir reativar a doação
+            if (temSolicitacaoConcluida && dto.getAtivo() != null && dto.getAtivo()) {
+                return ResponseEntity.status(400).body("Não é possível reativar uma doação que já foi concluída. A doação permanecerá inativa.");
+            }
+            
+            // Se houver solicitação concluída, garantir que a doação permaneça inativa
+            if (temSolicitacaoConcluida) {
+                dto.setAtivo(false);
+            }
+
             // Deletar imagem antiga se uma nova imagem foi fornecida
             if (dto.getImagem() != null && !dto.getImagem().equals(doacao.getImagem()) && doacao.getImagem() != null) {
                 fileUploadService.deleteFoodImage(doacao.getImagem());
@@ -499,7 +514,18 @@ public class DoacaoController {
             }
 
             com.TCC.Prato_Justo.Model.Solicitacao solicitacao = solicitacaoOpt.get();
-            if (!solicitacao.getSolicitante().getId().equals(usuario.getId())) {
+            
+            // Verificar se o usuário é o solicitante OU o doador da doação
+            boolean isSolicitante = solicitacao.getSolicitante() != null && 
+                                    solicitacao.getSolicitante().getId().equals(usuario.getId());
+            
+            boolean isDoador = false;
+            if (solicitacao.getDoacao() != null && solicitacao.getDoacao().getDoador() != null) {
+                Long doadorId = solicitacao.getDoacao().getDoador().getId();
+                isDoador = doadorId != null && doadorId.equals(usuario.getId());
+            }
+            
+            if (!isSolicitante && !isDoador) {
                 return ResponseEntity.status(403).body("Você não tem permissão para cancelar esta solicitação");
             }
 

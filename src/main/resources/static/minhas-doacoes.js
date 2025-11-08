@@ -321,16 +321,47 @@ class MinhasDoacoesApp {
         
         const tipoLabel = tipoLabels[donation.tipoAlimento] || donation.tipoAlimento || 'Alimento';
         
-        // Status ativo/inativo
-        const activeStatus = donation.ativo ? 
-            '<span class="status-badge active">Ativa</span>' : 
-            '<span class="status-badge inactive">Inativa</span>';
-
         // Carregar solicitações desta doação
         const requests = this.donationRequests[donation.id] || [];
         const pendingRequests = requests.filter(r => r.status === 'solicitada');
         const inProgressRequests = requests.filter(r => r.status === 'em_andamento');
         const completedRequests = requests.filter(r => r.status === 'concluida');
+        
+        // Verificar se há solicitações concluídas
+        const hasCompletedRequests = completedRequests.length > 0;
+        
+        // Obter data de conclusão (data de atualização da solicitação concluída mais recente)
+        let dataConclusao = null;
+        if (hasCompletedRequests && completedRequests.length > 0) {
+            // Ordenar por data de atualização (mais recente primeiro) e pegar a primeira
+            const sortedCompleted = completedRequests
+                .filter(r => r.dataAtualizacao)
+                .sort((a, b) => {
+                    const dateA = new Date(a.dataAtualizacao);
+                    const dateB = new Date(b.dataAtualizacao);
+                    return dateB - dateA; // Mais recente primeiro
+                });
+            if (sortedCompleted.length > 0) {
+                dataConclusao = sortedCompleted[0].dataAtualizacao;
+            }
+        }
+        
+        // Status ativo/inativo e concluída
+        let activeStatus = '';
+        if (hasCompletedRequests) {
+            activeStatus = `
+                <span class="status-badge inactive" style="background: #6c757d; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">
+                    <i class="fas fa-pause-circle"></i> Inativa
+                </span>
+                <span class="status-badge completed" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem; margin-left: 0.5rem;">
+                    <i class="fas fa-check-circle"></i> Concluída
+                </span>
+            `;
+        } else {
+            activeStatus = donation.ativo ? 
+                '<span class="status-badge active">Ativa</span>' : 
+                '<span class="status-badge inactive">Inativa</span>';
+        }
 
         // Seção de solicitações
         let requestsSection = '';
@@ -357,10 +388,12 @@ class MinhasDoacoesApp {
                             <strong style="color: #0f5132;">Concluídas: ${completedRequests.length}</strong>
                         </div>
                     ` : ''}
-                    <button class="btn-view-requests" onclick="event.stopPropagation(); viewRequests(${donation.id})" 
-                            style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
-                        <i class="fas fa-eye"></i> Ver Solicitações
-                    </button>
+                    ${!hasCompletedRequests ? `
+                        <button class="btn-view-requests" onclick="event.stopPropagation(); viewRequests(${donation.id})" 
+                                style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
+                            <i class="fas fa-eye"></i> Ver Solicitações
+                        </button>
+                    ` : ''}
                 </div>
             `;
         }
@@ -390,6 +423,22 @@ class MinhasDoacoesApp {
             <div class="doacao-body">
                 <h3 class="doacao-title">${donation.titulo || 'Alimento para Doação'}</h3>
                 <p class="doacao-description">${donation.descricao || 'Descrição não disponível'}</p>
+                
+                ${hasCompletedRequests ? `
+                    <!-- Status da Doação Concluída -->
+                    <div class="request-status-container" style="margin: 1rem 0; padding: 1rem; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; border: 2px solid rgba(16, 185, 129, 0.2); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                        <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;">
+                            <span class="request-status-badge status-concluida" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #10b981, #059669); color: white;">
+                                <i class="fas fa-check-circle"></i>
+                                Concluída
+                            </span>
+                        </div>
+                        <div style="text-align: center; font-size: 0.85rem; color: #6c757d; font-weight: 500;">
+                            <i class="fas fa-calendar-check" style="margin-right: 0.4rem;"></i> 
+                            Concluída em: ${dataConclusao ? new Date(dataConclusao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Data não informada'}
+                        </div>
+                    </div>
+                ` : ''}
                 
                 <!-- Detalhes do Alimento -->
                 <div class="doacao-details">
@@ -427,28 +476,36 @@ class MinhasDoacoesApp {
             
             <!-- Footer com Status e Ações -->
             <div class="doacao-footer">
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; ${hasCompletedRequests ? 'justify-content: center; width: 100%;' : ''}">
                     ${activeStatus}
                 </div>
-                <div class="donation-actions" style="display: flex; gap: 0.5rem;">
-                    <button class="btn-edit" onclick="event.stopPropagation(); editDonation(${donation.id})" title="Editar doação">
-                        <i class="fas fa-edit"></i>
-                        Editar
-                    </button>
-                    <button class="btn-delete" onclick="event.stopPropagation(); deleteDonation(${donation.id}, event)" title="Excluir doação">
-                        <i class="fas fa-trash"></i>
-                        Excluir
-                    </button>
-                </div>
+                ${!hasCompletedRequests ? `
+                    <div class="donation-actions" style="display: flex; gap: 0.5rem;">
+                        <button class="btn-edit" onclick="event.stopPropagation(); editDonation(${donation.id})" title="Editar doação">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </button>
+                        <button class="btn-delete" onclick="event.stopPropagation(); deleteDonation(${donation.id}, event)" title="Excluir doação">
+                            <i class="fas fa-trash"></i>
+                            Excluir
+                        </button>
+                    </div>
+                ` : ''}
             </div>
         `;
 
-        // Adicionar evento de clique para ver detalhes (exceto nos botões)
-        card.addEventListener('click', function(e) {
-            if (!e.target.closest('.btn-edit') && !e.target.closest('.btn-delete')) {
-                window.location.href = `detalhes-alimento.html?id=${donation.id}`;
-            }
-        });
+        // Adicionar evento de clique para ver detalhes (exceto nos botões e se não estiver concluída)
+        if (!hasCompletedRequests) {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('.btn-edit') && !e.target.closest('.btn-delete') && !e.target.closest('.btn-view-requests')) {
+                    window.location.href = `detalhes-alimento.html?id=${donation.id}`;
+                }
+            });
+        } else {
+            // Se estiver concluída, adicionar estilo para indicar que não é clicável
+            card.style.cursor = 'default';
+            card.style.opacity = '0.9';
+        }
 
         return card;
     }
@@ -632,16 +689,16 @@ function showDeleteConfirmation(donationId) {
 
 // Função auxiliar para mostrar notificações
 function showNotification(message, type = 'info', duration = 3000) {
-    // Verificar se já existe sistema de notificação
-    if (typeof window.showNotification === 'function') {
-        window.showNotification(message, type, duration);
+    // Verificar se já existe sistema de notificação (NotificationManager do notification.js)
+    if (typeof window.notification !== 'undefined' && window.notification && typeof window.notification.show === 'function') {
+        window.notification.show(message, type, duration);
         return;
     }
     
     // Criar notificação simples
-    const notification = document.createElement('div');
+    const notificationElement = document.createElement('div');
     const bgColor = type === 'success' ? '#10b981' : type === 'error' ? '#e74c3c' : '#667eea';
-    notification.style.cssText = `
+    notificationElement.style.cssText = `
         position: fixed;
         top: 100px;
         right: 2rem;
@@ -659,16 +716,16 @@ function showNotification(message, type = 'info', duration = 3000) {
     `;
     
     const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
-    notification.innerHTML = `
+    notificationElement.innerHTML = `
         <i class="fas ${icon}" style="font-size: 1.5rem;"></i>
         <span style="font-weight: 500;">${message}</span>
     `;
     
-    document.body.appendChild(notification);
+    document.body.appendChild(notificationElement);
     
     setTimeout(() => {
-        notification.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
+        notificationElement.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => notificationElement.remove(), 300);
     }, duration);
 }
 
@@ -754,8 +811,12 @@ function showRequestsModal(donationId, requests) {
                         <i class="fas fa-comments"></i> Chat
                     </button>
                     <button class="btn-collect" onclick="markAsCollected(${req.id}, ${donationId})" 
-                            style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; margin-right: 0.5rem;">
                         <i class="fas fa-check-circle"></i> Marcar como Coletada
+                    </button>
+                    <button class="btn-cancel" onclick="cancelRequest(${req.id}, ${donationId})" 
+                            style="padding: 0.5rem 1rem; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        <i class="fas fa-times-circle"></i> Cancelar
                     </button>
                 `;
             }
@@ -950,6 +1011,55 @@ async function markAsCollected(requestId, donationId) {
     } catch (error) {
         console.error('Erro:', error);
         showNotification('Erro ao marcar como coletada.', 'error');
+    }
+}
+
+// Função para cancelar solicitação
+async function cancelRequest(requestId, donationId) {
+    if (!confirm('Tem certeza que deseja cancelar esta solicitação? Esta ação não pode ser desfeita.')) {
+        return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showNotification('Você precisa estar logado.', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/doacoes/solicitacoes/${requestId}/cancelar`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok || response.status === 204) {
+            showNotification('Solicitação cancelada com sucesso!', 'success');
+            
+            // Fechar modal e recarregar
+            document.querySelector('.requests-modal')?.remove();
+            
+            // Notificar sistema de tempo real
+            if (typeof window.realtimeManager !== 'undefined' && 
+                window.realtimeManager && 
+                typeof window.realtimeManager.notifySolicitacaoCancelada === 'function') {
+                window.realtimeManager.notifySolicitacaoCancelada({ id: requestId });
+            } else if (typeof notifySolicitacaoCancelada === 'function') {
+                notifySolicitacaoCancelada({ id: requestId });
+            }
+            
+            if (window.minhasDoacoesApp) {
+                await window.minhasDoacoesApp.loadMyDonations();
+            }
+        } else {
+            const error = await response.text();
+            showNotification(`Erro: ${error}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        showNotification('Erro ao cancelar solicitação.', 'error');
     }
 }
 

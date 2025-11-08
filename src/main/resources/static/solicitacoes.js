@@ -310,10 +310,12 @@ class SolicitacoesApp {
                 <p class="doacao-description">${doacao.descricao || 'Descrição não disponível'}</p>
                 
                 <!-- Status da Solicitação -->
-                <div class="request-status-container" style="margin: 1rem 0; padding: 0.75rem; background: #f8f9fa; border-radius: 10px;">
-                    ${statusBadge}
-                    <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #6c757d;">
-                        <i class="fas fa-calendar"></i> Solicitado em: ${dataSolicitacao}
+                <div class="request-status-container" style="margin: 1rem 0; padding: 1rem; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; border: 2px solid rgba(102, 126, 234, 0.1); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;">
+                        ${statusBadge}
+                    </div>
+                    <div style="text-align: center; font-size: 0.85rem; color: #6c757d; font-weight: 500;">
+                        <i class="fas fa-calendar" style="margin-right: 0.4rem;"></i> Solicitado em: ${dataSolicitacao}
                     </div>
                 </div>
                 
@@ -358,31 +360,36 @@ class SolicitacoesApp {
             </div>
             
             <!-- Footer com Ações -->
-            <div class="doacao-footer">
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    ${statusBadge}
-                </div>
-                <div class="donation-actions" style="display: flex; gap: 0.5rem;">
-                    <button class="btn-view" onclick="event.stopPropagation(); viewDonation(${doacao.id})" title="Ver detalhes">
-                        <i class="fas fa-eye"></i>
-                        Ver Detalhes
-                    </button>
+            <div class="doacao-footer" style="display: flex; flex-direction: column; gap: 1rem; padding-top: 1rem; border-top: 1px solid #e0e0e0;">
+                <div class="donation-actions" style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; align-items: center;">
                     ${status === 'em_andamento' ? `
-                        <button class="btn-chat" onclick="event.stopPropagation(); openChat(${doacao.doador?.id || 'null'}, ${request.id})" title="Abrir chat">
-                            <i class="fas fa-comments"></i>
+                        <button class="btn-chat" onclick="event.stopPropagation(); openChat(${doacao.doador?.id || 'null'}, ${request.id})" title="Abrir chat"
+                                style="flex: 1; min-width: 140px; padding: 0.85rem 1.5rem; background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);">
+                            <i class="fas fa-comments" style="font-size: 1.1rem;"></i>
                             Chat
                         </button>
-                        <button class="btn-collect" onclick="event.stopPropagation(); confirmCollection(${request.id}, event)" title="Confirmar coleta">
-                            <i class="fas fa-check-circle"></i>
+                        <button class="btn-collect" onclick="event.stopPropagation(); confirmCollection(${request.id}, event)" title="Confirmar coleta"
+                                style="flex: 1; min-width: 180px; padding: 0.85rem 1.5rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
+                            <i class="fas fa-check-circle" style="font-size: 1.1rem;"></i>
                             Confirmar Coleta
                         </button>
-                    ` : ''}
-                    ${status === 'solicitada' || status === 'em_andamento' ? `
-                        <button class="btn-cancel" onclick="event.stopPropagation(); cancelRequest(${request.id}, event)" title="Cancelar solicitação">
-                            <i class="fas fa-times"></i>
+                        <button class="btn-cancel" onclick="event.stopPropagation(); cancelRequest(${request.id}, event)" title="Cancelar solicitação"
+                                style="flex: 1; min-width: 140px; padding: 0.85rem 1.5rem; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);">
+                            <i class="fas fa-times-circle" style="font-size: 1.1rem;"></i>
                             Cancelar
                         </button>
+                    ` : status === 'solicitada' ? `
+                        <button class="btn-cancel" onclick="event.stopPropagation(); cancelRequest(${request.id}, event)" title="Cancelar solicitação"
+                                style="flex: 1; min-width: 160px; padding: 0.85rem 1.5rem; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);">
+                            <i class="fas fa-times-circle" style="font-size: 1.1rem;"></i>
+                            Cancelar Solicitação
+                        </button>
                     ` : ''}
+                    <button class="btn-view" onclick="event.stopPropagation(); viewDonation(${doacao.id})" title="Ver detalhes"
+                            style="flex: ${status === 'concluida' || status === 'cancelada' ? '1' : '1'}; min-width: ${status === 'concluida' || status === 'cancelada' ? '200px' : '160px'}; max-width: ${status === 'concluida' || status === 'cancelada' ? '300px' : 'none'}; padding: 0.85rem 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                        <i class="fas fa-eye" style="font-size: 1.1rem;"></i>
+                        Ver Detalhes
+                    </button>
                 </div>
             </div>
         `;
