@@ -907,9 +907,18 @@ async function acceptRequest(requestId, donationId) {
                 await window.minhasDoacoesApp.loadMyDonations();
             }
             
-            // Abrir chat se disponível
+            // Redirecionar para chat com o usuário que solicitou
             if (data.solicitante && data.solicitante.id) {
-                setTimeout(() => openChat(data.solicitante.id, requestId), 1000);
+                // Salvar informações do solicitante no localStorage para uso no chat
+                localStorage.setItem('chatUserInfo', JSON.stringify({
+                    id: data.solicitante.id,
+                    nome: data.solicitante.nome || data.solicitante.name,
+                    email: data.solicitante.email
+                }));
+                
+                setTimeout(() => {
+                    window.location.href = `chat.html?userId=${data.solicitante.id}&requestId=${requestId}`;
+                }, 1000);
             }
         } else {
             const error = await response.text();
@@ -1066,7 +1075,11 @@ async function cancelRequest(requestId, donationId) {
 // Função para abrir chat
 function openChat(userId, requestId) {
     // Redirecionar para chat com o usuário
-    window.location.href = `chat.html?userId=${userId}&requestId=${requestId}`;
+    if (userId) {
+        window.location.href = `chat.html?userId=${userId}&requestId=${requestId}`;
+    } else {
+        window.location.href = 'chat.html';
+    }
 }
 
 // Função para mostrar modal de avaliação

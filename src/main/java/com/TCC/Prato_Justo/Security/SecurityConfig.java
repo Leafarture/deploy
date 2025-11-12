@@ -30,6 +30,8 @@ public class SecurityConfig {
                         .requestMatchers("/auth/login", "/auth/registro", "/auth/cadastros").permitAll()
                         .requestMatchers("/login.html", "/cadastro_perfil.html", "/Estabelecimento.html", "/Usuario.html", "/index.html", "/").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/static/**").permitAll()
+                        // Permitir WebSocket endpoint e recursos relacionados
+                        .requestMatchers("/ws-chat/**", "/ws-chat").permitAll()
                         // Permitir GETs públicos em doações (listar, ver detalhes, buscar próximas)
                         .requestMatchers(HttpMethod.GET, "/doacoes").permitAll()
                         .requestMatchers(HttpMethod.GET, "/doacoes/proximas").permitAll()  // Deve vir antes de /doacoes/*

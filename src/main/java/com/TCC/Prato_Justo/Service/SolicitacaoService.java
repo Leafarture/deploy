@@ -1,12 +1,15 @@
 package com.TCC.Prato_Justo.Service;
 
+import com.TCC.Prato_Justo.Interface.ChatRepository;
 import com.TCC.Prato_Justo.Interface.DoacaoRepository;
 import com.TCC.Prato_Justo.Interface.SolicitacaoRepository;
+import com.TCC.Prato_Justo.Model.Chat;
 import com.TCC.Prato_Justo.Model.Doacao;
 import com.TCC.Prato_Justo.Model.Solicitacao;
 import com.TCC.Prato_Justo.Model.StatusSolicitacao;
 import com.TCC.Prato_Justo.Model.Usuario;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,10 +19,14 @@ public class SolicitacaoService {
 
     private final SolicitacaoRepository solicitacaoRepository;
     private final DoacaoRepository doacaoRepository;
+    private final ChatRepository chatRepository;
 
-    public SolicitacaoService(SolicitacaoRepository solicitacaoRepository, DoacaoRepository doacaoRepository) {
+    public SolicitacaoService(SolicitacaoRepository solicitacaoRepository, 
+                            DoacaoRepository doacaoRepository,
+                            ChatRepository chatRepository) {
         this.solicitacaoRepository = solicitacaoRepository;
         this.doacaoRepository = doacaoRepository;
+        this.chatRepository = chatRepository;
     }
 
     public Solicitacao criar(Doacao doacao, Usuario solicitante) {
@@ -71,6 +78,7 @@ public class SolicitacaoService {
         return solicitacaoRepository.findByDoacaoId(doacaoId);
     }
 
+    @Transactional
     public Solicitacao aceitar(Long solicitacaoId, Long doadorId) {
         Solicitacao solicitacao = solicitacaoRepository.findById(solicitacaoId)
             .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada"));
@@ -98,7 +106,27 @@ public class SolicitacaoService {
             }
         });
         
-        return solicitacaoRepository.save(solicitacao);
+        // Salvar solicitação atualizada
+        Solicitacao solicitacaoSalva = solicitacaoRepository.save(solicitacao);
+        
+        // Criar Chat entre doador e solicitante
+        Usuario doador = solicitacao.getDoacao().getDoador();
+        Usuario solicitante = solicitacao.getSolicitante();
+        
+        // Verificar se já existe um chat entre esses usuários para esta solicitação
+        Optional<Chat> chatExistente = chatRepository.findBySolicitacaoId(solicitacaoId);
+        
+        if (chatExistente.isEmpty()) {
+            Chat novoChat = new Chat();
+            novoChat.setToken(Chat.gerarToken());
+            novoChat.setUsuario1(doador); // Doador
+            novoChat.setUsuario2(solicitante); // Solicitante
+            novoChat.setSolicitacao(solicitacaoSalva);
+            novoChat.setAtivo(true);
+            chatRepository.save(novoChat);
+        }
+        
+        return solicitacaoSalva;
     }
 
     public Solicitacao recusar(Long solicitacaoId, Long doadorId) {

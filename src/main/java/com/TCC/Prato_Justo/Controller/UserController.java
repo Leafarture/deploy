@@ -222,6 +222,56 @@ public class UserController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id,
+                                         @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Token não fornecido");
+            }
+
+            String token = authHeader.substring(7);
+            
+            if (!authService.isTokenValid(token)) {
+                return ResponseEntity.status(401).body("Token inválido");
+            }
+
+            Usuario usuario = authService.getCurrentUser(token);
+            if (usuario == null) {
+                return ResponseEntity.status(404).body("Usuário não encontrado");
+            }
+
+            // Buscar o usuário solicitado
+            Usuario targetUser = authService.getUserById(id);
+            if (targetUser == null) {
+                return ResponseEntity.status(404).body("Usuário não encontrado");
+            }
+
+            // Retornar dados do usuário sem a senha
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("id", targetUser.getId());
+            userData.put("nome", targetUser.getNome());
+            userData.put("email", targetUser.getEmail());
+            userData.put("telefone", targetUser.getTelefone());
+            userData.put("tipoUsuario", targetUser.getTipoUsuario());
+            userData.put("statusAtivo", targetUser.getStatusAtivo());
+            userData.put("verificado", targetUser.getVerificado());
+            userData.put("dataCadastro", targetUser.getDataCadastro());
+            userData.put("rua", targetUser.getRua());
+            userData.put("numero", targetUser.getNumero());
+            userData.put("complemento", targetUser.getComplemento());
+            userData.put("cidade", targetUser.getCidade());
+            userData.put("estado", targetUser.getEstado());
+            userData.put("cep", targetUser.getCep());
+            userData.put("descricao", targetUser.getDescricao());
+            userData.put("avatarUrl", targetUser.getAvatarUrl());
+
+            return ResponseEntity.ok(userData);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
+        }
+    }
+
     @PostMapping("/me/avatar")
     public ResponseEntity<?> uploadAvatar(@RequestParam("avatar") MultipartFile file,
                                          @RequestHeader(value = "Authorization", required = false) String authHeader) {

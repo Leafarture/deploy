@@ -916,67 +916,12 @@
                 }
             }, 2000);
 
-            // Toggle do chat
+            // Toggle do chat - Redirecionar para tela de chat
             if (chatToggle) {
                 chatToggle.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    chatPanel.classList.toggle('active');
-                
-                // Garantir que sidebar apareça e chat-area fique escondida
-                const sidebar = document.getElementById('sidebar');
-                const chatArea = document.querySelector('.chat-area');
-                if (sidebar) {
-                    sidebar.classList.remove('hidden');
-                }
-                if (chatArea) {
-                    chatArea.classList.remove('active');
-                }
-                
-                if (chatPanel.classList.contains('active') && !chatInitialized) {
-                    // Aguardar um pouco para garantir que o DOM está pronto
-                    setTimeout(() => {
-                        // Inicializar chat quando aberto pela primeira vez
-                        try {
-                            // Verificar se os elementos DOM existem
-                            const sidebar = document.getElementById('sidebar');
-                            const chatsList = document.getElementById('chatsList');
-                            const messagesContainer = document.getElementById('messagesContainer');
-                            const messageInput = document.getElementById('messageInput');
-                            const sendBtn = document.getElementById('sendBtn');
-                            
-                            if (!sidebar || !chatsList || !messagesContainer || !messageInput || !sendBtn) {
-                                console.error('Elementos do chat não encontrados!');
-                                return;
-                            }
-                            
-                            // Garantir que sidebar esteja visível
-                            sidebar.classList.remove('hidden');
-                            const chatArea = document.querySelector('.chat-area');
-                            if (chatArea) chatArea.classList.remove('active');
-                            
-                            // Inicializar chat se a função existir
-                            if (typeof initializeApp === 'function') {
-                                initializeApp();
-                                chatInitialized = true;
-                                console.log('Chat inicializado com sucesso!');
-                            } else {
-                                // Tentar inicializar manualmente se a função não existir
-                                console.log('Função initializeApp não encontrada, inicializando manualmente...');
-                                initializeChatManually();
-                                chatInitialized = true;
-                            }
-                        } catch (error) {
-                            console.error('Erro ao inicializar chat:', error);
-                            // Tentar inicializar manualmente mesmo com erro
-                            try {
-                                initializeChatManually();
-                                chatInitialized = true;
-                            } catch (e) {
-                                console.error('Erro ao inicializar chat manualmente:', e);
-                            }
-                        }
-                    }, 200);
-                }
+                    // Redirecionar para a tela de chat ao invés de abrir sidebar
+                    window.location.href = 'chat.html';
                 });
             }
 

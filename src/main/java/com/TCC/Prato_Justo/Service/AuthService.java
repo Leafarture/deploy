@@ -82,4 +82,8 @@ public class AuthService {
         
         return stats;
     }
+
+    public Usuario getUserById(Long id) {
+        return usuarioService.buscarPorId(id).orElse(null);
+    }
 }
