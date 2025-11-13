@@ -1044,3 +1044,137 @@ document.querySelectorAll('.feature, .step, .impact-card').forEach((el, index) =
         child.style.transitionDelay = `${childIndex * 150 + 300}ms`;
     });
 });
+* INTERAÇÕES DO HEADER E MENU */
+/* ========================== */
+// =========================================
+// HEADER E NAVEGAÇÃO - INTERAÇÕES MELHORADAS
+// =========================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    const header = document.getElementById('main-header');
+    const navMenu = document.getElementById('nav-menu');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+
+    // ===== HEADER SCROLL EFFECT =====
+    let lastScrollY = window.scrollY;
+    const updateHeader = () => {
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+        lastScrollY = window.scrollY;
+    };
+    window.addEventListener('scroll', updateHeader);
+
+    // ===== MENU MOBILE =====
+    const toggleMobileMenu = () => {
+        const isActive = navMenu.classList.toggle('active');
+        mobileMenuBtn.classList.toggle('open');
+        mobileOverlay.classList.toggle('active');
+        mobileMenuBtn.setAttribute('aria-expanded', isActive);
+
+        // Previne scroll do body quando menu aberto
+        document.body.style.overflow = isActive ? 'hidden' : '';
+    };
+
+    mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+    mobileOverlay.addEventListener('click', toggleMobileMenu);
+
+    // Fecha menu ao clicar em links
+    document.querySelectorAll('.nav-link, .dropdown-item').forEach(link => {
+        link.addEventListener('click', () => {
+            if (navMenu.classList.contains('active')) {
+                toggleMobileMenu();
+            }
+        });
+    });
+
+    // ===== DROPDOWN INTERAÇÕES =====
+    dropdownToggles.forEach(toggle => {
+        const dropdown = toggle.parentElement;
+        const menu = dropdown.querySelector('.dropdown-menu');
+
+        const toggleDropdown = (e) => {
+            e.preventDefault();
+            const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', !isExpanded);
+            menu.classList.toggle('show');
+        };
+
+        // Desktop: hover
+        dropdown.addEventListener('mouseenter', () => {
+            if (window.innerWidth > 768) {
+                toggle.setAttribute('aria-expanded', 'true');
+                menu.classList.add('show');
+            }
+        });
+        dropdown.addEventListener('mouseleave', () => {
+            if (window.innerWidth > 768) {
+                toggle.setAttribute('aria-expanded', 'false');
+                menu.classList.remove('show');
+            }
+        });
+
+        // Mobile: click
+        toggle.addEventListener('click', toggleDropdown);
+    });
+
+    // Fecha dropdowns ao clicar fora
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.dropdown')) {
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                menu.classList.remove('show');
+                menu.previousElementSibling.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+
+    // ===== ACESSIBILIDADE: NAVEGAÇÃO POR TECLADO =====
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            // Fecha menus abertos
+            if (navMenu.classList.contains('active')) toggleMobileMenu();
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                menu.classList.remove('show');
+                menu.previousElementSibling.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+
+    // ===== INTEGRAÇÃO COM AUTENTICAÇÃO (BASEADO NO SEU CÓDIGO EXISTENTE) =====
+    // Chame updateHeaderActions() quando o authManager estiver pronto
+    if (window.authManager) {
+        updateHeaderActions();
+    } else {
+        // Fallback se authManager não estiver carregado
+        document.getElementById('header-actions').innerHTML = `
+            <a href="login.html" class="btn btn-outline">Entrar</a>
+            <a href="cadastro_perfil.html" class="btn btn-primary">Cadastrar</a>
+        `;
+    }
+  });
+
+  // Fecha dropdowns ao clicar fora (mobile)
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".dropdown")) {
+      document.querySelectorAll(".dropdown-menu.show").forEach(menu => {
+        menu.classList.remove("show");
+        menu.style.maxHeight = null;
+      });
+    }
+  });
+});
+
+/* ========================== */
+/* ANIMAÇÃO DO LOADING SCREEN */
+/* ========================== */
+window.addEventListener("load", () => {
+  const loadingScreen = document.querySelector(".loading-screen");
+  if (loadingScreen) {
+    loadingScreen.classList.add("fade-out");
+    setTimeout(() => loadingScreen.style.display = "none", 600);
+  }
+});

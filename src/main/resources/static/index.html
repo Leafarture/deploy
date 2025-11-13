@@ -1,47 +1,87 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prato Justo - Conectando Solidariedade</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="./index.css">
-    <link rel="stylesheet" href="./header-styles.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prato Justo</title>
+    <link rel="stylesheet" href="./index.css" />
+    <script defer src="./index.js"></script>
 </head>
 <body>
-<!-- Loading Screen -->
-<div class="loading-screen">
-    <div class="loading-spinner"></div>
-</div>
+<!-- HEADER -->
+<header class="header old-style" id="main-header">
+    <div class="container header-container">
+        <a href="index.html" class="logo" aria-label="Ir para página inicial">
+            <img src="img/logo.png" alt="Prato Justo" class="logo-img" onerror="this.style.display='none';">
+            <span class="logo-text">Prato Justo</span>
+        </a>
 
-<!-- Header -->
-<header class="header">
-    <nav class="nav">
-        <div class="nav-container">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-utensils"></i>
-                </div>
-                <h1>Prato Justo</h1>
-            </div>
+        <nav class="nav-menu" id="nav-menu" role="navigation" aria-label="Menu principal">
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link active" aria-current="page">Início</a></li>
 
-            <ul class="nav-menu">
-                <li><a href="index.html" class="nav-link active">Início</a></li>
-                <li><a href="doacoes.html" class="nav-link">Alimentos</a></li>
-                <li><a href="cadastro_alimento.html" class="nav-link">Cadastrar</a></li>
-                <li><a href="minhas-doacoes.html" class="nav-link">Minhas Doações</a></li>
-                <li><a href="solicitacoes.html" class="nav-link">Solicitações</a></li>
-                <li><a href="./Sobre.html" class="nav-link">Sobre</a></li>
+                <!-- Dropdown "Minhas Doações" Aprimorado -->
+                <li class="dropdown" role="menuitem">
+                    <a href="#" class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-tooltip="Gerencie suas doações e solicitações">
+                        Minhas Doações <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        <span class="notification-badge" id="donations-badge" style="display: none;">3</span> <!-- Indicador dinâmico -->
+                    </a>
+                    <ul class="dropdown-menu enhanced" role="menu">
+                        <li role="none">
+                            <a href="./solicitacoes.html" class="dropdown-item" role="menuitem" data-tooltip="Veja e responda a solicitações">
+                                <i class="fas fa-list-check"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Solicitações</span>
+                                    <span class="item-desc">Gerencie pedidos recebidos</span>
+                                </div>
+                                <span class="item-status pending">3 pendentes</span>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a href="cadastro_alimento.html" class="dropdown-item" role="menuitem" data-tooltip="Cadastre uma nova doação">
+                                <i class="fas fa-plus-circle"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Cadastrar</span>
+                                    <span class="item-desc">Adicione alimentos para doação</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a href="chat.html" class="dropdown-item" role="menuitem" data-tooltip="Converse com receptores">
+                                <i class="fas fa-comments"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Chat</span>
+                                    <span class="item-desc">Comunicação direta</span>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li><a href="Como_Doar.html" class="nav-link">Como doar</a></li>
+                <li><a href="porqueDoar.html" class="nav-link">Por que doar</a></li>
+                <li><a href="Sobre.html" class="nav-link">Sobre</a></li>
             </ul>
+        </nav>
 
-            <div class="header-actions" id="header-actions">
-                <!-- Será preenchido pelo sistema de autenticação -->
-            </div>
+        <div class="header-buttons" id="header-actions">
+            <!-- Botões simples como no código original -->
+            <a href="login.html" class="btn btn-outline">Entrar</a>
+            <a href="./cadastro_perfil.html" class="btn btn-primary">Cadastrar</a>
         </div>
-    </nav>
+
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Abrir menu mobile" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </button>
+    </div>
+
+    <!-- Overlay para menu mobile -->
+    <div class="mobile-overlay" id="mobile-overlay"></div>
 </header>
 
-<!-- Hero Section -->
+<!-- HERO -->
 <section id="home" class="hero">
     <div class="hero-content">
         <div class="hero-text">
@@ -57,7 +97,7 @@
 
             <p class="hero-description">
                 Conectamos doadores com comunidades carentes. Cada alimento doado
-                é um passo contra a fome e desperdício.
+                é um passo contra a fome e o desperdício.
             </p>
 
             <div class="hero-buttons">
@@ -152,7 +192,7 @@
     </div>
 </section>
 
-<!-- Footer -->
+<!-- FOOTER -->
 <footer class="footer">
     <div class="container">
         <div class="footer-content">
@@ -211,10 +251,11 @@
     </div>
 </footer>
 
-<!-- Scripts -->
 <script src="auth.js"></script>
 <script src="headerUser.js"></script>
 <script src="index.js"></script>
+
+
 
 </body>
 </html>
