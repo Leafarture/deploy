@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Por Que Doar - Prato Justo</title>
+    <link rel="stylesheet" href="./index.html"> <!-- CSS geral do header e projeto -->
+    <link rel="stylesheet" href="./porqueDoar.css"> <!-- CSS específico desta página -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- Ícones Font Awesome -->
+    <script defer src="./index.js"></script> <!-- JS geral do header -->
+    <script defer src="./auth.js"></script> <!-- Sistema de autenticação -->
+    <script defer src="./headerUser.js"></script> <!-- Header user -->
+    <script defer src="./porqueDoar.js"></script> <!-- JS específico desta página -->
+</head>
+<body>
+<!-- HEADER APRIMORADO -->
+<header class="header old-style" id="main-header">
+    <div class="container header-container">
+        <a href="index.html" class="logo" aria-label="Ir para página inicial do Prato Justo">
+            <img src="img/logo.png" alt="Logo Prato Justo" class="logo-img">
+            <span class="logo-text">Prato Justo</span>
+        </a>
+
+        <nav class="nav-menu" id="nav-menu" role="navigation" aria-label="Menu principal">
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Início</a></li>
+
+                <!-- Dropdown "Minhas Doações" com Dados Reais -->
+                <li class="dropdown" role="menuitem">
+                    <a href="#" class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-tooltip="Gerencie suas doações e solicitações">
+                        Minhas Doações <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        <span class="notification-badge" id="donations-badge" style="display: none;"></span>
+                    </a>
+                    <ul class="dropdown-menu enhanced" role="menu">
+                        <li role="none">
+                            <a href="./solicitacoes.html" class="dropdown-item" role="menuitem" data-tooltip="Veja e responda a solicitações">
+                                <i class="fas fa-list-check"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Solicitações</span>
+                                    <span class="item-desc">Gerencie pedidos recebidos</span>
+                                </div>
+                                <span class="item-status pending" id="solicitacoes-status">Carregando...</span>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a href="cadastro_alimento.html" class="dropdown-item" role="menuitem" data-tooltip="Cadastre uma nova doação">
+                                <i class="fas fa-plus-circle"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Cadastrar</span>
+                                    <span class="item-desc">Adicione alimentos para doação</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a href="chat.html" class="dropdown-item require-auth" role="menuitem" data-tooltip="Converse com receptores no chat funcional">
+                                <i class="fas fa-comments"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Chat</span>
+                                    <span class="item-desc">Comunicação direta</span>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li><a href="comoDoar.html" class="nav-link">Como doar</a></li>
+                <li><a href="porqueDoar.html" class="nav-link active" aria-current="page">Por que doar</a></li>
+                <li><a href="#contato" class="nav-link">Contato</a></li>
+            </ul>
+        </nav>
+
+        <div class="header-buttons" id="header-actions">
+            <a href="login.html" class="btn btn-outline">Entrar</a>
+            <a href="./cadastro_perfil.html" class="btn btn-primary">Cadastrar</a>
+        </div>
+
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Abrir menu mobile" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </button>
+    </div>
+
+    <!-- Overlay para menu mobile -->
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+</header>
+
+<!-- CONTEÚDO PRINCIPAL -->
+<main>
+    <!-- Seção Hero -->
+    <section class="porque-doar-hero">
+        <div class="container">
+            <h1>Por Que Doar no Prato Justo?</h1>
+            <p>Cada doação transforma vidas. Descubra como seu gesto de solidariedade combate a fome, reduz o desperdício e constrói um futuro mais justo.</p>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="stat-number" data-count="5000">5.000</div>
+                    <div class="stat-label">Famílias Ajudadas</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" data-count="20000">20.000</div>
+                    <div class="stat-label">Kg de Alimentos Doados</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" data-count="150">150</div>
+                    <div class="stat-label">Doadores Ativos</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Benefícios -->
+    <section class="benefits-section">
+        <div class="container">
+            <h2>Benefícios de Doar</h2>
+            <div class="benefits-grid">
+                <div class="benefit" data-animate>
+                    <i class="fas fa-heart"></i>
+                    <h3>Impacto Social</h3>
+                    <p>Ajude famílias em vulnerabilidade e veja sorrisos em rostos que precisam de esperança.</p>
+                </div>
+                <div class="benefit" data-animate>
+                    <i class="fas fa-leaf"></i>
+                    <h3>Sustentabilidade</h3>
+                    <p>Reduza o desperdício alimentar e contribua para um planeta mais verde e saudável.</p>
+                </div>
+                <div class="benefit" data-animate>
+                    <i class="fas fa-users"></i>
+                    <h3>Comunidade</h3>
+                    <p>Conecte-se com pessoas solidárias e construa laços de empatia e generosidade.</p>
+                </div>
+                <div class="benefit" data-animate>
+                    <i class="fas fa-star"></i>
+                    <h3>Satisfação Pessoal</h3>
+                    <p>Sinta a alegria de fazer a diferença – uma doação simples pode mudar tudo.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Depoimentos -->
+    <section class="testimonials-section">
+        <div class="container">
+            <h2>Histórias Reais</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial" data-animate>
+                    <p>"Doar no Prato Justo me fez sentir parte de algo maior. Vi minha família crescer com essa atitude!"</p>
+                    <cite>- Maria Silva, Doadora</cite>
+                </div>
+                <div class="testimonial" data-animate>
+                    <p>"Recebi alimentos frescos que ajudaram minha família em um momento difícil. Gratidão eterna!"</p>
+                    <cite>- João Pereira, Receptor</cite>
+                </div>
+                <div class="testimonial" data-animate>
+                    <p>"É incrível como uma simples doação combate a fome e une comunidades."</p>
+                    <cite>- Ana Costa, Voluntária</cite>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Call-to-Action -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>Faça Parte Desta Missão</h2>
+            <p>Seu próximo passo pode ser o começo de uma grande mudança. Doe hoje e transforme o mundo!</p>
+            <a href="cadastro_alimento.html" class="btn btn-primary require-auth" style="font-size: 1.2rem; padding: 1rem 2rem;">
+                <i class="fas fa-hand-holding-heart"></i> Começar a Doar Agora
+            </a>
+        </div>
+    </section>
+</main>
+
+<!-- FOOTER (do seu código original) -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <div class="logo-icon"><i class="fas fa-utensils"></i></div>
+                    <h3>Prato Justo</h3>
+                </div>
+                <p>Conectando solidariedade através da alimentação</p>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h4>Links Rápidos</h4>
+                <ul>
+                    <li><a href="./index.html">Início</a></li>
+                    <li><a href="./Sobre.html">Sobre Nós</a></li>
+                    <li><a href="comoDoar.html">Como Doar</a></li>
+                    <li><a href="porqueDoar.html">Por Que Doar</a></li>
+                    <li><a href="#impacto">Nosso Impacto</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Recursos</h4>
+                <ul>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Histórias</a></li>
+                    <li><a href="#">Parceiros</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Contato</h4>
+                <div class="contact-info">
+                    <p><i class="fas fa-envelope"></i> contato@pratojusto.org</p>
+                    <p><i class="fas fa-phone"></i> (11) 9999-9999</p>
+                    <p><i class="fas fa-map-marker-alt"></i> São Paulo, Brasil</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 Prato Justo. Todos os direitos reservados.</p>
+            <div class="footer-links">
+                <a href="#">Privacidade</a>
+                <a href="#">Termos</a>
+                <a href="#">Cookies</a>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+</html>
