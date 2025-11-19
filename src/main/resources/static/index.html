@@ -1,259 +1,442 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Prato Justo</title>
-    <link rel="stylesheet" href="./index.css" />
-    <script defer src="./index.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prato Justo - Combate ao Desperdício de Alimentos</title>
+    <link rel="stylesheet" href="./index.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 <body>
-<!-- HEADER -->
-<header class="header old-style" id="main-header">
-    <div class="container header-container">
-        <a href="index.html" class="logo" aria-label="Ir para página inicial">
-            <img src="img/logo.png" alt="Prato Justo" class="logo-img" onerror="this.style.display='none';">
-            <span class="logo-text">Prato Justo</span>
+<!-- Header/Navbar -->
+<header class="header" id="header">
+    <nav class="nav container">
+        <a href="index.html" class="nav__logo">
+            <i class="fas fa-utensils"></i>
+            PratoJusto
         </a>
 
-        <nav class="nav-menu" id="nav-menu" role="navigation" aria-label="Menu principal">
-            <ul class="nav-links">
-                <li><a href="index.html" class="nav-link active" aria-current="page">Início</a></li>
-
-                <!-- Dropdown "Minhas Doações" Aprimorado -->
-                <li class="dropdown" role="menuitem">
-                    <a href="#" class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true" data-tooltip="Gerencie suas doações e solicitações">
-                        Minhas Doações <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                        <span class="notification-badge" id="donations-badge" style="display: none;">3</span> <!-- Indicador dinâmico -->
+        <div class="nav__menu" id="nav-menu">
+            <ul class="nav__list">
+                <li class="nav__item">
+                    <a href="index.html" class="nav__link active-link">
+                        <i class="fas fa-home"></i>
+                        Início
                     </a>
-                    <ul class="dropdown-menu enhanced" role="menu">
-                        <li role="none">
-                            <a href="./solicitacoes.html" class="dropdown-item" role="menuitem" data-tooltip="Veja e responda a solicitações">
-                                <i class="fas fa-list-check"></i>
-                                <div class="item-content">
-                                    <span class="item-title">Solicitações</span>
-                                    <span class="item-desc">Gerencie pedidos recebidos</span>
-                                </div>
-                                <span class="item-status pending">3 pendentes</span>
-                            </a>
-                        </li>
-                        <li role="none">
-                            <a href="cadastro_alimento.html" class="dropdown-item" role="menuitem" data-tooltip="Cadastre uma nova doação">
-                                <i class="fas fa-plus-circle"></i>
-                                <div class="item-content">
-                                    <span class="item-title">Cadastrar</span>
-                                    <span class="item-desc">Adicione alimentos para doação</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li role="none">
-                            <a href="chat.html" class="dropdown-item" role="menuitem" data-tooltip="Converse com receptores">
-                                <i class="fas fa-comments"></i>
-                                <div class="item-content">
-                                    <span class="item-title">Chat</span>
-                                    <span class="item-desc">Comunicação direta</span>
-                                </div>
-                            </a>
-                        </li>
-                    </ul>
                 </li>
-
-                <li><a href="Como_Doar.html" class="nav-link">Como doar</a></li>
-                <li><a href="porqueDoar.html" class="nav-link">Por que doar</a></li>
-                <li><a href="Sobre.html" class="nav-link">Sobre</a></li>
+                <li class="nav__item">
+                    <a href="doacoes.html" class="nav__link">
+                        <i class="fas fa-hand-holding-heart"></i>
+                        Doações
+                    </a>
+                </li>
+                <li class="nav__item">
+                    <a href="cadastro_alimento.html" class="nav__link">
+                        <i class="fas fa-plus-circle"></i>
+                        Doar Alimentos
+                    </a>
+                </li>
+                <li class="nav__item">
+                    <a href="solicitacoes.html" class="nav__link">
+                        <i class="fas fa-history"></i>
+                        Minhas Doações
+                    </a>
+                </li>
+                <li class="nav__item">
+                    <a href="porqueDoar.html" class="nav__link">
+                        <i class="fas fa-info-circle"></i>
+                        Por Que Doar
+                    </a>
+                </li>
             </ul>
-        </nav>
 
-        <div class="header-buttons" id="header-actions">
-            <!-- Botões simples como no código original -->
-            <a href="login.html" class="btn btn-outline">Entrar</a>
-            <a href="./cadastro_perfil.html" class="btn btn-primary">Cadastrar</a>
+            <div class="nav__buttons">
+                <a href="login.html" class="button button--ghost" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Entrar
+                </a>
+                <a href="cadastro_perfil.html" class="button button--primary" id="register-btn">
+                    <i class="fas fa-user-plus"></i>
+                    Cadastrar
+                </a>
+                <div class="user-menu" id="user-menu" style="display: none;">
+                    <span id="user-name">Usuário</span>
+                    <button class="button button--ghost" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Sair
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Abrir menu mobile" aria-expanded="false">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-        </button>
-    </div>
-
-    <!-- Overlay para menu mobile -->
-    <div class="mobile-overlay" id="mobile-overlay"></div>
+        <div class="nav__toggle" id="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
 </header>
 
-<!-- HERO -->
-<section id="home" class="hero">
-    <div class="hero-content">
-        <div class="hero-text">
-            <div class="badge">
-                <span><i class="fas fa-star"></i></span>
-                Plataforma de Doação de Alimentos
-            </div>
+<main class="main">
+    <!-- Hero Section -->
+    <section class="hero section">
+        <div class="hero__container container grid">
+            <div class="hero__content">
+                    <span class="hero__badge">
+                        <i class="fas fa-seedling"></i>
+                        Plataforma de Combate ao Desperdício
+                    </span>
 
-            <h2 class="hero-title">
-                Transforme <span class="highlight">Excesso</span> em
-                <span class="highlight">Esperança</span>
-            </h2>
+                <h1 class="hero__title">
+                    Transforme
+                    <span class="hero__title-color">Desperdício</span>
+                    em
+                    <span class="hero__title-color">Solidariedade</span>
+                </h1>
 
-            <p class="hero-description">
-                Conectamos doadores com comunidades carentes. Cada alimento doado
-                é um passo contra a fome e o desperdício.
-            </p>
+                <p class="hero__description">
+                    Conectamos alimentos que seriam descartados com pessoas que precisam.
+                    Cada doação é um passo contra a fome e o desperdício no Brasil.
+                </p>
 
-            <div class="hero-buttons">
-                <a href="cadastro_alimento.html" class="btn btn-primary require-auth">
-                    <span class="btn-icon"><i class="fas fa-box"></i></span>
-                    Quero Doar
-                </a>
-                <a href="doacoes.html" class="btn btn-secondary">
-                    <span class="btn-icon"><i class="fas fa-hands-helping"></i></span>
-                    Ver Doações
-                </a>
-            </div>
-
-            <div class="donation-search-card">
-                <div class="search-header">
-                    <h3>Encontrar Doações</h3>
-                    <p>Busque alimentos disponíveis para doação</p>
+                <div class="hero__data">
+                    <div class="hero__data-item">
+                        <h3>33 MILHÕES</h3>
+                        <p>de brasileiros passam fome</p>
+                    </div>
+                    <div class="hero__data-item">
+                        <h3>40%</h3>
+                        <p>dos alimentos são desperdiçados</p>
+                    </div>
                 </div>
 
-                <div class="search-tabs">
-                    <button class="tab-btn active" data-tab="filtros">Filtros</button>
-                    <button class="tab-btn" data-tab="cep">Por CEP</button>
-                    <button class="tab-btn" data-tab="proximas">Próximas</button>
-                </div>
-
-                <div class="search-content">
-                    <div class="tab-content active" id="filtros">
-                        <div class="search-row">
-                            <input id="homeSearchTipo" placeholder="Tipo de alimento (ex: frutas, verduras)" class="search-input"/>
-                            <input id="homeSearchCidade" placeholder="Cidade" class="search-input"/>
-                            <button id="homeBtnBuscar" class="btn btn-primary">Buscar</button>
-                        </div>
-                    </div>
-
-                    <div class="tab-content" id="cep">
-                        <div class="search-row">
-                            <input id="homeSearchCep" placeholder="Digite seu CEP" class="search-input"/>
-                            <button id="homeBtnCep" class="btn btn-primary">Buscar por CEP</button>
-                        </div>
-                    </div>
-
-                    <div class="tab-content" id="proximas">
-                        <div class="search-row">
-                            <button id="homeBtnPerto" class="btn btn-primary"><i class="fas fa-map-marker-alt"></i> Usar Minha Localização</button>
-                            <a href="cadastro_alimento.html" class="btn btn-outline require-auth"><i class="fas fa-plus"></i> Cadastrar Doação</a>
-                        </div>
-                    </div>
+                <div class="hero__buttons">
+                    <a href="cadastro_alimento.html" class="button button--primary button--large" id="donate-btn">
+                        <i class="fas fa-box-open"></i>
+                        Doar Alimentos Agora
+                    </a>
+                    <a href="doacoes.html" class="button button--secondary button--large">
+                        <i class="fas fa-search"></i>
+                        Encontrar Doações
+                    </a>
                 </div>
             </div>
 
-            <div class="hero-stats">
-                <div class="stat">
-                    <div class="stat-number" data-count="5000">5.000</div>
-                    <div class="stat-label">Kg Doados</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" data-count="2000">2.000</div>
-                    <div class="stat-label">Famílias</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number" data-count="50">50</div>
-                    <div class="stat-label">Parceiros</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="hero-visual">
-            <div class="floating-cards">
-                <div class="card card-1">
-                    <div class="card-content">
-                        <div class="card-icon"><i class="fas fa-apple-alt"></i></div>
-                        <h3>Alimentos Frescos</h3>
-                        <p>Frutas, verduras e legumes de qualidade</p>
+            <div class="hero__image">
+                <div class="hero__floating">
+                    <div class="floating-item" style="--delay: 0s">
+                        <i class="fas fa-apple-alt"></i>
                     </div>
-                </div>
-                <div class="card card-2">
-                    <div class="card-content">
-                        <div class="card-icon"><i class="fas fa-truck"></i></div>
-                        <h3>Logística Eficiente</h3>
-                        <p>Entrega rápida e segura</p>
+                    <div class="floating-item" style="--delay: 1s">
+                        <i class="fas fa-bread-slice"></i>
                     </div>
-                </div>
-                <div class="card card-3">
-                    <div class="card-content">
-                        <div class="card-icon"><i class="fas fa-users"></i></div>
-                        <h3>Comunidade Ativa</h3>
-                        <p>Milhares de pessoas conectadas</p>
+                    <div class="floating-item" style="--delay: 2s">
+                        <i class="fas fa-carrot"></i>
+                    </div>
+                    <div class="floating-item" style="--delay: 3s">
+                        <i class="fas fa-cheese"></i>
+                    </div>
+                    <div class="floating-item" style="--delay: 4s">
+                        <i class="fas fa-lemon"></i>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- FOOTER -->
+    <!-- Stats Section -->
+    <section class="stats section">
+        <div class="stats__container container grid">
+            <div class="stats__content">
+                <h2 class="section__title">
+                    O <span class="section__title-color">Desperdício</span> em Números
+                </h2>
+
+                <div class="stats__grid">
+                    <div class="stats__card" data-aos="fade-up">
+                        <div class="stats__icon">
+                            <i class="fas fa-trash"></i>
+                        </div>
+                        <h3 class="stats__number" data-count="26700">0</h3>
+                        <p class="stats__label">Toneladas de alimentos desperdiçados POR DIA no Brasil</p>
+                    </div>
+
+                    <div class="stats__card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="stats__icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <h3 class="stats__number" data-count="55">R$ 0</h3>
+                        <p class="stats__label">Bilhões perdidos anualmente com desperdício</p>
+                    </div>
+
+                    <div class="stats__card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="stats__icon">
+                            <i class="fas fa-hamburger"></i>
+                        </div>
+                        <h3 class="stats__number" data-count="45">0</h3>
+                        <p class="stats__label">Milhões de refeições que poderiam ser feitas por dia</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Section -->
+    <section class="impact section">
+        <div class="impact__container container grid">
+            <div class="impact__content">
+                <h2 class="section__title">
+                    Nosso <span class="section__title-color">Impacto</span>
+                </h2>
+
+                <div class="impact__grid">
+                    <div class="impact__item" data-aos="zoom-in">
+                        <div class="impact__icon">
+                            <i class="fas fa-weight-hanging"></i>
+                        </div>
+                        <h3 data-count="12500">0</h3>
+                        <p>Alimentos salvos do desperdício</p>
+                    </div>
+
+                    <div class="impact__item" data-aos="zoom-in" data-aos-delay="100">
+                        <div class="impact__icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h3 data-count="25000">0</h3>
+                        <p>Refeições proporcionadas</p>
+                    </div>
+
+                    <div class="impact__item" data-aos="zoom-in" data-aos-delay="200">
+                        <div class="impact__icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 data-count="3500">0</h3>
+                        <p>Famílias beneficiadas</p>
+                    </div>
+
+                    <div class="impact__item" data-aos="zoom-in" data-aos-delay="300">
+                        <div class="impact__icon">
+                            <i class="fas fa-hand-holding-heart"></i>
+                        </div>
+                        <h3 data-count="280">0</h3>
+                        <p>Doadores ativos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how section">
+        <div class="how__container container grid">
+            <div class="how__content">
+                <h2 class="section__title">
+                    Como <span class="section__title-color">Funciona</span>
+                </h2>
+
+                <div class="how__steps">
+                    <div class="step" data-aos="fade-right">
+                        <div class="step__number">1</div>
+                        <div class="step__content">
+                            <h3><i class="fas fa-edit"></i> Cadastre os Alimentos</h3>
+                            <p>Informe quais alimentos você quer doar, quantidade e validade</p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-aos="fade-right" data-aos-delay="100">
+                        <div class="step__number">2</div>
+                        <div class="step__content">
+                            <h3><i class="fas fa-bell"></i> Notificamos Receptores</h3>
+                            <p>Pessoas e instituições próximas recebem alerta da disponibilidade</p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-aos="fade-right" data-aos-delay="200">
+                        <div class="step__number">3</div>
+                        <div class="step__content">
+                            <h3><i class="fas fa-handshake"></i> Combine a Entrega</h3>
+                            <p>Acorde o melhor local e horário para a doação</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Urgency Section -->
+    <section class="urgency section">
+        <div class="urgency__container container grid">
+            <div class="urgency__content">
+                <div class="urgency__badge">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Situação Urgente
+                </div>
+
+                <h2 class="urgency__title">
+                    Enquanto Alimentos São Descartados,
+                    <span class="urgency__title-color">Pessoas Passam Fome</span>
+                </h2>
+
+                <div class="urgency__comparison">
+                    <div class="comparison__card waste-card" data-aos="fade-right">
+                        <div class="comparison__header">
+                            <i class="fas fa-trash"></i>
+                            <h3>Desperdício</h3>
+                        </div>
+                        <ul class="comparison__list">
+                            <li><i class="fas fa-times-circle"></i> 40% da produção vai para o lixo</li>
+                            <li><i class="fas fa-times-circle"></i> 26 milhões de toneladas/ano</li>
+                            <li><i class="fas fa-times-circle"></i> Alimentos perfeitos descartados</li>
+                        </ul>
+                    </div>
+
+                    <div class="comparison__vs">
+                        <div class="vs-circle">VS</div>
+                    </div>
+
+                    <div class="comparison__card hunger-card" data-aos="fade-left">
+                        <div class="comparison__header">
+                            <i class="fas fa-heart-crack"></i>
+                            <h3>Fome</h3>
+                        </div>
+                        <ul class="comparison__list">
+                            <li><i class="fas fa-exclamation-circle"></i> 33 milhões sem comida</li>
+                            <li><i class="fas fa-exclamation-circle"></i> 125 milhões com insegurança alimentar</li>
+                            <li><i class="fas fa-exclamation-circle"></i> Crianças sem nutrição adequada</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta section">
+        <div class="cta__container container grid">
+            <div class="cta__content">
+                <h2 class="cta__title">
+                    Faça a <span class="cta__title-color">Diferença</span> Hoje Mesmo
+                </h2>
+
+                <p class="cta__description">
+                    Sua doação pode transformar vidas. Alimentos que seriam desperdiçados
+                    podem alimentar famílias inteiras. Junte-se a nós nesta causa!
+                </p>
+
+                <div class="cta__buttons">
+                    <a href="cadastro_perfil.html" class="button button--primary button--large">
+                        <i class="fas fa-user-plus"></i>
+                        Cadastrar-se Agora
+                    </a>
+                    <a href="doacoes.html" class="button button--secondary button--large">
+                        <i class="fas fa-search"></i>
+                        Ver Doações Disponíveis
+                    </a>
+                </div>
+
+                <div class="cta__stats">
+                    <div class="cta__stat">
+                        <strong>+500</strong>
+                        <span>doações este mês</span>
+                    </div>
+                    <div class="cta__stat">
+                        <strong>24h</strong>
+                        <span>tempo médio de entrega</span>
+                    </div>
+                    <div class="cta__stat">
+                        <strong>100%</strong>
+                        <span>gratuito</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Footer -->
 <footer class="footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-section">
-                <div class="footer-logo">
-                    <div class="logo-icon"><i class="fas fa-utensils"></i></div>
-                    <h3>Prato Justo</h3>
-                </div>
-                <p>Conectando solidariedade através da alimentação</p>
-                <div class="social-links">
-                    <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+    <div class="footer__container container grid">
+        <div class="footer__content">
+            <div class="footer__group">
+                <a href="#" class="footer__logo">
+                    <i class="fas fa-utensils"></i>
+                    PratoJusto
+                </a>
+
+                <p class="footer__description">
+                    Conectando solidariedade através da alimentação.
+                    Juntos contra o desperdício e a fome.
+                </p>
+
+                <div class="footer__social">
+                    <a href="#" class="footer__social-link">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="footer__social-link">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="footer__social-link">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="footer__social-link">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
                 </div>
             </div>
 
-            <div class="footer-section">
-                <h4>Links Rápidos</h4>
-                <ul>
-                    <li><a href="./index.html">Início</a></li>
-                    <li><a href="./Sobre.html">Sobre Nós</a></li>
-                    <li><a href="./Como_Doar.html">Como Doar</a></li>
-                    <li><a href="./Sobre.html">Nosso Impacto</a></li>
+            <div class="footer__group">
+                <h3 class="footer__title">Links Rápidos</h3>
+
+                <ul class="footer__links">
+                    <li>
+                        <a href="index.html" class="footer__link">Início</a>
+                    </li>
+                    <li>
+                        <a href="doacoes.html" class="footer__link">Doações</a>
+                    </li>
+                    <li>
+                        <a href="cadastro_alimento.html" class="footer__link">Doar Alimentos</a>
+                    </li>
+                    <li>
+                        <a href="porqueDoar.html" class="footer__link">Por Que Doar</a>
+                    </li>
                 </ul>
             </div>
 
-            <div class="footer-section">
-                <h4>Recursos</h4>
-                <ul>
-                    <li><a href="#">Blog</a></li>
-                    <li><a href="#">FAQ</a></li>
-                </ul>
-            </div>
+            <div class="footer__group">
+                <h3 class="footer__title">Contato</h3>
 
-            <div class="footer-section">
-                <h4>Contato</h4>
-                <div class="contact-info">
-                    <p><i class="fas fa-envelope"></i> contato@pratojusto.org</p>
-                    <p><i class="fas fa-phone"></i> (11) 9999-9999</p>
-                    <p><i class="fas fa-map-marker-alt"></i> São Paulo, Brasil</p>
-                </div>
+                <ul class="footer__links">
+                    <li>
+                        <i class="fas fa-envelope"></i>
+                        contato@pratojusto.org
+                    </li>
+                    <li>
+                        <i class="fas fa-phone"></i>
+                        (11) 9999-9999
+                    </li>
+                    <li>
+                        <i class="fas fa-map-marker-alt"></i>
+                        São Paulo, Brasil
+                    </li>
+                </ul>
             </div>
         </div>
 
-        <div class="footer-bottom">
-            <p>&copy; 2025 Prato Justo. Todos os direitos reservados.</p>
-            <div class="footer-links">
-                <a href="#">Privacidade</a>
-                <a href="#">Termos</a>
-                <a href="#">Cookies</a>
+        <div class="footer__bottom">
+            <p>&copy; 2025 PratoJusto. Todos os direitos reservados.</p>
+
+            <div class="footer__legal">
+                <a href="#" class="footer__legal-link">Privacidade</a>
+                <a href="#" class="footer__legal-link">Termos</a>
+                <a href="#" class="footer__legal-link">Cookies</a>
             </div>
         </div>
     </div>
 </footer>
 
-<script src="auth.js"></script>
-<script src="headerUser.js"></script>
-<script src="index.js"></script>
-
-
-
+<!-- Scripts -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="./index.js"></script>
 </body>
 </html>
