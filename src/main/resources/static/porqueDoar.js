@@ -1,7 +1,273 @@
 // =========================================
 // JS SUPER PREMIUM - POR QUE DOAR
 // =========================================
+// =========================================
+// NAVBAR SIMPLES - FUNCIONALIDADES
+// =========================================
 
+class SimpleNavbar {
+    constructor() {
+        this.header = document.getElementById('main-header');
+        this.mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        this.navMenu = document.getElementById('nav-menu');
+        this.dropdowns = document.querySelectorAll('.dropdown');
+
+        this.init();
+    }
+
+    init() {
+        console.log('🚀 Navbar Simples Inicializada');
+
+        this.initMobileMenu();
+        this.initDropdowns();
+        this.initAuthState();
+    }
+
+    initMobileMenu() {
+        if (!this.mobileMenuBtn) return;
+
+        this.mobileMenuBtn.addEventListener('click', () => {
+            this.toggleMobileMenu();
+        });
+
+        // Fechar menu ao clicar em links
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                this.closeMobileMenu();
+            });
+        });
+
+        // Fechar menu ao redimensionar a janela
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                this.closeMobileMenu();
+            }
+        });
+    }
+
+    toggleMobileMenu() {
+        const isActive = this.navMenu.classList.contains('active');
+
+        if (isActive) {
+            this.closeMobileMenu();
+        } else {
+            this.openMobileMenu();
+        }
+    }
+
+    openMobileMenu() {
+        this.navMenu.classList.add('active');
+        this.mobileMenuBtn.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Adicionar ações mobile se não existirem
+        if (!this.navMenu.querySelector('.mobile-actions')) {
+            const headerActions = document.getElementById('header-actions');
+            if (headerActions) {
+                const mobileActions = headerActions.cloneNode(true);
+                mobileActions.className = 'mobile-actions';
+                this.navMenu.appendChild(mobileActions);
+
+                // Adicionar event listeners aos botões mobile
+                const mobileLoginBtn = mobileActions.querySelector('.login-btn');
+                const mobileRegisterBtn = mobileActions.querySelector('.register-btn');
+
+                if (mobileLoginBtn) {
+                    mobileLoginBtn.addEventListener('click', () => {
+                        this.closeMobileMenu();
+                    });
+                }
+
+                if (mobileRegisterBtn) {
+                    mobileRegisterBtn.addEventListener('click', () => {
+                        this.closeMobileMenu();
+                    });
+                }
+            }
+        }
+    }
+
+    closeMobileMenu() {
+        this.navMenu.classList.remove('active');
+        this.mobileMenuBtn.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    initDropdowns() {
+        this.dropdowns.forEach(dropdown => {
+            const toggle = dropdown.querySelector('.dropdown-toggle');
+
+            // Desktop hover
+            dropdown.addEventListener('mouseenter', () => {
+                if (window.innerWidth > 768) {
+                    this.openDropdown(dropdown);
+                }
+            });
+
+            dropdown.addEventListener('mouseleave', () => {
+                if (window.innerWidth > 768) {
+                    this.closeDropdown(dropdown);
+                }
+            });
+
+            // Mobile click
+            if (toggle) {
+                toggle.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768) {
+                        e.preventDefault();
+                        this.toggleDropdown(dropdown);
+                    }
+                });
+            }
+        });
+
+        // Fechar dropdowns ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown')) {
+                this.closeAllDropdowns();
+            }
+        });
+    }
+
+    openDropdown(dropdown) {
+        this.closeAllDropdowns();
+        dropdown.classList.add('open');
+    }
+
+    closeDropdown(dropdown) {
+        dropdown.classList.remove('open');
+    }
+
+    toggleDropdown(dropdown) {
+        const isOpen = dropdown.classList.contains('open');
+        this.closeAllDropdowns();
+
+        if (!isOpen) {
+            dropdown.classList.add('open');
+        }
+    }
+
+    closeAllDropdowns() {
+        this.dropdowns.forEach(dropdown => {
+            dropdown.classList.remove('open');
+        });
+    }
+
+    initAuthState() {
+        // Verificar estado de autenticação
+        const isAuthenticated = localStorage.getItem('userAuthenticated') === 'true';
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+
+        this.updateAuthUI(isAuthenticated, userData);
+    }
+
+    updateAuthUI(isAuthenticated, userData) {
+        const headerActions = document.getElementById('header-actions');
+
+        if (isAuthenticated && headerActions) {
+            headerActions.innerHTML = `
+                <div class="user-menu">
+                    <span class="user-welcome">Olá, ${userData.name || 'Usuário'}</span>
+                    <a href="perfil.html" class="profile-btn">Perfil</a>
+                    <button class="logout-btn" id="logout-btn">Sair</button>
+                </div>
+            `;
+
+            this.initUserActions();
+        }
+    }
+
+    initUserActions() {
+        const logoutBtn = document.getElementById('logout-btn');
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                this.handleLogout();
+            });
+        }
+    }
+
+    handleLogout() {
+        localStorage.removeItem('userAuthenticated');
+        localStorage.removeItem('userData');
+        window.location.reload();
+    }
+}
+
+// Inicializar quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', function() {
+    new SimpleNavbar();
+});
+
+// Adicionar estilos para o menu do usuário
+const userMenuStyles = `
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-welcome {
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.profile-btn {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.profile-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #90ee90;
+}
+
+.logout-btn {
+    background: transparent;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Mobile user menu */
+.mobile-actions .user-menu {
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+
+.mobile-actions .user-welcome {
+    text-align: center;
+    font-size: 1rem;
+}
+
+.mobile-actions .profile-btn,
+.mobile-actions .logout-btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+}
+`;
+
+// Adicionar estilos dinamicamente
+const styleSheet = document.createElement('style');
+styleSheet.textContent = userMenuStyles;
+document.head.appendChild(styleSheet);
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Página "Por Que Doar" - Versão Premium Carregada');
 

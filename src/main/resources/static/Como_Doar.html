@@ -15,8 +15,8 @@
     </style>
 </head>
 <body>
-<!-- HEADER -->
-<header class="header old-style" id="main-header">
+<!-- HEADER NO PADRÃO DA IMAGEM -->
+<header class="header modern-header" id="main-header">
     <div class="container header-container">
         <a href="index.html" class="logo" aria-label="Ir para página inicial">
             <span class="logo-text">Prato Justo</span>
@@ -25,12 +25,10 @@
         <nav class="nav-menu" id="nav-menu" role="navigation" aria-label="Menu principal">
             <ul class="nav-links">
                 <li><a href="index.html" class="nav-link">Início</a></li>
-
-                <!-- Dropdown "Minhas Doações" -->
                 <li class="dropdown" role="menuitem">
                     <a href="#" class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true">
                         Minhas Doações <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                        <span class="notification-badge" id="donations-badge" style="display: none;">3</span>
+                        <span class="notification-badge" id="donations-badge">3</span>
                     </a>
                     <ul class="dropdown-menu enhanced" role="menu">
                         <li role="none">
@@ -63,15 +61,14 @@
                         </li>
                     </ul>
                 </li>
-
-                <li><a href="Como_Doar.html" class="nav-link active" aria-current="page">Como doar</a></li>
-                <li><a href="porqueDoar.html" class="nav-link">Por que doar</a></li>
-                <li><a href="Sobre.html" class="nav-link">Sobre</a></li>
+                <li><a href="./Como_Doar.html" class="nav-link">Como doar</a></li>
+                <li><a href="./porqueDoar.html" class="nav-link">Por que doar</a></li>
+                <li><a href="./Sobre.html" class="nav-link active" aria-current="page">Sobre</a></li>
             </ul>
         </nav>
 
         <div class="header-buttons" id="header-actions">
-            <a href="login.html" class="btn btn-outline">Entrar</a>
+            <a href="./login.html" class="btn btn-outline">Entrar</a>
             <a href="./cadastro_perfil.html" class="btn btn-primary">Cadastrar</a>
         </div>
 
@@ -82,9 +79,9 @@
         </button>
     </div>
 
-    <!-- Overlay para menu mobile -->
     <div class="mobile-overlay" id="mobile-overlay"></div>
 </header>
+
 
 <!-- CONTEÚDO PRINCIPAL -->
 <main>

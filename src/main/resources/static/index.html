@@ -10,71 +10,70 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 <body>
-<!-- Header/Navbar -->
-<header class="header" id="header">
-    <nav class="nav container">
-        <a href="index.html" class="nav__logo">
-            <i class="fas fa-utensils"></i>
-            PratoJusto
+<header class="header modern-header" id="main-header">
+    <div class="container header-container">
+        <a href="index.html" class="logo" aria-label="Ir para página inicial">
+            <span class="logo-text">Prato Justo</span>
         </a>
 
-        <div class="nav__menu" id="nav-menu">
-            <ul class="nav__list">
-                <li class="nav__item">
-                    <a href="index.html" class="nav__link active-link">
-                        <i class="fas fa-home"></i>
-                        Início
+        <nav class="nav-menu" id="nav-menu" role="navigation" aria-label="Menu principal">
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Início</a></li>
+                <li class="dropdown" role="menuitem">
+                    <a href="#" class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+                        Minhas Doações <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        <span class="notification-badge" id="donations-badge">3</span>
                     </a>
+                    <ul class="dropdown-menu enhanced" role="menu">
+                        <li role="none">
+                            <a href="./solicitacoes.html" class="dropdown-item" role="menuitem">
+                                <i class="fas fa-list-check"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Solicitações</span>
+                                    <span class="item-desc">Gerencie pedidos recebidos</span>
+                                </div>
+                                <span class="item-status pending">3 pendentes</span>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a href="cadastro_alimento.html" class="dropdown-item" role="menuitem">
+                                <i class="fas fa-plus-circle"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Cadastrar</span>
+                                    <span class="item-desc">Adicione alimentos para doação</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a href="chat.html" class="dropdown-item" role="menuitem">
+                                <i class="fas fa-comments"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Chat</span>
+                                    <span class="item-desc">Comunicação direta</span>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-                <li class="nav__item">
-                    <a href="doacoes.html" class="nav__link">
-                        <i class="fas fa-hand-holding-heart"></i>
-                        Doações
-                    </a>
-                </li>
-                <li class="nav__item">
-                    <a href="cadastro_alimento.html" class="nav__link">
-                        <i class="fas fa-plus-circle"></i>
-                        Doar Alimentos
-                    </a>
-                </li>
-                <li class="nav__item">
-                    <a href="solicitacoes.html" class="nav__link">
-                        <i class="fas fa-history"></i>
-                        Minhas Doações
-                    </a>
-                </li>
-                <li class="nav__item">
-                    <a href="porqueDoar.html" class="nav__link">
-                        <i class="fas fa-info-circle"></i>
-                        Por Que Doar
-                    </a>
-                </li>
+                <li><a href="./Como_Doar.html" class="nav-link">Como doar</a></li>
+                <li><a href="./porqueDoar.html" class="nav-link">Por que doar</a></li>
+                <li><a href="./Sobre.html" class="nav-link active" aria-current="page">Sobre</a></li>
             </ul>
+        </nav>
 
-            <div class="nav__buttons">
-                <a href="login.html" class="button button--ghost" id="login-btn">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Entrar
-                </a>
-                <a href="cadastro_perfil.html" class="button button--primary" id="register-btn">
-                    <i class="fas fa-user-plus"></i>
-                    Cadastrar
-                </a>
-                <div class="user-menu" id="user-menu" style="display: none;">
-                    <span id="user-name">Usuário</span>
-                    <button class="button button--ghost" id="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Sair
-                    </button>
-                </div>
-            </div>
+        <div class="header-buttons" id="header-actions">
+            <a href="./login.html" class="btn btn-outline">Entrar</a>
+            <a href="./cadastro_perfil.html" class="btn btn-primary">Cadastrar</a>
         </div>
 
-        <div class="nav__toggle" id="nav-toggle">
-            <i class="fas fa-bars"></i>
-        </div>
-    </nav>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Abrir menu mobile" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </button>
+    </div>
+
+    <div class="mobile-overlay" id="mobile-overlay"></div>
 </header>
 
 <main class="main">
