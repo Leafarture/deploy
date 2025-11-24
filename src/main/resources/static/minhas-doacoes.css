@@ -1,82 +1,52 @@
-/* ===== MINHAS DOAÇÕES - DESIGN MODERNO ESCURO ===== */
+/* ===== MINHAS DOAÇÕES - ESTILOS ===== */
 
-:root {
-    --primary-red: #dc2626;
-    --primary-red-dark: #b91c1c;
-    --primary-red-light: #fef2f2;
-    --gradient-primary: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    --gradient-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
-    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.2);
-    
-    /* Dark Theme Colors */
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-tertiary: #334155;
-    --text-primary: #f1f5f9;
-    --text-secondary: #cbd5e1;
-    --text-muted: #94a3b8;
-    --border-color: #334155;
-    --card-bg: #1e293b;
-    --card-hover: #334155;
-}
-
-body {
-    padding-top: 80px;
-    background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-    min-height: 100vh;
-    color: var(--text-primary);
-}
-
-/* ===== HEADER SECTION ===== */
-.my-donations-hero {
-    background: var(--gradient-primary);
+.my-donations-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 3rem 0;
-    margin-bottom: 3rem;
     position: relative;
     overflow: hidden;
+    margin-bottom: 2rem;
 }
 
-.my-donations-hero::before {
+.my-donations-header::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
     opacity: 0.3;
 }
 
-.my-donations-hero-content {
+.my-donations-content {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
-    position: relative;
-    z-index: 1;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 2rem;
+    position: relative;
+    z-index: 1;
 }
 
-.my-donations-hero h1 {
+.my-donations-content h1 {
     color: white;
     font-size: 2.5rem;
-    font-weight: 800;
-    margin: 0;
+    font-weight: 700;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
     gap: 1rem;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-.my-donations-hero h1 i {
+.my-donations-content h1 i {
     font-size: 2.5rem;
-    animation: pulse 2s ease-in-out infinite;
+    background: linear-gradient(45deg, #ff6b6b, #feca57);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
@@ -84,53 +54,35 @@ body {
     50% { transform: scale(1.1); }
 }
 
-.my-donations-hero-actions {
+.my-donations-actions {
     display: flex;
     gap: 1rem;
     align-items: center;
 }
 
-.btn-hero {
-    padding: 0.875rem 1.75rem;
+.btn-add-donation {
+    background: white;
+    color: #667eea;
+    padding: 0.75rem 1.5rem;
     border-radius: 50px;
+    text-decoration: none;
     font-weight: 600;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 0.5rem;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.btn-hero-primary {
-    background: white;
-    color: var(--primary-red);
-    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
-}
-
-.btn-hero-primary:hover {
+.btn-add-donation:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 30px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    background: #f8f9fa;
 }
 
-.btn-hero-secondary {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.btn-hero-secondary:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.5);
-}
-
-/* ===== STATS CARDS ===== */
-.stats-container-modern {
+.stats-container {
     max-width: 1200px;
-    margin: -2rem auto 3rem;
+    margin: -3rem auto 2rem auto;
     padding: 0 2rem;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -139,408 +91,92 @@ body {
     z-index: 2;
 }
 
-.stat-card-modern {
-    background: var(--card-bg);
+.stat-card {
+    background: white;
     padding: 2rem;
     border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    border: 1px solid var(--border-color);
 }
 
-.stat-card-modern::before {
+.stat-card::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 4px;
-    background: var(--gradient-primary);
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
 }
 
-.stat-card-modern:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 48px rgba(220, 38, 38, 0.3);
-    border-color: var(--primary-red);
-    background: var(--card-hover);
+.stat-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
 }
 
-.stat-card-modern-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+.stat-card:hover::before {
+    transform: scaleX(1);
 }
 
-.stat-card-modern-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 15px;
-    background: var(--primary-red-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--primary-red);
-    font-size: 1.5rem;
-}
-
-.stat-card-modern-number {
-    font-size: 2.5rem;
+.stat-number {
+    font-size: 3rem;
     font-weight: 800;
-    color: var(--text-primary);
-    margin: 0.5rem 0;
-    line-height: 1;
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, #667eea, #764ba2);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    margin-bottom: 0.5rem;
+    line-height: 1;
 }
 
-.stat-card-modern-label {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
+.stat-label {
+    color: #64748b;
+    font-size: 1rem;
     font-weight: 500;
-}
-
-.stat-card-modern-trend {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    margin-top: 0.5rem;
-    font-size: 0.85rem;
-    color: #10b981;
-}
-
-/* ===== FILTERS ===== */
-.filters-container-modern {
-    max-width: 1200px;
-    margin: 0 auto 2rem;
-    padding: 0 2rem;
-}
-
-.filters-wrapper-modern {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    background: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
-    backdrop-filter: blur(10px);
-}
-
-.filter-btn-modern {
-    padding: 0.875rem 1.75rem;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    border: 2px solid var(--border-color);
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    position: relative;
-    overflow: hidden;
-}
-
-.filter-btn-modern::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(220, 38, 38, 0.1);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
-}
-
-.filter-btn-modern:hover::before {
-    width: 300px;
-    height: 300px;
-}
-
-.filter-btn-modern:hover {
-    border-color: var(--primary-red);
-    color: var(--text-primary);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.2);
-}
-
-.filter-btn-modern.active {
-    background: var(--gradient-primary);
-    color: white;
-    border-color: transparent;
-    box-shadow: 0 6px 25px rgba(220, 38, 38, 0.4);
-    transform: translateY(-2px);
-}
-
-.filter-btn-modern.active::before {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-/* ===== DONATIONS GRID ===== */
-.donations-container-modern {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem 3rem;
-}
-
-.donations-grid-modern {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 2rem;
-}
-
-.donation-card-modern {
-    background: var(--card-bg);
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--border-color);
-}
-
-.donation-card-modern:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 16px 48px rgba(220, 38, 38, 0.3);
-    border-color: var(--primary-red);
-    background: var(--card-hover);
-}
-
-.donation-card-modern-header {
-    padding: 1.5rem;
-    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--card-bg) 100%);
-    border-bottom: 1px solid var(--border-color);
-    position: relative;
-}
-
-.donation-card-modern-status {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    font-size: 0.75rem;
-    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.donation-card-modern-status.ativa {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-}
-
-.donation-card-modern-status.inativa {
-    background: linear-gradient(135deg, #6b7280, #4b5563);
-    color: white;
-    box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
-}
-
-.donation-card-modern-status.vencida {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
-}
-
-.donation-card-modern-status.urgente {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white;
-    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-    animation: pulse-badge 2s ease-in-out infinite;
-}
-
-@keyframes pulse-badge {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-.donation-card-modern-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 0.5rem 0;
-    padding-right: 80px;
-}
-
-.donation-card-modern-category {
-    display: inline-flex;
-    align-items: center;
+.donation-actions {
+    display: flex;
     gap: 0.5rem;
-    padding: 0.375rem 0.75rem;
-    background: var(--primary-red-light);
-    color: var(--primary-red);
-    border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-top: 0.5rem;
-}
-
-.donation-card-modern-body {
-    padding: 1.5rem;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    color: var(--text-secondary);
-}
-
-.donation-card-modern-info {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-}
-
-.donation-info-item {
-    display: flex;
     align-items: center;
-    gap: 0.5rem;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.donation-info-item i {
-    color: var(--primary-red);
-    width: 20px;
-}
-
-.donation-info-item strong {
-    color: var(--text-primary);
-}
-
-.donation-card-modern-requests {
-    background: var(--bg-tertiary);
-    padding: 1rem;
-    border-radius: 12px;
-    margin-top: auto;
-    border: 1px solid var(--border-color);
-}
-
-.donation-requests-count {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-}
-
-.donation-requests-count span {
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.donation-requests-count .badge {
-    background: var(--primary-red);
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 50px;
-    font-size: 0.75rem;
-    font-weight: 700;
-}
-
-.donation-card-modern-footer {
-    padding: 1.5rem;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    gap: 0.75rem;
-}
-
-.btn-card {
-    flex: 1;
-    padding: 0.75rem 1rem;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.btn-card-primary {
-    background: var(--gradient-primary);
-    color: white;
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
-}
-
-.btn-card-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
-}
-
-.btn-card-secondary {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-}
-
-.btn-card-secondary:hover {
-    background: var(--card-hover);
-    border-color: var(--primary-red);
-}
-
-/* ===== EMPTY STATE ===== */
-.empty-state-modern {
-    text-align: center;
-    padding: 4rem 2rem;
-    background: var(--card-bg);
-    border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    margin: 2rem 0;
-    border: 1px solid var(--border-color);
-}
-
-.empty-state-modern i {
-    font-size: 5rem;
-    color: var(--text-muted);
-    margin-bottom: 1.5rem;
-    animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
-}
-
-.empty-state-modern h3 {
-    font-size: 1.5rem;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-}
-
-.empty-state-modern p {
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
-}
-
-/* ===== LOADING ===== */
-.loading-modern {
-    text-align: center;
-    padding: 4rem 2rem;
-    color: var(--primary-red);
-}
-
-.loading-modern p {
-    color: var(--text-secondary);
     margin-top: 1rem;
 }
 
-.loading-modern i {
+/* Garantir que o grid funcione corretamente */
+#doacoes-container.doacoes-grid {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+/* Garantir que o main-content não interfira */
+main.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: transparent;
+    border-radius: 0;
+    margin-top: 0;
+    box-shadow: none;
+}
+
+.loading {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+.loading i {
     font-size: 3rem;
+    margin-bottom: 1rem;
     animation: spin 1s linear infinite;
 }
 
@@ -549,119 +185,712 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* ===== SCROLLBAR CUSTOMIZADA ===== */
-::-webkit-scrollbar {
-    width: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--bg-secondary);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--bg-tertiary);
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-red);
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-    .my-donations-hero h1 {
-        font-size: 1.75rem;
-    }
-
-    .stats-container-modern {
-        grid-template-columns: 1fr;
-        margin-top: -1rem;
-    }
-
-    .donations-grid-modern {
-        grid-template-columns: 1fr;
-    }
-
-    .filters-wrapper-modern {
-        flex-direction: column;
-    }
-
-    .filter-btn-modern {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-/* ===== NOTIFICATION BADGE ANIMATION ===== */
-.notification-badge.pulse {
-    animation: pulse-badge 2s ease-in-out infinite;
-}
-
-/* ===== ERROR MESSAGE ===== */
-.error-message {
+.no-donations {
     text-align: center;
     padding: 4rem 2rem;
-    background: var(--card-bg);
-    border-radius: 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    margin: 2rem 0;
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
+    background: white;
+    border-radius: 20px;
+    margin: 2rem auto;
+    max-width: 600px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-.error-message i {
-    font-size: 3rem;
-    color: var(--primary-red);
+.no-donations i {
+    font-size: 5rem;
+    color: #ddd;
+    margin-bottom: 1.5rem;
+    animation: pulse 2s infinite;
+}
+
+.no-donations h3 {
+    font-size: 1.8rem;
+    color: #1e293b;
     margin-bottom: 1rem;
 }
 
-.error-message p {
-    color: var(--text-secondary);
+.no-donations p {
+    color: #64748b;
     font-size: 1.1rem;
+    margin-bottom: 2rem;
 }
 
-/* ===== AUTH REQUIRED ===== */
-#auth-required {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
+.btn-edit, .btn-delete {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-#auth-required h3 {
-    color: var(--text-primary);
+.btn-edit {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
 }
 
-#auth-required p {
-    color: var(--text-secondary);
+.btn-edit:hover {
+    background: linear-gradient(135deg, #2980b9, #21618c);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
 }
 
-/* ===== RESPONSIVE DARK THEME ===== */
+.btn-edit:active {
+    transform: translateY(0);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+}
+
+.btn-delete:active {
+    transform: translateY(0);
+}
+
+.btn-delete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.auth-required {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    margin: 2rem auto;
+    max-width: 600px;
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-required::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+.auth-required-content {
+    position: relative;
+    z-index: 1;
+}
+
+.auth-required i {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(45deg, #ff6b6b, #feca57);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: pulse 2s infinite;
+}
+
+.auth-required h3 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.auth-required p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+    line-height: 1.6;
+}
+
+.btn-login-beautiful {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 2.5rem;
+    background: linear-gradient(45deg, #ff6b6b, #feca57);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-login-beautiful::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s;
+}
+
+.btn-login-beautiful:hover::before {
+    left: 100%;
+}
+
+.btn-login-beautiful:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(255, 107, 107, 0.6);
+    background: linear-gradient(45deg, #ff5252, #ffeb3b);
+}
+
+.btn-login-beautiful:active {
+    transform: translateY(-1px) scale(1.02);
+}
+
+.btn-login-beautiful i {
+    font-size: 1.2rem;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-5px); }
+    60% { transform: translateY(-3px); }
+}
+
+.auth-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.auth-feature {
+    text-align: center;
+    opacity: 0.8;
+}
+
+.auth-feature i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #feca57;
+}
+
+.auth-feature p {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+body {
+    padding-top: 80px;
+    background: #f5f7fa;
+}
+
+/* Garantir que os cards de doação sejam exibidos corretamente */
+.doacao-card {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+}
+
+/* Garantir que o grid funcione */
+.doacoes-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+    gap: 1.5rem !important;
+}
+
+/* Filtros em formato oval melhorado */
+.filters-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.filters-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    padding: 1.75rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50px;
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.filters-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 3s infinite;
+}
+
+.filter-btn {
+    padding: 0.85rem 1.75rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    backdrop-filter: blur(10px);
+    white-space: nowrap;
+    position: relative;
+    z-index: 1;
+}
+
+.filter-btn i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.filter-btn:hover i {
+    transform: rotate(360deg);
+}
+
+.filter-btn.active {
+    background: white;
+    color: #667eea;
+    border-color: white;
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5);
+    transform: translateY(-3px) scale(1.05);
+}
+
+.filter-btn.active:hover {
+    background: #f8f9fa;
+    transform: translateY(-4px) scale(1.08);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.6);
+}
+
 @media (max-width: 768px) {
-    .my-donations-hero {
-        padding: 2rem 0;
-    }
-    
-    .my-donations-hero h1 {
-        font-size: 1.75rem;
-    }
-    
-    .stats-container-modern {
-        grid-template-columns: 1fr;
-        margin-top: -1rem;
-    }
-    
-    .donations-grid-modern {
-        grid-template-columns: 1fr;
-    }
-    
-    .filters-wrapper-modern {
+    .filters-wrapper {
         flex-direction: column;
-        padding: 1rem;
+        border-radius: 30px;
     }
-    
-    .filter-btn-modern {
+
+    .filter-btn {
         width: 100%;
         justify-content: center;
     }
 }
+
+/* Estilos para o chat widget flutuante */
+.chat-widget-container {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 9999 !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    pointer-events: auto !important;
+}
+
+.chat-widget-button {
+    width: 60px !important;
+    height: 60px !important;
+    min-width: 60px !important;
+    min-height: 60px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #2196F3 0%, #ea1d2c 100%) !important;
+    background-color: #2196F3 !important;
+    border: none !important;
+    color: white !important;
+    font-size: 1.5rem !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4) !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    z-index: 10000 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.chat-widget-button i {
+    color: white !important;
+    font-size: 1.5rem !important;
+}
+
+.chat-widget-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(33, 150, 243, 0.6);
+}
+
+.chat-widget-button:active {
+    transform: scale(0.95);
+}
+
+.chat-widget-button i {
+    transition: transform 0.3s ease;
+}
+
+.chat-widget-panel.active ~ .chat-widget-button i {
+    transform: rotate(180deg);
+}
+
+.chat-widget-button .notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border: 2px solid white;
+}
+
+.chat-widget-panel {
+    position: absolute !important;
+    bottom: 80px !important;
+    right: 0 !important;
+    width: 380px !important;
+    height: 600px !important;
+    background: white !important;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
+    display: none !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    animation: slideUp 0.3s ease !important;
+    border: 1px solid rgba(33, 150, 243, 0.1) !important;
+    z-index: 9998 !important;
+}
+
+.chat-widget-panel.active {
+    display: flex !important;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Adaptar o chat para widget */
+.chat-widget-panel .app-container {
+    height: 100% !important;
+    max-width: 100% !important;
+    margin: 0;
+    box-shadow: none;
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+.chat-widget-panel .sidebar {
+    width: 100% !important;
+    height: 100% !important;
+    position: relative !important;
+    transform: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.chat-widget-panel .sidebar.hidden {
+    display: none !important;
+}
+
+.chat-widget-panel .chat-area {
+    width: 100% !important;
+    height: 100% !important;
+    display: none !important;
+    flex-direction: column !important;
+}
+
+.chat-widget-panel .chat-area.active {
+    display: flex !important;
+}
+
+.chat-widget-panel .messages-container {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/* Ajustar tamanhos para widget */
+.chat-widget-panel .sidebar-header h1 {
+    font-size: 1.2rem;
+}
+
+.chat-widget-panel .chat-header {
+    padding: 0.75rem;
+}
+
+.chat-widget-panel .contact-info h2 {
+    font-size: 1rem;
+}
+
+.chat-widget-panel .message {
+    max-width: 80%;
+    font-size: 0.9rem;
+}
+
+.chat-widget-panel .chat-input-container {
+    padding: 0.75rem;
+}
+
+/* Esconder elementos desnecessários no widget */
+.chat-widget-panel .chat-action-btn:not(#chatMinimizeBtn):not(#chatCloseBtn) {
+    display: none;
+}
+
+/* Melhorar visualização no widget */
+.chat-widget-panel .connection-status {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 0.7rem;
+    padding: 6px 10px;
+}
+
+/* Garantir que o chat não interfira no body da página */
+body {
+    height: auto !important;
+    overflow: visible !important;
+}
+
+/* Sobrescrever estilos do chat.css que podem esconder elementos */
+html, body {
+    overflow-x: visible !important;
+    overflow-y: auto !important;
+}
+
+/* Sobrescrever estilos do chat.css que podem interferir */
+.chat-widget-panel * {
+    box-sizing: border-box;
+}
+
+.chat-widget-panel .app-container {
+    height: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Garantir que o body do chat.css não afete a página */
+body .chat-widget-container {
+    display: block !important;
+}
+
+/* Estilos para elementos que eram inline */
+#user-actions {
+    display: none;
+}
+
+#auth-required {
+    display: none;
+}
+
+#authenticated-content {
+    display: none;
+}
+
+#loading {
+    display: none;
+}
+
+#no-donations {
+    display: none;
+}
+
+#connectionStatus {
+    display: none;
+}
+
+/* Estilos específicos para o chat widget container */
+#chatWidgetContainer {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 99999 !important;
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    width: 60px !important;
+    height: 60px !important;
+}
+
+/* Estilos específicos para o botão do chat widget */
+#chatWidgetToggle {
+    width: 60px !important;
+    height: 60px !important;
+    min-width: 60px !important;
+    min-height: 60px !important;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: linear-gradient(135deg, #2196F3 0%, #ea1d2c 100%) !important;
+    background-color: #2196F3 !important;
+    border-radius: 50% !important;
+    border: 3px solid white !important;
+    color: white !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 20px rgba(33, 150, 243, 0.6) !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#chatWidgetToggle i.fas.fa-comments {
+    color: white !important;
+    font-size: 1.5rem !important;
+    display: block !important;
+}
+
+/* Estilos para o badge de notificação do chat */
+#chatNotificationBadge {
+    display: none;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border: 2px solid white;
+}
+
+/* Classes para garantir visibilidade do chat widget via JavaScript */
+.chat-widget-visible {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 99999 !important;
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+.chat-button-visible {
+    width: 60px !important;
+    height: 60px !important;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: linear-gradient(135deg, #2196F3 0%, #ea1d2c 100%) !important;
+    border-radius: 50% !important;
+    border: none !important;
+    color: white !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4) !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+}
+
+.chat-container-visible {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Classes para badge de notificação */
+.badge-visible {
+    display: flex !important;
+    animation: pulse 1s ease-in-out;
+}
+
+.badge-hidden {
+    display: none !important;
+}
+
+/* Responsividade para mobile */
+@media (max-width: 768px) {
+    .chat-widget-panel {
+        width: calc(100vw - 40px);
+        height: calc(100vh - 120px);
+        bottom: 80px;
+        right: 20px;
+        left: 20px;
+    }
+
+    .chat-widget-button {
+        width: 56px;
+        height: 56px;
+        font-size: 1.3rem;
+    }
+
+    .chat-widget-panel .sidebar {
+        width: 100%;
+    }
+}
+
+/* Animações suaves */
+.chat-widget-panel {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Melhorar scrollbar no widget */
+.chat-widget-panel .chats-list::-webkit-scrollbar,
+.chat-widget-panel .messages-container::-webkit-scrollbar {
+    width: 4px;
+}
+
+.chat-widget-panel .chats-list::-webkit-scrollbar-thumb,
+.chat-widget-panel .messages-container::-webkit-scrollbar-thumb {
+    background: rgba(33, 150, 243, 0.3);
+    border-radius: 2px;
+}
+
+
+
 

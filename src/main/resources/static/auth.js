@@ -101,6 +101,23 @@ class AuthManager {
             }
         });
 
+        // Mostrar/esconder dropdown "Minhas Doações" baseado no estado de autenticação
+        const minhasDoacoesToggle = document.querySelectorAll('.dropdown-toggle[href*="minhas-doacoes"]');
+        minhasDoacoesToggle.forEach(toggle => {
+            const dropdown = toggle.closest('li.dropdown');
+            if (dropdown) {
+                if (this.isAuthenticated()) {
+                    dropdown.style.display = '';
+                    dropdown.style.visibility = '';
+                    dropdown.style.opacity = '';
+                } else {
+                    dropdown.style.display = 'none';
+                    dropdown.style.visibility = 'hidden';
+                    dropdown.style.opacity = '0';
+                }
+            }
+        });
+
         // Atualizar links para "Minhas Doações"
         const myDonationsLinks = document.querySelectorAll('[href*="minhas-doacoes"]');
         myDonationsLinks.forEach(link => {

@@ -56,14 +56,6 @@ class MinhasDoacoesApp {
             );
         }
 
-        // Atualizar badge de notificações e disparar evento
-        if (window.notificationBadgeManager) {
-            window.notificationBadgeManager.updateBadge();
-        }
-        
-        // Disparar evento para atualizar outros componentes
-        window.dispatchEvent(new CustomEvent('solicitacoesUpdated'));
-
         // Recarregar doações para mostrar nova solicitação
         this.loadMyDonations();
     }
@@ -106,13 +98,6 @@ class MinhasDoacoesApp {
     }
 
     showAuthenticatedContent() {
-        // Esconder mensagem de autenticação
-        const authRequired = document.getElementById('auth-required');
-        if (authRequired) authRequired.style.display = 'none';
-        
-        // Mostrar conteúdo autenticado
-        const authenticatedContent = document.getElementById('authenticated-content');
-        if (authenticatedContent) authenticatedContent.style.display = 'block';
         document.getElementById('auth-required').style.display = 'none';
         document.getElementById('authenticated-content').style.display = 'block';
         
@@ -121,13 +106,6 @@ class MinhasDoacoesApp {
     }
 
     showAuthRequired() {
-        // Mostrar mensagem de autenticação
-        const authRequired = document.getElementById('auth-required');
-        if (authRequired) authRequired.style.display = 'block';
-        
-        // Esconder conteúdo autenticado
-        const authenticatedContent = document.getElementById('authenticated-content');
-        if (authenticatedContent) authenticatedContent.style.display = 'none';
         document.getElementById('auth-required').style.display = 'block';
         document.getElementById('authenticated-content').style.display = 'none';
     }
@@ -143,8 +121,8 @@ class MinhasDoacoesApp {
             });
         }
 
-        // Filtros - suporta ambas as classes
-        const filterButtons = document.querySelectorAll('.filter-btn-modern, .filter-btn');
+        // Filtros
+        const filterButtons = document.querySelectorAll('.filter-btn');
         filterButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const filter = e.currentTarget.dataset.filter;
@@ -156,8 +134,8 @@ class MinhasDoacoesApp {
     setFilter(filter) {
         this.currentFilter = filter;
         
-        // Atualizar botões ativos - suporta ambas as classes
-        document.querySelectorAll('.filter-btn-modern, .filter-btn').forEach(btn => {
+        // Atualizar botões ativos
+        document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.classList.remove('active');
             if (btn.dataset.filter === filter) {
                 btn.classList.add('active');
@@ -209,21 +187,15 @@ class MinhasDoacoesApp {
         const container = document.getElementById('doacoes-container');
         const noDonations = document.getElementById('no-donations');
 
-        if (loading) loading.style.display = 'block';
-        if (container) container.innerHTML = '';
-        if (noDonations) noDonations.style.display = 'none';
+        loading.style.display = 'block';
+        container.innerHTML = '';
+        noDonations.style.display = 'none';
 
         try {
             const token = localStorage.getItem('token');
-            if (!token) {
-                this.showAuthRequired();
-                return;
-            }
-            
             const response = await fetch('/doacoes/minhas', {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Authorization': `Bearer ${token}`
                 }
             });
 
@@ -232,9 +204,6 @@ class MinhasDoacoesApp {
                 // Carregar solicitações para cada doação
                 await this.loadRequestsForAllDonations();
                 this.renderMyDonations();
-                
-                // Disparar evento para atualizar notificações
-                window.dispatchEvent(new CustomEvent('doacoesCarregadas'));
             } else if (response.status === 401) {
                 localStorage.removeItem('token');
                 this.showAuthRequired();
@@ -243,15 +212,10 @@ class MinhasDoacoesApp {
                 throw new Error('Erro ao carregar suas doações');
             }
         } catch (error) {
-            console.error('Erro ao carregar doações:', error);
-            // Verificar se é erro de conexão
-            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                this.showError('Erro de conexão. Verifique sua internet e tente novamente.');
-            } else {
-                this.showError('Erro ao carregar suas doações. Tente novamente.');
-            }
+            console.error('Erro:', error);
+            this.showError('Erro ao carregar suas doações. Tente novamente.');
         } finally {
-            if (loading) loading.style.display = 'none';
+            loading.style.display = 'none';
         }
     }
 
@@ -259,8 +223,7 @@ class MinhasDoacoesApp {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        // Carregar solicitações em paralelo para melhor performance
-        const requests = this.myDonations.map(async (donation) => {
+        for (const donation of this.myDonations) {
             try {
                 const response = await fetch(`/doacoes/${donation.id}/solicitacoes`, {
                     headers: {
@@ -269,16 +232,12 @@ class MinhasDoacoesApp {
                 });
                 if (response.ok) {
                     this.donationRequests[donation.id] = await response.json();
-                } else {
-                    this.donationRequests[donation.id] = [];
                 }
             } catch (error) {
                 console.error(`Erro ao carregar solicitações da doação ${donation.id}:`, error);
                 this.donationRequests[donation.id] = [];
             }
-        });
-
-        await Promise.all(requests);
+        }
     }
 
     renderMyDonations() {
@@ -319,7 +278,7 @@ class MinhasDoacoesApp {
 
     createMyDonationCard(donation) {
         const card = document.createElement('div');
-        card.className = 'donation-card-modern';
+        card.className = 'doacao-card';
 
         // Formatação de datas
         let dataFormatada = 'Não informado';
@@ -439,95 +398,100 @@ class MinhasDoacoesApp {
             `;
         }
 
-        // Determinar status visual
-        let statusClassMod = 'ativa';
-        if (diasRestantes < 0) statusClassMod = 'vencida';
-        else if (diasRestantes <= 3) statusClassMod = 'urgente';
-        else if (!donation.ativo) statusClassMod = 'inativa';
-        if (hasCompletedRequests) statusClassMod = 'inativa';
-
-        // Estrutura HTML do card com design moderno
+        // Estrutura HTML do card (mesmo estilo de doacoes.js)
         card.innerHTML = `
-            <div class="donation-card-modern-header">
-                <h3 class="donation-card-modern-title">${donation.titulo || 'Alimento para Doação'}</h3>
-                <span class="donation-card-modern-status ${statusClassMod}">${statusText}</span>
-                <span class="donation-card-modern-category">
-                    <i class="fas fa-tag"></i>
-                    ${tipoLabel}
-                </span>
+            <!-- Imagem do Alimento -->
+            <div class="doacao-image-container">
+                ${donation.imagem ? 
+                    `<img src="${donation.imagem}" alt="${donation.titulo || 'Alimento'}" class="doacao-image">` :
+                    `<div class="doacao-image-placeholder">
+                        <i class="fas fa-utensils"></i>
+                    </div>`
+                }
             </div>
             
-            <div class="donation-card-modern-body">
-                <p style="color: #6b7280; margin-bottom: 1rem; line-height: 1.6;">${donation.descricao || 'Descrição não disponível'}</p>
+            <!-- Header com Categoria e Status -->
+            <div class="doacao-header">
+                <div class="doacao-type">
+                    <i class="fas fa-tag"></i>
+                    <span>${tipoLabel}</span>
+                </div>
+                <div class="${statusClass}">${statusText}</div>
+            </div>
+            
+            <!-- Corpo do Card -->
+            <div class="doacao-body">
+                <h3 class="doacao-title">${donation.titulo || 'Alimento para Doação'}</h3>
+                <p class="doacao-description">${donation.descricao || 'Descrição não disponível'}</p>
                 
                 ${hasCompletedRequests ? `
-                    <div style="margin: 1rem 0; padding: 1rem; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 12px; border: 2px solid rgba(16, 185, 129, 0.3); text-align: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #10b981, #059669); color: white;">
-                            <i class="fas fa-check-circle"></i>
-                            Concluída
-                        </span>
-                        <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #065f46;">
-                            ${dataConclusao ? new Date(dataConclusao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Data não informada'}
-                        </p>
+                    <!-- Status da Doação Concluída -->
+                    <div class="request-status-container" style="margin: 1rem 0; padding: 1rem; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; border: 2px solid rgba(16, 185, 129, 0.2); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                        <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;">
+                            <span class="request-status-badge status-concluida" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #10b981, #059669); color: white;">
+                                <i class="fas fa-check-circle"></i>
+                                Concluída
+                            </span>
+                        </div>
+                        <div style="text-align: center; font-size: 0.85rem; color: #6c757d; font-weight: 500;">
+                            <i class="fas fa-calendar-check" style="margin-right: 0.4rem;"></i> 
+                            Concluída em: ${dataConclusao ? new Date(dataConclusao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Data não informada'}
+                        </div>
                     </div>
                 ` : ''}
                 
-                <div class="donation-card-modern-info">
-                    <div class="donation-info-item">
+                <!-- Detalhes do Alimento -->
+                <div class="doacao-details">
+                    <div class="detail-item">
                         <i class="fas fa-balance-scale"></i>
                         <div>
-                            <strong>${donation.quantidade || 'N/A'}${donation.unidade ? ' ' + donation.unidade : ''}</strong>
+                            <span class="detail-label">Quantidade</span>
+                            <span class="detail-value">${donation.quantidade || 'N/A'}${donation.unidade ? ' ' + donation.unidade : ''}</span>
                         </div>
                     </div>
-                    <div class="donation-info-item">
+                    <div class="detail-item">
                         <i class="fas fa-calendar-alt"></i>
                         <div>
-                            <strong>${dataFormatada}</strong>
+                            <span class="detail-label">Validade</span>
+                            <span class="detail-value">${dataFormatada}</span>
                         </div>
                     </div>
-                    <div class="donation-info-item">
+                    <div class="detail-item">
                         <i class="fas fa-clock"></i>
                         <div>
-                            <strong>${diasRestantes !== null ? (diasRestantes >= 0 ? diasRestantes + ' dias' : 'Vencido') : 'N/A'}</strong>
+                            <span class="detail-label">Restam</span>
+                            <span class="detail-value">${diasRestantes !== null ? (diasRestantes >= 0 ? diasRestantes + ' dias' : 'Vencido') : 'Não informado'}</span>
                         </div>
                     </div>
-                    <div class="donation-info-item">
+                    <div class="detail-item">
                         <i class="fas fa-map-marker-alt"></i>
                         <div>
-                            <strong>${donation.cidade || 'N/A'}</strong>
+                            <span class="detail-label">Local</span>
+                            <span class="detail-value">${donation.cidade || 'Não informado'}</span>
                         </div>
                     </div>
                 </div>
-                
-                ${requests.length > 0 ? `
-                    <div class="donation-card-modern-requests">
-                        <div class="donation-requests-count">
-                            <span><i class="fas fa-users"></i> Solicitações</span>
-                            <span class="badge">${requests.length}</span>
-                        </div>
-                        ${pendingRequests.length > 0 ? `<p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #dc2626;"><strong>${pendingRequests.length} pendente${pendingRequests.length > 1 ? 's' : ''}</strong></p>` : ''}
-                        ${!hasCompletedRequests ? `
-                            <button class="btn-card btn-card-primary" onclick="event.stopPropagation(); viewRequests(${donation.id})" style="margin-top: 0.75rem; width: 100%;">
-                                <i class="fas fa-eye"></i>
-                                Ver Solicitações
-                            </button>
-                        ` : ''}
+                ${requestsSection}
+            </div>
+            
+            <!-- Footer com Status e Ações -->
+            <div class="doacao-footer">
+                <div style="display: flex; align-items: center; gap: 0.5rem; ${hasCompletedRequests ? 'justify-content: center; width: 100%;' : ''}">
+                    ${activeStatus}
+                </div>
+                ${!hasCompletedRequests ? `
+                    <div class="donation-actions" style="display: flex; gap: 0.5rem;">
+                        <button class="btn-edit" onclick="event.stopPropagation(); editDonation(${donation.id})" title="Editar doação">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </button>
+                        <button class="btn-delete" onclick="event.stopPropagation(); deleteDonation(${donation.id}, event)" title="Excluir doação">
+                            <i class="fas fa-trash"></i>
+                            Excluir
+                        </button>
                     </div>
                 ` : ''}
             </div>
-            
-            ${!hasCompletedRequests ? `
-                <div class="donation-card-modern-footer">
-                    <button class="btn-card btn-card-secondary" onclick="event.stopPropagation(); editDonation(${donation.id})">
-                        <i class="fas fa-edit"></i>
-                        Editar
-                    </button>
-                    <button class="btn-card btn-card-primary" onclick="event.stopPropagation(); deleteDonation(${donation.id}, event)">
-                        <i class="fas fa-trash"></i>
-                        Excluir
-                    </button>
-                </div>
-            ` : ''}
         `;
 
         // Adicionar evento de clique para ver detalhes (exceto nos botões e se não estiver concluída)
@@ -550,56 +514,20 @@ class MinhasDoacoesApp {
         const totalDonations = this.myDonations.length;
         const activeDonations = this.myDonations.filter(d => d.ativo).length;
         const totalQuantity = this.myDonations.reduce((sum, d) => sum + (d.quantidade || 0), 0);
-        
-        // Calcular solicitações pendentes
-        let totalPending = 0;
-        Object.values(this.donationRequests).forEach(requests => {
-            const pending = requests.filter(r => {
-                const status = r.status?.toLowerCase() || r.status?.valor?.toLowerCase() || '';
-                return status === 'pendente' || status === 'pending' || status === 'aguardando' || status === 'solicitada';
-            });
-            totalPending += pending.length;
-        });
 
-        const totalEl = document.getElementById('total-donations');
-        const activeEl = document.getElementById('active-donations');
-        const quantityEl = document.getElementById('total-quantity');
-        const pendingEl = document.getElementById('pending-requests');
-        
-        if (totalEl) totalEl.textContent = totalDonations;
-        if (activeEl) activeEl.textContent = activeDonations;
-        if (quantityEl) quantityEl.textContent = totalQuantity.toFixed(1);
-        if (pendingEl) pendingEl.textContent = totalPending;
-        
-        // Atualizar badge de notificações
-        if (window.notificationBadgeManager) {
-            window.notificationBadgeManager.updateBadge();
-        }
-        
-        // Disparar evento para atualizar outros componentes
-        window.dispatchEvent(new CustomEvent('solicitacoesUpdated'));
+        document.getElementById('total-donations').textContent = totalDonations;
+        document.getElementById('active-donations').textContent = activeDonations;
+        document.getElementById('total-quantity').textContent = totalQuantity.toFixed(1);
     }
 
     showError(message) {
         const container = document.getElementById('doacoes-container');
-        const loading = document.getElementById('loading');
-        const noDonations = document.getElementById('no-donations');
-        
-        if (loading) loading.style.display = 'none';
-        if (noDonations) noDonations.style.display = 'none';
-        
-        if (container) {
-            container.innerHTML = `
-                <div class="error-message" style="grid-column: 1 / -1;">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>${message}</p>
-                    <button class="btn-hero btn-hero-primary" onclick="location.reload()" style="margin-top: 1.5rem;">
-                        <i class="fas fa-sync-alt"></i>
-                        Tentar Novamente
-                    </button>
-                </div>
-            `;
-        }
+        container.innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>${message}</p>
+            </div>
+        `;
     }
 }
 
@@ -640,7 +568,7 @@ async function deleteDonation(donationId, event) {
             showNotification('Doação excluída com sucesso!', 'success');
             
             // Remover card da lista sem recarregar página
-            const card = deleteBtn.closest('.donation-card-modern');
+            const card = deleteBtn.closest('.doacao-card');
             if (card) {
                 card.style.transition = 'all 0.3s ease';
                 card.style.opacity = '0';
@@ -1206,6 +1134,4 @@ document.head.appendChild(style);
 // Inicializar a aplicação quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', () => {
     window.minhasDoacoesApp = new MinhasDoacoesApp();
-});
-
 });

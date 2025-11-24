@@ -55,7 +55,7 @@ class NavbarManager {
         // Mapeamento de páginas para links (case-insensitive)
         const pageMap = {
             'index.html': ['index.html', './index.html'],
-            'doacoes.html': ['doacoes.html', './doacoes.html'],
+            'doacoes.html': ['doacoes.html', './doacoes.html', 'alimentos disponíveis'],
             'cadastro_alimento.html': ['cadastro_alimento.html', './cadastro_alimento.html'],
             'minhas-doacoes.html': ['minhas-doacoes.html', './minhas-doacoes.html'],
             'solicitacoes.html': ['solicitacoes.html', './solicitacoes.html'],
