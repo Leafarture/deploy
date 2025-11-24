@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minhas Solicitações | Prato Justo</title>
-    <link rel="stylesheet" href="doacoes.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="./index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link rel="stylesheet" href="./header-styles.css">
+    <link rel="stylesheet" href="./Sobre.css">
+    <link rel="stylesheet" href="./minhas-doacoes.css">
     <style>
         .my-requests-header {
             background: rgba(255, 255, 255, 0.95);
@@ -84,34 +84,154 @@
             text-align: center;
             padding: 4rem 2rem;
             color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            margin: 2rem auto;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-required::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .auth-required-content {
+            position: relative;
+            z-index: 1;
         }
 
         .auth-required i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.7;
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .auth-required h3 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .auth-required a {
-            display: inline-block;
-            margin-top: 1rem;
-            padding: 1rem 2rem;
-            background: #667eea;
+        .auth-required p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .btn-login-beautiful {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.25rem 2.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
             color: white;
             text-decoration: none;
-            border-radius: 25px;
-            font-weight: 500;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-login-beautiful::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-login-beautiful:hover::before {
+            left: 100%;
+        }
+
+        .btn-login-beautiful:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.6);
+            background: linear-gradient(45deg, #ff5252, #ffeb3b);
+        }
+
+        .btn-login-beautiful:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .btn-login-beautiful i {
+            font-size: 1.2rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
+        }
+
+        .auth-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .auth-feature {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
             transition: all 0.3s ease;
         }
 
-        .auth-required a:hover {
-            background: #5a6fd8;
-            transform: translateY(-2px);
+        .auth-feature:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .auth-feature i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: white;
+            opacity: 0.9;
+        }
+
+        .auth-feature p {
+            font-size: 0.9rem;
+            margin: 0;
+            opacity: 0.8;
         }
 
         body {
@@ -305,31 +425,71 @@
     </style>
 </head>
 <body>
-<!-- Header -->
-<header class="header">
-    <nav class="nav">
-        <div class="nav-container">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-utensils"></i>
-                </div>
-                <h1>Prato Justo</h1>
-            </div>
+<!-- HEADER -->
+<header class="header modern-header" id="main-header">
+    <div class="container header-container">
+        <a href="index.html" class="logo" aria-label="Ir para página inicial">
+            <i class="fas fa-utensils"></i>
+            <span class="logo-text">Prato Justo</span>
+        </a>
 
-            <ul class="nav-menu">
+        <nav class="nav-menu" id="nav-menu" role="navigation" aria-label="Menu principal">
+            <ul class="nav-links">
                 <li><a href="index.html" class="nav-link">Início</a></li>
-                <li><a href="doacoes.html" class="nav-link">Alimentos</a></li>
-                <li><a href="cadastro_alimento.html" class="nav-link">Cadastrar</a></li>
-                <li><a href="minhas-doacoes.html" class="nav-link">Minhas Doações</a></li>
-                <li><a href="solicitacoes.html" class="nav-link active">Solicitações</a></li>
+                <li class="dropdown" role="menuitem">
+                    <a href="minhas-doacoes.html" class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+                        Minhas Doações <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        <span class="notification-badge" id="donations-badge" style="display: none;">0</span>
+                    </a>
+                    <ul class="dropdown-menu enhanced" role="menu">
+                        <li role="none">
+                            <a href="./solicitacoes.html" class="dropdown-item" role="menuitem">
+                                <i class="fas fa-list-check"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Solicitações</span>
+                                    <span class="item-desc">Gerencie pedidos recebidos</span>
+                                </div>
+                                <span class="item-status pending" id="dropdown-pending-status" style="display: none;">0 pendentes</span>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a href="cadastro_alimento.html" class="dropdown-item" role="menuitem">
+                                <i class="fas fa-plus-circle"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Cadastrar</span>
+                                    <span class="item-desc">Adicione alimentos para doação</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a href="chat.html" class="dropdown-item" role="menuitem">
+                                <i class="fas fa-comments"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Chat</span>
+                                    <span class="item-desc">Comunicação direta</span>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li><a href="./Como_Doar.html" class="nav-link">Como doar</a></li>
+                <li><a href="./porqueDoar.html" class="nav-link">Por que doar</a></li>
                 <li><a href="./Sobre.html" class="nav-link">Sobre</a></li>
             </ul>
+        </nav>
 
-            <div class="header-actions" id="header-actions">
-                <!-- Será preenchido pelo sistema de autenticação -->
-            </div>
+        <div class="header-buttons" id="header-actions">
+            <!-- Será preenchido pelo sistema de autenticação -->
         </div>
-    </nav>
+
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Abrir menu mobile" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </button>
+    </div>
+
+    <div class="mobile-overlay" id="mobile-overlay"></div>
 </header>
 
     <div class="my-requests-header">
@@ -344,10 +504,30 @@
     </div>
 
     <div id="auth-required" class="auth-required" style="display: none;">
-        <i class="fas fa-lock"></i>
-        <h3>Login Necessário</h3>
-        <p>Você precisa estar logado para ver suas solicitações.</p>
-        <a href="login.html">Fazer Login</a>
+        <div class="auth-required-content">
+            <i class="fas fa-lock"></i>
+            <h3>Login Necessário</h3>
+            <p>Você precisa estar logado para acessar suas solicitações e gerenciar seu perfil.</p>
+            <a href="login.html" class="btn-login-beautiful">
+                <i class="fas fa-sign-in-alt"></i>
+                Fazer Login
+            </a>
+            
+            <div class="auth-features">
+                <div class="auth-feature">
+                    <i class="fas fa-heart"></i>
+                    <p>Gerencie suas solicitações</p>
+                </div>
+                <div class="auth-feature">
+                    <i class="fas fa-chart-line"></i>
+                    <p>Acompanhe estatísticas</p>
+                </div>
+                <div class="auth-feature">
+                    <i class="fas fa-users"></i>
+                    <p>Conecte-se com a comunidade</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="authenticated-content" style="display: none;">
@@ -422,6 +602,8 @@
 
     <script src="auth.js"></script>
     <script src="headerUser.js"></script>
+    <script src="navbar-manager.js"></script>
+    <script src="notification-badge-manager.js"></script>
     <script src="avaliacao-solicitacao.js"></script>
     <script src="solicitacoes.js"></script>
     <script>

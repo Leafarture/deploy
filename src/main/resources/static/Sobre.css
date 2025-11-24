@@ -65,10 +65,19 @@ body {
     margin: 0 auto;
 }
 
-/* Logo - Cor vermelha do projeto */
+/* Logo - Cor vermelha do projeto com ícone */
 .header.modern-header .logo {
     text-decoration: none;
     font-weight: 800;
+    font-size: 1.5rem;
+    color: #dc2626;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header.modern-header .logo i {
     font-size: 1.5rem;
     color: #dc2626;
     transition: all 0.3s ease;
@@ -77,6 +86,15 @@ body {
 .header.modern-header .logo:hover {
     transform: scale(1.05);
     color: #b91c1c;
+}
+
+.header.modern-header .logo:hover i {
+    color: #b91c1c;
+    transform: rotate(15deg);
+}
+
+.header.modern-header .logo-text {
+    display: inline-block;
 }
 
 /* Menu de Navegação */
@@ -114,19 +132,28 @@ body {
 }
 
 .header.modern-header .nav-link.active {
-    color: #dc2626;
-    background: rgba(220, 38, 38, 0.15);
+    color: #dc2626 !important;
+    background: rgba(220, 38, 38, 0.15) !important;
 }
 
+/* Indicador de página ativa - Barra vermelha embaixo do link */
 .header.modern-header .nav-link.active::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 1rem;
-    right: 1rem;
-    height: 2px;
-    background: #dc2626;
-    border-radius: 2px;
+    content: '' !important;
+    position: absolute !important;
+    bottom: -2px !important;
+    left: 1rem !important;
+    right: 1rem !important;
+    height: 2px !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    background: #dc2626 !important;
+    border-radius: 2px !important;
+    transform: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    z-index: 1 !important;
 }
 
 /* Dropdown */
@@ -177,6 +204,15 @@ body {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+}
+
+/* Garantir que o dropdown funcione mesmo com link direto */
+.header.modern-header .dropdown-toggle {
+    pointer-events: auto;
+}
+
+.header.modern-header .dropdown-toggle:hover {
+    cursor: pointer;
 }
 
 .header.modern-header .dropdown-item {
@@ -284,6 +320,7 @@ body {
     cursor: pointer;
     padding: 0.5rem;
     gap: 4px;
+    z-index: 1001;
 }
 
 .header.modern-header .mobile-menu-btn span {
@@ -292,6 +329,25 @@ body {
     background: #374151;
     border-radius: 2px;
     transition: all 0.3s ease;
+}
+
+/* Mobile Overlay */
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-overlay.active {
+    display: block;
+    opacity: 1;
 }
 
 /* Responsive */

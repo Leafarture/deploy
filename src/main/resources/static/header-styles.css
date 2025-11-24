@@ -117,13 +117,23 @@
     box-shadow: var(--shadow-md);
 }
 
+.login-btn:hover i {
+    transform: rotate(0deg) !important;
+}
+
 .login-btn:active {
     transform: translateY(-1px) scale(1.02);
 }
 
+.login-btn:active i {
+    transform: rotate(0deg) !important;
+}
+
 .login-btn i {
     font-size: 1rem;
-    animation: bounce 2s infinite;
+    transform: rotate(0deg) !important;
+    animation: none;
+    transition: none;
 }
 
 .register-btn {
@@ -166,13 +176,23 @@
     box-shadow: var(--shadow-lg);
 }
 
+.register-btn:hover i {
+    transform: rotate(0deg) !important;
+}
+
 .register-btn:active {
     transform: translateY(-1px) scale(1.02);
 }
 
+.register-btn:active i {
+    transform: rotate(0deg) !important;
+}
+
 .register-btn i {
     font-size: 1rem;
-    animation: bounce 2s infinite;
+    transform: rotate(0deg) !important;
+    animation: none;
+    transition: none;
 }
 
 /* ===== AVATAR BUTTON ===== */
@@ -217,40 +237,66 @@
     text-transform: uppercase;
 }
 
-/* ===== DROPDOWN MENU ===== */
-.dropdown-content {
-    display: none;
+/* ===== DROPDOWN MENU DO PERFIL ===== */
+/* Seletor específico para o dropdown do perfil do usuário */
+/* IMPORTANTE: Usar seletores específicos para evitar conflitos com outros dropdowns */
+.profile-dropdown .dropdown-content,
+.header-user-section .dropdown-content,
+#dropdown-content {
+    display: none !important;
     position: absolute;
     right: 0;
     top: calc(100% + 10px);
     background-color: var(--white);
     min-width: 220px;
+    max-width: 250px;
     box-shadow: var(--shadow-lg);
     border-radius: var(--radius-lg);
     z-index: 1001;
     overflow: hidden;
     animation: fadeIn 0.2s ease-out;
     border: 1px solid var(--gray-200);
+    /* Garantir que apenas os elementos filhos diretos sejam exibidos */
 }
 
-.dropdown-content.show {
-    display: block;
+.profile-dropdown .dropdown-content.show,
+.header-user-section .dropdown-content.show,
+#dropdown-content.show {
+    display: block !important;
 }
 
-.dropdown-header {
+/* Garantir que links da navbar NÃO apareçam dentro do dropdown do perfil */
+.profile-dropdown .dropdown-content .nav-link,
+.header-user-section .dropdown-content .nav-link,
+#dropdown-content .nav-link,
+.profile-dropdown .dropdown-content .nav-menu,
+.header-user-section .dropdown-content .nav-menu,
+#dropdown-content .nav-menu {
+    display: none !important;
+}
+
+
+/* Seletor específico para o header do dropdown do perfil */
+.profile-dropdown .dropdown-header,
+.header-user-section .dropdown-header,
+#dropdown-content .dropdown-header {
     padding: var(--space-md);
     border-bottom: 1px solid var(--gray-200);
     background: var(--gray-50);
     font-weight: 600;
-    color: var(--white);
 }
 
-.user-greeting {
-    color: var(--white);
+.profile-dropdown .user-greeting,
+.header-user-section .user-greeting,
+#dropdown-content .user-greeting {
+    color: var(--gray-700);
     font-size: 0.9rem;
 }
 
-.dropdown-content a {
+/* Links dentro do dropdown do perfil - seletor específico */
+.profile-dropdown .dropdown-content a,
+.header-user-section .dropdown-content a,
+#dropdown-content a {
     color: var(--gray-700);
     padding: var(--space-md);
     text-decoration: none;
@@ -263,36 +309,50 @@
     border-bottom: 1px solid var(--gray-100);
 }
 
-.dropdown-content a:last-child {
+.profile-dropdown .dropdown-content a:last-child,
+.header-user-section .dropdown-content a:last-child,
+#dropdown-content a:last-child {
     border-bottom: none;
 }
 
-.dropdown-content a i {
+.profile-dropdown .dropdown-content a i,
+.header-user-section .dropdown-content a i,
+#dropdown-content a i {
     width: 20px;
     text-align: center;
     color: var(--gray-500);
     font-size: 0.9rem;
 }
 
-.dropdown-content a:hover {
+.profile-dropdown .dropdown-content a:hover,
+.header-user-section .dropdown-content a:hover,
+#dropdown-content a:hover {
     background-color: var(--gray-100);
     color: var(--primary-blue);
 }
 
-.dropdown-content a:hover i {
+.profile-dropdown .dropdown-content a:hover i,
+.header-user-section .dropdown-content a:hover i,
+#dropdown-content a:hover i {
     color: var(--primary-blue);
 }
 
-#logout-btn {
+.profile-dropdown #logout-btn,
+.header-user-section #logout-btn,
+#dropdown-content #logout-btn {
     color: var(--primary-red);
 }
 
-#logout-btn:hover {
+.profile-dropdown #logout-btn:hover,
+.header-user-section #logout-btn:hover,
+#dropdown-content #logout-btn:hover {
     background-color: #fee2e2;
     color: var(--dark-red);
 }
 
-#logout-btn:hover i {
+.profile-dropdown #logout-btn:hover i,
+.header-user-section #logout-btn:hover i,
+#dropdown-content #logout-btn:hover i {
     color: var(--dark-red);
 }
 
@@ -328,7 +388,9 @@
         padding: var(--space-md);
     }
 
-    .dropdown-content {
+    .profile-dropdown .dropdown-content,
+    .header-user-section .dropdown-content,
+    #dropdown-content {
         right: -50px;
         min-width: 200px;
     }
@@ -344,7 +406,9 @@
         font-size: 1rem;
     }
 
-    .dropdown-content {
+    .profile-dropdown .dropdown-content,
+    .header-user-section .dropdown-content,
+    #dropdown-content {
         right: -80px;
         min-width: 180px;
     }
@@ -370,48 +434,17 @@
     outline-offset: 2px;
 }
 
-.dropdown-content a:focus {
+.profile-dropdown .dropdown-content a:focus,
+.header-user-section .dropdown-content a:focus,
+#dropdown-content a:focus {
     outline: 2px solid var(--primary-blue);
     outline-offset: -2px;
 }
 
 /* ===== NAVIGATION ACTIVE STATES ===== */
-.nav-link {
-    position: relative;
-    transition: all 0.3s ease;
-}
-
-.nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 50%;
-    width: 0;
-    height: 3px;
-    background: var(--gradient-primary);
-    border-radius: 2px;
-    transform: translateX(-50%);
-    transition: width 0.3s ease;
-}
-
-.nav-link.active::after {
-    width: 80%;
-}
-
-.nav-link.active {
-    color: var(--primary-blue);
-    background: rgba(37, 99, 235, 0.05);
-    font-weight: 700;
-}
-
-.nav-link:hover {
-    color: var(--primary-blue);
-    background: rgba(37, 99, 235, 0.05);
-}
-
-.nav-link:hover::after {
-    width: 60%;
-}
+/* REMOVIDO: Estilos de navegação movidos para Sobre.css para evitar conflitos */
+/* Todas as páginas agora usam .header.modern-header, então estes estilos genéricos */
+/* não são mais necessários e causavam conflitos com o indicador de página ativa */
 
 /* ===== ENHANCED NAVIGATION STYLES ===== */
 .nav-menu {
@@ -597,51 +630,39 @@
 }
 
 /* ===== MOBILE NAVIGATION ENHANCEMENTS ===== */
-@media (max-width: 768px) {
-    .nav-link::after {
-        bottom: -2px;
-        height: 2px;
-    }
-    
-    .nav-link.active::after {
-        width: 100%;
-    }
-    
-    .nav-link:hover::after {
-        width: 80%;
-    }
-}
+/* REMOVIDO: Estilos mobile movidos para Sobre.css */
+/* Evita conflitos com o indicador de página ativa */
 
 /* ===== DARK MODE SUPPORT ===== */
 @media (prefers-color-scheme: dark) {
-    .dropdown-content {
+    .profile-dropdown .dropdown-content,
+    .header-user-section .dropdown-content,
+    #dropdown-content {
         background-color: var(--gray-800);
         border-color: var(--gray-700);
     }
 
-    .dropdown-header {
+    .profile-dropdown .dropdown-header,
+    .header-user-section .dropdown-header,
+    #dropdown-content .dropdown-header {
         background: var(--gray-700);
         color: var(--white);
     }
 
-    .dropdown-content a {
+    .profile-dropdown .dropdown-content a,
+    .header-user-section .dropdown-content a,
+    #dropdown-content a {
         color: var(--gray-300);
         border-color: var(--gray-700);
     }
 
-    .dropdown-content a:hover {
+    .profile-dropdown .dropdown-content a:hover,
+    .header-user-section .dropdown-content a:hover,
+    #dropdown-content a:hover {
         background-color: var(--gray-700);
         color: var(--primary-blue);
     }
     
-    .nav-link.active {
-        color: var(--secondary-blue);
-        background: rgba(59, 130, 246, 0.1);
-    }
-    
-    .nav-link:hover {
-        color: var(--secondary-blue);
-        background: rgba(59, 130, 246, 0.05);
-    }
+    /* Estilos de nav-link removidos - usar Sobre.css */
 }
 

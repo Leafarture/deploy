@@ -26,9 +26,20 @@
 }
 
 /* Logo - Cor vermelha do projeto */
+/* Logo com ícone - Estilos movidos para Sobre.css para evitar duplicação */
+/* Mantido aqui apenas para compatibilidade, mas Sobre.css tem prioridade */
 .header.modern-header .logo {
     text-decoration: none;
     font-weight: 800;
+    font-size: 1.5rem;
+    color: #dc2626;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header.modern-header .logo i {
     font-size: 1.5rem;
     color: #dc2626;
     transition: all 0.3s ease;
@@ -37,6 +48,15 @@
 .header.modern-header .logo:hover {
     transform: scale(1.05);
     color: #b91c1c;
+}
+
+.header.modern-header .logo:hover i {
+    color: #b91c1c;
+    transform: rotate(15deg);
+}
+
+.header.modern-header .logo-text {
+    display: inline-block;
 }
 
 /* Menu de Navegação */
@@ -78,15 +98,19 @@
     background: rgba(220, 38, 38, 0.15);
 }
 
+/* Estilos movidos para Sobre.css para evitar duplicação */
+/* Mantido apenas para compatibilidade, mas Sobre.css tem prioridade */
 .header.modern-header .nav-link.active::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 1rem;
-    right: 1rem;
-    height: 2px;
-    background: #dc2626;
-    border-radius: 2px;
+    content: '' !important;
+    position: absolute !important;
+    bottom: -2px !important;
+    left: 1rem !important;
+    right: 1rem !important;
+    height: 2px !important;
+    width: auto !important;
+    background: #dc2626 !important;
+    border-radius: 2px !important;
+    transform: none !important;
 }
 
 /* Dropdown */

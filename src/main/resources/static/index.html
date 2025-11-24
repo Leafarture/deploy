@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prato Justo - Combate ao Desperdício de Alimentos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="./header-styles.css">
     <link rel="stylesheet" href="./index.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./Sobre.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
@@ -13,6 +16,7 @@
 <header class="header modern-header" id="main-header">
     <div class="container header-container">
         <a href="index.html" class="logo" aria-label="Ir para página inicial">
+            <i class="fas fa-utensils"></i>
             <span class="logo-text">Prato Justo</span>
         </a>
 
@@ -20,9 +24,9 @@
             <ul class="nav-links">
                 <li><a href="index.html" class="nav-link">Início</a></li>
                 <li class="dropdown" role="menuitem">
-                    <a href="#" class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+                    <a href="minhas-doacoes.html" class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true">
                         Minhas Doações <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                        <span class="notification-badge" id="donations-badge">3</span>
+                        <span class="notification-badge" id="donations-badge" style="display: none;">0</span>
                     </a>
                     <ul class="dropdown-menu enhanced" role="menu">
                         <li role="none">
@@ -32,7 +36,7 @@
                                     <span class="item-title">Solicitações</span>
                                     <span class="item-desc">Gerencie pedidos recebidos</span>
                                 </div>
-                                <span class="item-status pending">3 pendentes</span>
+                                <span class="item-status pending" id="dropdown-pending-status" style="display: none;">0 pendentes</span>
                             </a>
                         </li>
                         <li role="none">
@@ -62,8 +66,7 @@
         </nav>
 
         <div class="header-buttons" id="header-actions">
-            <a href="./login.html" class="btn btn-outline">Entrar</a>
-            <a href="./cadastro_perfil.html" class="btn btn-primary">Cadastrar</a>
+            <!-- Será preenchido pelo sistema de autenticação -->
         </div>
 
         <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Abrir menu mobile" aria-expanded="false">
@@ -436,6 +439,10 @@
 
 <!-- Scripts -->
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="auth.js"></script>
+<script src="headerUser.js"></script>
+<script src="navbar-manager.js"></script>
+<script src="notification-badge-manager.js"></script>
 <script src="./index.js"></script>
 </body>
 </html>

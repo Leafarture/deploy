@@ -112,6 +112,17 @@ class AuthManager {
             }
         });
 
+        // Atualizar links para "Solicitações"
+        const solicitacoesLinks = document.querySelectorAll('[href*="solicitacoes"]');
+        solicitacoesLinks.forEach(link => {
+            if (!this.isAuthenticated()) {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showAuthRequired('Você precisa estar logado para ver suas solicitações.');
+                });
+            }
+        });
+
         // Atualizar botões de login e cadastro
         const loginButtons = document.querySelectorAll('.login-btn, .register-btn');
         loginButtons.forEach(btn => {

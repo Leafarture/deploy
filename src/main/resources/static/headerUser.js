@@ -51,11 +51,32 @@ class HeaderUserManager {
      * Cria o HTML do header do usuário
      */
     createUserHeader() {
-        const headerActions = document.querySelector('.header-actions');
+        // Tenta encontrar header-actions de diferentes formas
+        let headerActions = document.querySelector('.header-actions');
+        
+        // Se não encontrou, tenta encontrar #header-actions dentro de .header-buttons
         if (!headerActions) {
-            console.warn('HeaderUserManager: .header-actions não encontrado');
+            headerActions = document.querySelector('#header-actions');
+        }
+        
+        // Se ainda não encontrou, tenta encontrar .header-buttons
+        if (!headerActions) {
+            headerActions = document.querySelector('.header-buttons');
+        }
+        
+        if (!headerActions) {
+            console.warn('HeaderUserManager: header-actions não encontrado');
             return;
         }
+
+        // Limpa conteúdo existente (botões de login/cadastro) se houver
+        const existingButtons = headerActions.querySelectorAll('.btn, a[href*="login"], a[href*="cadastro"]');
+        existingButtons.forEach(btn => {
+            // Não remove se já tiver header-user-section dentro
+            if (!btn.closest('.header-user-section')) {
+                btn.remove();
+            }
+        });
 
         const userSection = document.createElement('div');
         userSection.className = 'header-user-section';

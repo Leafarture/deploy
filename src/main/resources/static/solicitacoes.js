@@ -97,6 +97,9 @@ class SolicitacoesApp {
             this.setupEventListeners();
             await this.loadRequests();
             this.calculateStats();
+        } else {
+            // Se não estiver autenticado, não fazer nada além de mostrar o modal
+            // O modal já foi mostrado em checkAuth()
         }
     }
 
@@ -115,31 +118,91 @@ class SolicitacoesApp {
                     this.showAuthenticatedContent();
                 } else {
                     localStorage.removeItem('token');
-                    this.showAuthRequired();
+                    this.showAuthRequiredModal();
                 }
             } catch (error) {
                 console.error('Erro ao verificar autenticação:', error);
                 localStorage.removeItem('token');
-                this.showAuthRequired();
+                this.showAuthRequiredModal();
             }
         } else {
-            this.showAuthRequired();
+            this.showAuthRequiredModal();
         }
     }
 
     showAuthenticatedContent() {
-        document.getElementById('auth-required').style.display = 'none';
-        document.getElementById('authenticated-content').style.display = 'block';
+        // Esconder mensagem de autenticação
+        const authRequired = document.getElementById('auth-required');
+        if (authRequired) authRequired.style.display = 'none';
+        
+        // Mostrar conteúdo autenticado
+        const authenticatedContent = document.getElementById('authenticated-content');
+        if (authenticatedContent) authenticatedContent.style.display = 'block';
         
         const userName = document.getElementById('user-name');
-        if (userName) {
+        if (userName && this.currentUser) {
             userName.textContent = this.currentUser.nome;
         }
     }
 
     showAuthRequired() {
-        document.getElementById('auth-required').style.display = 'block';
-        document.getElementById('authenticated-content').style.display = 'none';
+        // Mostrar mensagem de autenticação
+        const authRequired = document.getElementById('auth-required');
+        if (authRequired) authRequired.style.display = 'block';
+        
+        // Esconder conteúdo autenticado
+        const authenticatedContent = document.getElementById('authenticated-content');
+        if (authenticatedContent) authenticatedContent.style.display = 'none';
+    }
+
+    showAuthRequiredModal() {
+        // Esconder todo o conteúdo da página
+        const authenticatedContent = document.getElementById('authenticated-content');
+        if (authenticatedContent) authenticatedContent.style.display = 'none';
+        
+        const authRequired = document.getElementById('auth-required');
+        if (authRequired) authRequired.style.display = 'none';
+        
+        // Usar o modal do AuthManager se disponível
+        if (window.authManager && typeof window.authManager.showAuthRequired === 'function') {
+            window.authManager.showAuthRequired('Você precisa estar logado para ver suas solicitações.');
+            
+            // Adicionar listener para fechar o modal e redirecionar
+            const modal = document.getElementById('auth-modal');
+            if (modal) {
+                const cancelBtn = modal.querySelector('.btn-auth-modal-cancel');
+                if (cancelBtn) {
+                    const originalCancel = cancelBtn.onclick;
+                    cancelBtn.onclick = (e) => {
+                        if (originalCancel) originalCancel.call(cancelBtn, e);
+                        // Redirecionar para a página anterior ou index
+                        if (document.referrer && document.referrer !== window.location.href) {
+                            window.history.back();
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    };
+                }
+                
+                // Fechar modal ao clicar no overlay
+                const overlay = modal.querySelector('.auth-modal-overlay');
+                if (overlay) {
+                    overlay.addEventListener('click', (e) => {
+                        if (e.target === overlay) {
+                            modal.remove();
+                            if (document.referrer && document.referrer !== window.location.href) {
+                                window.history.back();
+                            } else {
+                                window.location.href = 'index.html';
+                            }
+                        }
+                    });
+                }
+            }
+        } else {
+            // Fallback: mostrar o conteúdo de auth-required
+            this.showAuthRequired();
+        }
     }
 
     setupEventListeners() {
