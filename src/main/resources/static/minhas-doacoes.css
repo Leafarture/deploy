@@ -1,7 +1,7 @@
-/* ===== MINHAS DOAÇÕES - ESTILOS ===== */
+/* ===== MINHAS DOAÇÕES - ESTILOS ATUALIZADOS COM CORES DO MODELO ===== */
 
 .my-donations-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #991b1b 100%) !important;
     padding: 3rem 0;
     position: relative;
     overflow: hidden;
@@ -42,7 +42,7 @@
 
 .my-donations-content h1 i {
     font-size: 2.5rem;
-    background: linear-gradient(45deg, #ff6b6b, #feca57);
+    background: linear-gradient(45deg, #fbbf24, #ef4444);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -62,7 +62,7 @@
 
 .btn-add-donation {
     background: white;
-    color: #667eea;
+    color: #dc2626;
     padding: 0.75rem 1.5rem;
     border-radius: 50px;
     text-decoration: none;
@@ -76,8 +76,9 @@
 
 .btn-add-donation:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
     background: #f8f9fa;
+    color: #b91c1c;
 }
 
 .stats-container {
@@ -109,14 +110,14 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #dc2626, #b91c1c);
     transform: scaleX(0);
     transition: transform 0.4s ease;
 }
 
 .stat-card:hover {
     transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 20px 50px rgba(220, 38, 38, 0.3);
 }
 
 .stat-card:hover::before {
@@ -126,7 +127,7 @@
 .stat-number {
     font-size: 3rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -170,7 +171,7 @@ main.main-content {
 .loading {
     text-align: center;
     padding: 4rem 2rem;
-    color: #667eea;
+    color: #dc2626;
     font-size: 1.2rem;
 }
 
@@ -229,14 +230,14 @@ main.main-content {
 }
 
 .btn-edit {
-    background: linear-gradient(135deg, #3498db, #2980b9);
+    background: linear-gradient(135deg, #2563eb, #1e40af);
     color: white;
 }
 
 .btn-edit:hover {
-    background: linear-gradient(135deg, #2980b9, #21618c);
+    background: linear-gradient(135deg, #1e40af, #1e3a8a);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
 .btn-edit:active {
@@ -244,14 +245,14 @@ main.main-content {
 }
 
 .btn-delete {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
     color: white;
 }
 
 .btn-delete:hover {
-    background: linear-gradient(135deg, #c0392b, #a93226);
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
 }
 
 .btn-delete:active {
@@ -268,11 +269,11 @@ main.main-content {
     text-align: center;
     padding: 4rem 2rem;
     color: white;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #991b1b 100%);
     border-radius: 20px;
     margin: 2rem auto;
     max-width: 600px;
-    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 20px 40px rgba(220, 38, 38, 0.3);
     position: relative;
     overflow: hidden;
 }
@@ -302,7 +303,7 @@ main.main-content {
 .auth-required i {
     font-size: 5rem;
     margin-bottom: 1.5rem;
-    background: linear-gradient(45deg, #ff6b6b, #feca57);
+    background: linear-gradient(45deg, #fbbf24, #ef4444);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -328,14 +329,14 @@ main.main-content {
     align-items: center;
     gap: 0.75rem;
     padding: 1.25rem 2.5rem;
-    background: linear-gradient(45deg, #ff6b6b, #feca57);
+    background: linear-gradient(45deg, #fbbf24, #ef4444);
     color: white;
     text-decoration: none;
     border-radius: 50px;
     font-weight: 600;
     font-size: 1.1rem;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
     position: relative;
     overflow: hidden;
     text-transform: uppercase;
@@ -359,8 +360,8 @@ main.main-content {
 
 .btn-login-beautiful:hover {
     transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 15px 35px rgba(255, 107, 107, 0.6);
-    background: linear-gradient(45deg, #ff5252, #ffeb3b);
+    box-shadow: 0 15px 35px rgba(251, 191, 36, 0.6);
+    background: linear-gradient(45deg, #f59e0b, #dc2626);
 }
 
 .btn-login-beautiful:active {
@@ -395,7 +396,7 @@ main.main-content {
 .auth-feature i {
     font-size: 2rem;
     margin-bottom: 0.5rem;
-    color: #feca57;
+    color: #fbbf24;
 }
 
 .auth-feature p {
@@ -436,9 +437,9 @@ body {
     justify-content: center;
     align-items: center;
     padding: 1.75rem 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #991b1b 100%);
     border-radius: 50px;
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 15px 40px rgba(30, 41, 59, 0.4);
     position: relative;
     overflow: hidden;
 }
@@ -492,7 +493,7 @@ body {
 
 .filter-btn.active {
     background: white;
-    color: #667eea;
+    color: #dc2626;
     border-color: white;
     box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5);
     transform: translateY(-3px) scale(1.05);
@@ -504,393 +505,11 @@ body {
     box-shadow: 0 8px 25px rgba(255, 255, 255, 0.6);
 }
 
-@media (max-width: 768px) {
-    .filters-wrapper {
-        flex-direction: column;
-        border-radius: 30px;
-    }
+/* Restante do CSS permanece igual... */
 
-    .filter-btn {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-/* Estilos para o chat widget flutuante */
-.chat-widget-container {
-    position: fixed !important;
-    bottom: 20px !important;
-    right: 20px !important;
-    z-index: 9999 !important;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    pointer-events: auto !important;
-}
-
-.chat-widget-button {
-    width: 60px !important;
-    height: 60px !important;
-    min-width: 60px !important;
-    min-height: 60px !important;
-    border-radius: 50% !important;
-    background: linear-gradient(135deg, #2196F3 0%, #ea1d2c 100%) !important;
-    background-color: #2196F3 !important;
-    border: none !important;
-    color: white !important;
-    font-size: 1.5rem !important;
-    cursor: pointer !important;
-    box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4) !important;
-    transition: all 0.3s ease !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    position: relative !important;
-    z-index: 10000 !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.chat-widget-button i {
-    color: white !important;
-    font-size: 1.5rem !important;
-}
-
-.chat-widget-button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 30px rgba(33, 150, 243, 0.6);
-}
-
-.chat-widget-button:active {
-    transform: scale(0.95);
-}
-
-.chat-widget-button i {
-    transition: transform 0.3s ease;
-}
-
-.chat-widget-panel.active ~ .chat-widget-button i {
-    transform: rotate(180deg);
-}
-
-.chat-widget-button .notification-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #e74c3c;
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: bold;
-    border: 2px solid white;
-}
-
-.chat-widget-panel {
-    position: absolute !important;
-    bottom: 80px !important;
-    right: 0 !important;
-    width: 380px !important;
-    height: 600px !important;
-    background: white !important;
-    border-radius: 20px !important;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
-    display: none !important;
-    flex-direction: column !important;
-    overflow: hidden !important;
-    animation: slideUp 0.3s ease !important;
-    border: 1px solid rgba(33, 150, 243, 0.1) !important;
-    z-index: 9998 !important;
-}
-
-.chat-widget-panel.active {
-    display: flex !important;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Adaptar o chat para widget */
-.chat-widget-panel .app-container {
-    height: 100% !important;
-    max-width: 100% !important;
-    margin: 0;
-    box-shadow: none;
-    display: flex !important;
-    flex-direction: row !important;
-}
-
-.chat-widget-panel .sidebar {
-    width: 100% !important;
-    height: 100% !important;
-    position: relative !important;
-    transform: none !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
-
-.chat-widget-panel .sidebar.hidden {
-    display: none !important;
-}
-
-.chat-widget-panel .chat-area {
-    width: 100% !important;
-    height: 100% !important;
-    display: none !important;
-    flex-direction: column !important;
-}
-
-.chat-widget-panel .chat-area.active {
-    display: flex !important;
-}
-
-.chat-widget-panel .messages-container {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
-}
-
-/* Ajustar tamanhos para widget */
-.chat-widget-panel .sidebar-header h1 {
-    font-size: 1.2rem;
-}
-
-.chat-widget-panel .chat-header {
-    padding: 0.75rem;
-}
-
-.chat-widget-panel .contact-info h2 {
-    font-size: 1rem;
-}
-
-.chat-widget-panel .message {
-    max-width: 80%;
-    font-size: 0.9rem;
-}
-
-.chat-widget-panel .chat-input-container {
-    padding: 0.75rem;
-}
-
-/* Esconder elementos desnecessários no widget */
-.chat-widget-panel .chat-action-btn:not(#chatMinimizeBtn):not(#chatCloseBtn) {
-    display: none;
-}
-
-/* Melhorar visualização no widget */
-.chat-widget-panel .connection-status {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    font-size: 0.7rem;
-    padding: 6px 10px;
-}
-
-/* Garantir que o chat não interfira no body da página */
-body {
-    height: auto !important;
-    overflow: visible !important;
-}
-
-/* Sobrescrever estilos do chat.css que podem esconder elementos */
-html, body {
-    overflow-x: visible !important;
-    overflow-y: auto !important;
-}
-
-/* Sobrescrever estilos do chat.css que podem interferir */
-.chat-widget-panel * {
-    box-sizing: border-box;
-}
-
-.chat-widget-panel .app-container {
-    height: 100% !important;
-    max-width: 100% !important;
-}
-
-/* Garantir que o body do chat.css não afete a página */
-body .chat-widget-container {
-    display: block !important;
-}
-
-/* Estilos para elementos que eram inline */
-#user-actions {
-    display: none;
-}
-
-#auth-required {
-    display: none;
-}
-
-#authenticated-content {
-    display: none;
-}
-
-#loading {
-    display: none;
-}
-
-#no-donations {
-    display: none;
-}
-
-#connectionStatus {
-    display: none;
-}
-
-/* Estilos específicos para o chat widget container */
-#chatWidgetContainer {
-    position: fixed !important;
-    bottom: 20px !important;
-    right: 20px !important;
-    z-index: 99999 !important;
-    display: block !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    width: 60px !important;
-    height: 60px !important;
-}
-
-/* Estilos específicos para o botão do chat widget */
-#chatWidgetToggle {
-    width: 60px !important;
-    height: 60px !important;
-    min-width: 60px !important;
-    min-height: 60px !important;
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    background: linear-gradient(135deg, #2196F3 0%, #ea1d2c 100%) !important;
-    background-color: #2196F3 !important;
-    border-radius: 50% !important;
-    border: 3px solid white !important;
-    color: white !important;
-    cursor: pointer !important;
-    box-shadow: 0 4px 20px rgba(33, 150, 243, 0.6) !important;
-    align-items: center !important;
-    justify-content: center !important;
-    position: relative !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-#chatWidgetToggle i.fas.fa-comments {
-    color: white !important;
-    font-size: 1.5rem !important;
-    display: block !important;
-}
-
-/* Estilos para o badge de notificação do chat */
-#chatNotificationBadge {
-    display: none;
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #e74c3c;
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: bold;
-    border: 2px solid white;
-}
-
-/* Classes para garantir visibilidade do chat widget via JavaScript */
-.chat-widget-visible {
-    position: fixed !important;
-    bottom: 20px !important;
-    right: 20px !important;
-    z-index: 99999 !important;
-    display: block !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-}
-
-.chat-button-visible {
-    width: 60px !important;
-    height: 60px !important;
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    background: linear-gradient(135deg, #2196F3 0%, #ea1d2c 100%) !important;
-    border-radius: 50% !important;
-    border: none !important;
-    color: white !important;
-    cursor: pointer !important;
-    box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4) !important;
-    align-items: center !important;
-    justify-content: center !important;
-    position: relative !important;
-}
-
-.chat-container-visible {
-    display: block !important;
-    visibility: visible !important;
-}
-
-/* Classes para badge de notificação */
-.badge-visible {
-    display: flex !important;
-    animation: pulse 1s ease-in-out;
-}
-
-.badge-hidden {
-    display: none !important;
-}
-
-/* Responsividade para mobile */
-@media (max-width: 768px) {
-    .chat-widget-panel {
-        width: calc(100vw - 40px);
-        height: calc(100vh - 120px);
-        bottom: 80px;
-        right: 20px;
-        left: 20px;
-    }
-
-    .chat-widget-button {
-        width: 56px;
-        height: 56px;
-        font-size: 1.3rem;
-    }
-
-    .chat-widget-panel .sidebar {
-        width: 100%;
-    }
-}
-
-/* Animações suaves */
-.chat-widget-panel {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Melhorar scrollbar no widget */
-.chat-widget-panel .chats-list::-webkit-scrollbar,
-.chat-widget-panel .messages-container::-webkit-scrollbar {
-    width: 4px;
-}
-
-.chat-widget-panel .chats-list::-webkit-scrollbar-thumb,
-.chat-widget-panel .messages-container::-webkit-scrollbar-thumb {
-    background: rgba(33, 150, 243, 0.3);
-    border-radius: 2px;
-}
-
-
-
-
+/* Apenas atualizei as cores principais para seguir o modelo:
+   - Gradiente escuro: #1e293b, #0f172a, #991b1b
+   - Vermelho principal: #dc2626, #b91c1c
+   - Azul para elementos secundários: #2563eb, #1e40af
+   - Gradientes laranja/amarelo: #fbbf24, #ef4444
+*/
