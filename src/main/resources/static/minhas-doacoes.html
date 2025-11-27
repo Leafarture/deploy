@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Doações | Prato Justo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./header-styles.css">
+    <link rel="stylesheet" href="./index.css">
+    <link rel="stylesheet" href="./doacoes.css">
+    <link rel="stylesheet" href="./minhas-doacoes.css">
+    <link rel="stylesheet" href="./Sobre.css">
+</head>
+<body>
+<!-- HEADER -->
+<header class="header modern-header" id="main-header">
+    <div class="container header-container">
+        <a href="index.html" class="logo" aria-label="Ir para página inicial">
+                        <i class="fas fa-utensils"></i>
+            <span class="logo-text">Prato Justo</span>
+        </a>
+                
+        <nav class="nav-menu" id="nav-menu" role="navigation" aria-label="Menu principal">
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Início</a></li>
+                <li><a href="./doacoes.html" class="nav-link">Alimentos Disponíveis</a></li>
+                <li class="dropdown" role="menuitem">
+                    <a href="minhas-doacoes.html" class="nav-link dropdown-toggle active" aria-expanded="false" aria-haspopup="true">
+                        Minhas Doações <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        <span class="notification-badge" id="donations-badge" style="display: none;">0</span>
+                    </a>
+                    <ul class="dropdown-menu enhanced" role="menu">
+                        <li role="none">
+                            <a href="./solicitacoes.html" class="dropdown-item" role="menuitem">
+                                <i class="fas fa-list-check"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Solicitações</span>
+                                    <span class="item-desc">Gerencie pedidos recebidos</span>
+                                </div>
+                                <span class="item-status pending" id="dropdown-pending-status" style="display: none;">0 pendentes</span>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a href="cadastro_alimento.html" class="dropdown-item" role="menuitem">
+                                <i class="fas fa-plus-circle"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Cadastrar</span>
+                                    <span class="item-desc">Adicione alimentos para doação</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a href="chat.html" class="dropdown-item" role="menuitem">
+                                <i class="fas fa-comments"></i>
+                                <div class="item-content">
+                                    <span class="item-title">Chat</span>
+                                    <span class="item-desc">Comunicação direta</span>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li><a href="./Como_Doar.html" class="nav-link">Como doar</a></li>
+                <li><a href="./porqueDoar.html" class="nav-link">Por que doar</a></li>
+                <li><a href="./Sobre.html" class="nav-link">Sobre</a></li>
+            </ul>
+        </nav>
+
+        <div class="header-buttons" id="header-actions">
+                <!-- Será preenchido pelo sistema de autenticação -->
+        </div>
+
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Abrir menu mobile" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </button>
+    </div>
+
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+</header>
+
+    <section class="section page-title">
+        <div class="container">
+            <h1 class="section__title">Minhas Doações</h1>
+        </div>
+    </section>
+
+    <div id="auth-required" class="auth-required">
+        <div class="auth-required-content">
+            <i class="fas fa-lock"></i>
+            <h3>Login Necessário</h3>
+            <p>Você precisa estar logado para acessar suas doações e gerenciar seu perfil.</p>
+            <a href="login.html" class="btn-login-beautiful">
+                <i class="fas fa-sign-in-alt"></i>
+                Fazer Login
+            </a>
+            
+            <div class="auth-features">
+                <div class="auth-feature">
+                    <i class="fas fa-heart"></i>
+                    <p>Gerencie suas doações</p>
+                </div>
+                <div class="auth-feature">
+                    <i class="fas fa-chart-line"></i>
+                    <p>Acompanhe estatísticas</p>
+                </div>
+                <div class="auth-feature">
+                    <i class="fas fa-users"></i>
+                    <p>Conecte-se com a comunidade</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="authenticated-content">
+        <div class="stats-container" id="stats-container">
+            <div class="stat-card">
+                <div class="stat-number" id="total-donations">0</div>
+                <div class="stat-label">Total de Doações</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="active-donations">0</div>
+                <div class="stat-label">Doações Ativas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-quantity">0</div>
+                <div class="stat-label">Total (kg)</div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-container">
+            <div class="filters-wrapper">
+                <button class="filter-btn active" data-filter="todas">
+                    <i class="fas fa-list"></i>
+                    Todas
+                </button>
+                <button class="filter-btn" data-filter="ativas">
+                    <i class="fas fa-check-circle"></i>
+                    Ativas
+                </button>
+                <button class="filter-btn" data-filter="inativas">
+                    <i class="fas fa-pause-circle"></i>
+                    Inativas
+                </button>
+                <button class="filter-btn" data-filter="vencidas">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Vencidas
+                </button>
+                <button class="filter-btn" data-filter="urgentes">
+                    <i class="fas fa-clock"></i>
+                    Urgentes
+                </button>
+            </div>
+        </div>
+
+        <main class="main-content">
+            <div id="loading" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> 
+                <p>Carregando suas doações...</p>
+            </div>
+            <div id="doacoes-container" class="doacoes-grid">
+            </div>
+            <div id="no-donations" class="no-donations">
+                <i class="fas fa-heart"></i>
+                <h3>Nenhuma doação encontrada</h3>
+                <p>Você ainda não fez nenhuma doação. Que tal começar agora?</p>
+                <a href="cadastro_alimento.html" class="btn-add-donation">
+                    <i class="fas fa-plus"></i>
+                    Fazer Primeira Doação
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <script src="notification.js"></script>
+    <script src="realtime-manager.js"></script>
+    <script src="auth.js"></script>
+    <script src="headerUser.js"></script>
+    <script src="navbar-manager.js"></script>
+    <script src="notification-badge-manager.js"></script>
+    <script src="avaliacao-solicitacao.js"></script>
+    <script src="minhas-doacoes.js"></script>
+    <script>
+        // Expor função globalmente
+        window.showEvaluationModal = showEvaluationModal;
+    </script>
+</body>
+</html>
