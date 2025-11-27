@@ -356,6 +356,14 @@
     color: var(--dark-red);
 }
 
+/* ===== NAVBAR DROPDOWN MENU (ENHANCED) ===== */
+/* Remove bullets from enhanced dropdown menus in the header navbar */
+.header.modern-header .dropdown-menu.enhanced {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+}
+
 /* ===== ANIMAÇÕES ===== */
 @keyframes fadeIn {
     from {

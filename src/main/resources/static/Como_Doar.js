@@ -457,37 +457,14 @@ class InteractiveExperience {
 
 		const icons = ['🍎', '🥕', '🍞', '🍗', '🥛', '🥚', '🍌', '🍊'];
 
-		for (let i = 0; i < 15; i++) {
+		for (let i = 0; i < 12; i++) {
 			const icon = document.createElement('div');
-			icon.className = 'floating-food-icon falling';
+			icon.className = 'floating-food-icon';
 			icon.textContent = icons[Math.floor(Math.random() * icons.length)];
-			
-			// Posicionamento aleatório horizontal
 			icon.style.left = `${Math.random() * 100}%`;
-			
-			// Delay aleatório para criar efeito contínuo de queda
-			const delay = Math.random() * 8;
-			icon.style.animationDelay = `${delay}s`;
-			
-			// Duração variada para diferentes velocidades
-			const duration = 8 + Math.random() * 6; // Entre 8 e 14 segundos
-			icon.style.animationDuration = `${duration}s`;
-			
-			// Tamanho variado
-			const size = 1.2 + Math.random() * 1; // Entre 1.2rem e 2.2rem
-			icon.style.fontSize = `${size}rem`;
-			
-			// Opacidade variada
-			icon.style.opacity = `${Math.random() * 0.4 + 0.3}`;
-			
-			// Rotação variada (para movimento mais natural)
-			const rotation = Math.random() * 720; // Rotação entre 0 e 720 graus
-			icon.style.setProperty('--rotation', `${rotation}deg`);
-			
-			// Deriva lateral (movimento horizontal durante a queda)
-			const drift = (Math.random() - 0.5) * 2; // Entre -1 e 1
-			icon.style.setProperty('--drift', drift.toString());
-			
+			icon.style.animationDelay = `${Math.random() * 10}s`;
+			icon.style.fontSize = `${Math.random() * 1 + 1.5}rem`;
+			icon.style.opacity = `${Math.random() * 0.5 + 0.3}`;
 			container.appendChild(icon);
 		}
 	}
@@ -832,16 +809,10 @@ class InteractiveExperience {
 const dynamicStyles = `
 .floating-food-icon {
     position: absolute;
+    animation: float 8s ease-in-out infinite;
+    opacity: 0.7;
     pointer-events: none;
     z-index: 1;
-    will-change: transform;
-}
-
-.floating-food-icon.falling {
-    animation: fallDown 10s linear infinite;
-    top: -100px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-    transition: opacity 0.3s ease;
 }
 
 .particle {
@@ -852,37 +823,11 @@ const dynamicStyles = `
 }
 
 @keyframes float {
-    0%, 100% {
-        transform: translateY(0px) rotate(0deg);
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg); 
     }
-    50% {
-        transform: translateY(-20px) rotate(180deg);
-    }
-}
-
-@keyframes fallDown {
-    0% {
-        transform: translateY(-100px) translateX(0) rotate(var(--rotation, 0deg));
-        opacity: 0;
-    }
-    3% {
-        opacity: 1;
-    }
-    25% {
-        transform: translateY(calc(25vh)) translateX(calc((var(--drift, 0) * 20px))) rotate(calc(var(--rotation, 0deg) + 180deg));
-    }
-    50% {
-        transform: translateY(calc(50vh)) translateX(calc((var(--drift, 0) * 40px))) rotate(calc(var(--rotation, 0deg) + 360deg));
-    }
-    75% {
-        transform: translateY(calc(75vh)) translateX(calc((var(--drift, 0) * 60px))) rotate(calc(var(--rotation, 0deg) + 540deg));
-    }
-    97% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(calc(100vh + 100px)) translateX(calc((var(--drift, 0) * 80px))) rotate(calc(var(--rotation, 0deg) + 720deg));
-        opacity: 0;
+    50% { 
+        transform: translateY(-20px) rotate(180deg); 
     }
 }
 
@@ -1001,15 +946,15 @@ const dynamicStyles = `
     .floating-food-icon {
         display: none;
     }
-
+    
     .particle {
         display: none;
     }
 }
 
 /* Efeitos de foco para acessibilidade */
-.btn:focus,
-.food-option:focus,
+.btn:focus, 
+.food-option:focus, 
 .frequency-option:focus,
 .recommendation-card:focus {
     outline: 2px solid #dc2626;
