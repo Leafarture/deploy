@@ -367,30 +367,29 @@ class MinhasDoacoesApp {
         let requestsSection = '';
         if (requests.length > 0) {
             requestsSection = `
-                <div class="requests-section" style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                        <h4 style="margin: 0; color: #667eea; font-size: 1rem;">
+                <div class="requests-section">
+                    <div>
+                        <h4>
                             <i class="fas fa-users"></i> Solicitações (${requests.length})
                         </h4>
                     </div>
                     ${pendingRequests.length > 0 ? `
-                        <div style="margin-bottom: 0.5rem;">
+                        <div>
                             <strong style="color: #856404;">Pendentes: ${pendingRequests.length}</strong>
                         </div>
                     ` : ''}
                     ${inProgressRequests.length > 0 ? `
-                        <div style="margin-bottom: 0.5rem;">
+                        <div>
                             <strong style="color: #084298;">Em Andamento: ${inProgressRequests.length}</strong>
                         </div>
                     ` : ''}
                     ${completedRequests.length > 0 ? `
-                        <div style="margin-bottom: 0.5rem;">
+                        <div>
                             <strong style="color: #0f5132;">Concluídas: ${completedRequests.length}</strong>
                         </div>
                     ` : ''}
                     ${!hasCompletedRequests ? `
-                        <button class="btn-view-requests" onclick="event.stopPropagation(); viewRequests(${donation.id})" 
-                                style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
+                        <button class="btn-view-requests" onclick="event.stopPropagation(); viewRequests(${donation.id})">
                             <i class="fas fa-eye"></i> Ver Solicitações
                         </button>
                     ` : ''}
@@ -760,20 +759,7 @@ async function viewRequests(donationId) {
 function showRequestsModal(donationId, requests) {
     const modal = document.createElement('div');
     modal.className = 'requests-modal';
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        padding: 2rem;
-        overflow-y: auto;
-    `;
+    // Estilos aplicados via CSS
 
     const statusLabels = {
         'solicitada': { text: 'Pendente', class: 'status-solicitada', icon: 'fa-clock' },
@@ -784,7 +770,7 @@ function showRequestsModal(donationId, requests) {
 
     let requestsHTML = '';
     if (requests.length === 0) {
-        requestsHTML = '<p style="text-align: center; color: #64748b; padding: 2rem;">Nenhuma solicitação encontrada.</p>';
+        requestsHTML = '<p>Nenhuma solicitação encontrada.</p>';
     } else {
         requestsHTML = requests.map(req => {
             const statusInfo = statusLabels[req.status] || statusLabels['solicitada'];
@@ -795,44 +781,39 @@ function showRequestsModal(donationId, requests) {
             let actionsHTML = '';
             if (req.status === 'solicitada') {
                 actionsHTML = `
-                    <button class="btn-accept" onclick="acceptRequest(${req.id}, ${donationId})" 
-                            style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; margin-right: 0.5rem;">
+                    <button class="btn-accept" onclick="acceptRequest(${req.id}, ${donationId})">
                         <i class="fas fa-check"></i> Aceitar
                     </button>
-                    <button class="btn-reject" onclick="rejectRequest(${req.id}, ${donationId})" 
-                            style="padding: 0.5rem 1rem; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    <button class="btn-reject" onclick="rejectRequest(${req.id}, ${donationId})">
                         <i class="fas fa-times"></i> Recusar
                     </button>
                 `;
             } else if (req.status === 'em_andamento') {
                 actionsHTML = `
-                    <button class="btn-chat" onclick="openChat(${req.solicitante.id}, ${req.id})" 
-                            style="padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; margin-right: 0.5rem;">
+                    <button class="btn-chat" onclick="openChat(${req.solicitante.id}, ${req.id})">
                         <i class="fas fa-comments"></i> Chat
                     </button>
-                    <button class="btn-collect" onclick="markAsCollected(${req.id}, ${donationId})" 
-                            style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; margin-right: 0.5rem;">
+                    <button class="btn-collect" onclick="markAsCollected(${req.id}, ${donationId})">
                         <i class="fas fa-check-circle"></i> Marcar como Coletada
                     </button>
-                    <button class="btn-cancel" onclick="cancelRequest(${req.id}, ${donationId})" 
-                            style="padding: 0.5rem 1rem; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    <button class="btn-cancel" onclick="cancelRequest(${req.id}, ${donationId})">
                         <i class="fas fa-times-circle"></i> Cancelar
                     </button>
                 `;
             }
 
             return `
-                <div class="request-item" style="background: white; padding: 1rem; border-radius: 10px; margin-bottom: 1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div class="request-item">
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
                         <div>
-                            <h4 style="margin: 0 0 0.25rem 0; color: #1e293b;">
+                            <h4>
                                 <i class="fas fa-user"></i> ${req.solicitante.nome || 'Usuário'}
                             </h4>
-                            <p style="margin: 0; color: #64748b; font-size: 0.85rem;">
+                            <p>
                                 <i class="fas fa-calendar"></i> Solicitado em: ${dataSolicitacao}
                             </p>
                         </div>
-                        <span class="request-status-badge ${statusInfo.class}" style="padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+                        <span class="request-status-badge ${statusInfo.class}">
                             <i class="fas ${statusInfo.icon}"></i> ${statusInfo.text}
                         </span>
                     </div>
@@ -845,13 +826,12 @@ function showRequestsModal(donationId, requests) {
     }
 
     modal.innerHTML = `
-        <div style="background: white; border-radius: 20px; padding: 2rem; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto;">
+        <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h2 style="margin: 0; color: #667eea;">
+                <h2>
                     <i class="fas fa-users"></i> Solicitações
                 </h2>
-                <button onclick="this.closest('.requests-modal').remove()" 
-                        style="background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 0.5rem;">
+                <button onclick="this.closest('.requests-modal').remove()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
