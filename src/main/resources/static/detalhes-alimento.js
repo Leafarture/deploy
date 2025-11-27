@@ -24,24 +24,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Obter ID da doação da URL
     const urlParams = new URLSearchParams(window.location.search);
     const doacaoId = urlParams.get('id');
-    
+
     if (!doacaoId) {
         showError('ID da doação não fornecido');
         return;
     }
-    
+
     // Carregar detalhes da doação
     loadDoacaoDetails(doacaoId);
-    
+
     // Event listeners para botões
     document.getElementById('btn-solicitar').addEventListener('click', openModal);
     document.getElementById('btn-compartilhar').addEventListener('click', shareDoacao);
-    
+
     // Event listeners do modal
     modalClose.addEventListener('click', closeModal);
     btnCancelar.addEventListener('click', closeModal);
     btnConfirmar.addEventListener('click', confirmarSolicitacao);
-    
+
     // Fechar modal ao clicar fora
     window.addEventListener('click', function(event) {
         if (event.target === modal) {
@@ -56,24 +56,24 @@ document.addEventListener('DOMContentLoaded', function() {
 async function loadDoacaoDetails(doacaoId) {
     try {
         showLoading();
-        
+
         console.log('🔍 Carregando doação ID:', doacaoId);
         console.log('📍 URL da API:', `${API_BASE_URL}/doacoes/${doacaoId}`);
-        
+
         const response = await fetch(`${API_BASE_URL}/doacoes/${doacaoId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             }
         });
-        
+
         console.log('📡 Status da resposta:', response.status);
-        
+
         if (!response.ok) {
             if (response.status === 404) {
                 throw new Error('Doação não encontrada. Verifique se o ID está correto.');
             }
-            
+
             // Tentar ler mensagem de erro do servidor
             let errorMessage = 'Erro ao carregar detalhes da doação';
             try {
@@ -85,21 +85,21 @@ async function loadDoacaoDetails(doacaoId) {
             } catch (e) {
                 console.error('❌ Não foi possível ler mensagem de erro');
             }
-            
+
             throw new Error(errorMessage);
         }
-        
+
         const doacao = await response.json();
         console.log('✅ Doação carregada com sucesso:', doacao);
-        
+
         currentDoacao = doacao;
-        
+
         // Exibir detalhes
         displayDoacaoDetails(doacao);
-        
+
         // Carregar avaliações (se disponível)
         loadReviews(doacaoId);
-        
+
     } catch (error) {
         console.error('❌ Erro ao carregar doação:', error);
         console.error('Stack trace:', error.stack);
@@ -122,38 +122,38 @@ function displayDoacaoDetails(doacao) {
         mainImage.src = 'img/frutas.jpg'; // Imagem padrão
         mainImage.alt = 'Imagem não disponível';
     }
-    
+
     // Status badge
     const statusBadge = document.getElementById('status-badge');
     const statusInfo = getStatusInfo(doacao.dataValidade);
     statusBadge.textContent = statusInfo.text;
     statusBadge.className = `status-badge ${statusInfo.class}`;
-    
+
     // Tipo do produto
     const tipoLabel = getTipoLabel(doacao.tipoAlimento);
     document.getElementById('product-type').textContent = tipoLabel;
-    
+
     // Título
     document.getElementById('product-title').textContent = doacao.titulo || 'Alimento para Doação';
-    
+
     // Descrição
-    document.getElementById('product-description').textContent = 
+    document.getElementById('product-description').textContent =
         doacao.descricao || 'Descrição não disponível';
-    
+
     // Quantidade
-    document.getElementById('product-quantity').textContent = 
+    document.getElementById('product-quantity').textContent =
         `${doacao.quantidade || 'N/A'}${doacao.unidade ? ' ' + doacao.unidade : ''}`;
-    
+
     // Validade
-    const dataValidade = doacao.dataValidade 
+    const dataValidade = doacao.dataValidade
         ? new Date(doacao.dataValidade + 'T00:00:00').toLocaleDateString('pt-BR')
         : 'Não informado';
     document.getElementById('product-validade').textContent = dataValidade;
-    
+
     // Tempo restante
     const diasRestantes = calculateDaysRemaining(doacao.dataValidade);
     document.getElementById('product-tempo').textContent = diasRestantes;
-    
+
     // Data de coleta (se disponível)
     if (doacao.dataColeta) {
         const coletaCard = document.getElementById('coleta-card');
@@ -161,16 +161,16 @@ function displayDoacaoDetails(doacao) {
         const dataColeta = new Date(doacao.dataColeta + 'T00:00:00').toLocaleDateString('pt-BR');
         document.getElementById('product-coleta').textContent = dataColeta;
     }
-    
+
     // Localização
     displayLocation(doacao);
-    
+
     // Informações do doador
     displayDonorInfo(doacao);
-    
+
     // Verificar se o usuário é o dono e ocultar botão de solicitar se for
     checkIfUserIsOwner(doacao);
-    
+
     // Exibir conteúdo principal
     mainContent.style.display = 'block';
 }
@@ -181,7 +181,7 @@ function displayDoacaoDetails(doacao) {
 function displayLocation(doacao) {
     const locationAddress = document.getElementById('location-address');
     const locationCity = document.getElementById('location-city');
-    
+
     // Montar endereço completo
     let enderecoCompleto = '';
     if (doacao.rua) {
@@ -191,18 +191,18 @@ function displayLocation(doacao) {
     } else if (doacao.endereco) {
         enderecoCompleto = doacao.endereco;
     }
-    
+
     locationAddress.textContent = enderecoCompleto || 'Endereço não informado';
-    
+
     let cidadeCompleta = '';
     if (doacao.cidade) {
         cidadeCompleta = doacao.cidade;
         if (doacao.estado) cidadeCompleta += ` - ${doacao.estado}`;
         if (doacao.cep) cidadeCompleta += ` | CEP: ${doacao.cep}`;
     }
-    
+
     locationCity.textContent = cidadeCompleta || 'Cidade não informada';
-    
+
     // Se tiver coordenadas, exibir mapa (implementação futura)
     if (doacao.latitude && doacao.longitude) {
         const mapContainer = document.getElementById('map-container');
@@ -227,17 +227,17 @@ function checkIfUserIsOwner(doacao) {
     const token = localStorage.getItem('token');
     const userInfo = localStorage.getItem('user');
     const btnSolicitar = document.getElementById('btn-solicitar');
-    
+
     if (!btnSolicitar) return;
-    
+
     // Se não estiver logado, manter botão visível (será tratado no modal)
     if (!token || !userInfo) {
         return;
     }
-    
+
     try {
         const user = JSON.parse(userInfo);
-        
+
         // Verificar se o usuário é o dono da doação
         if (doacao.doador && doacao.doador.id && user.id && doacao.doador.id === user.id) {
             // Usuário é o dono, ocultar botão de solicitar
@@ -260,11 +260,11 @@ function displayDonorInfo(doacao) {
     const donorAvatarPlaceholder = document.getElementById('donor-avatar-placeholder');
     const donorName = document.getElementById('donor-name');
     const donorType = document.getElementById('donor-type');
-    
+
     let nome = 'Doador Anônimo';
     let tipo = 'Pessoa física';
     let avatarUrl = null;
-    
+
     if (doacao.doador) {
         nome = doacao.doador.nome || 'Doador';
         tipo = getTipoUsuarioLabel(doacao.doador.tipoUsuario);
@@ -275,10 +275,10 @@ function displayDonorInfo(doacao) {
         tipo = 'Estabelecimento';
         avatarUrl = doacao.estabelecimento.logo || null;
     }
-    
+
     // Obter inicial do nome para placeholder
     const inicial = nome.charAt(0).toUpperCase();
-    
+
     // Configurar avatar (mesma lógica do sistema de perfil)
     if (avatarUrl && donorAvatarImg && donorAvatarPlaceholder) {
         // Configurar handler de erro se ainda não foi configurado
@@ -294,7 +294,7 @@ function displayDonorInfo(doacao) {
                 }
             });
         }
-        
+
         // Adicionar cache-busting para garantir que a imagem atualize
         const updatedAt = localStorage.getItem('avatarUpdatedAt');
         const urlWithVersion = avatarUrl + (avatarUrl.includes('?') ? '&' : '?') + 'v=' + (updatedAt || Date.now());
@@ -311,7 +311,7 @@ function displayDonorInfo(doacao) {
         if (icon) icon.remove();
         donorAvatarPlaceholder.textContent = inicial;
     }
-    
+
     donorName.textContent = nome;
     donorType.textContent = tipo;
 }
@@ -321,18 +321,18 @@ function displayDonorInfo(doacao) {
  */
 function openModal() {
     if (!currentDoacao) return;
-    
+
     // Preencher dados do modal
     const modalImage = document.getElementById('modal-image');
     modalImage.src = currentDoacao.imagem || 'img/frutas.jpg';
-    
+
     document.getElementById('modal-title').textContent = currentDoacao.titulo;
-    
-    const doadorNome = currentDoacao.doador?.nome || 
-                       currentDoacao.estabelecimento?.nome || 
+
+    const doadorNome = currentDoacao.doador?.nome ||
+                       currentDoacao.estabelecimento?.nome ||
                        'Doador Anônimo';
     document.getElementById('modal-donor').textContent = `Doador: ${doadorNome}`;
-    
+
     // Exibir modal
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';
@@ -351,19 +351,19 @@ function closeModal() {
  */
 async function confirmarSolicitacao() {
     if (!currentDoacao) return;
-    
+
     const token = localStorage.getItem('token');
-    
+
     if (!token) {
         alert('Você precisa fazer login para solicitar uma doação.');
         window.location.href = 'login.html';
         return;
     }
-    
+
     try {
         btnConfirmar.disabled = true;
         btnConfirmar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
-        
+
         const response = await fetch(`${API_BASE_URL}/doacoes/${currentDoacao.id}/solicitar`, {
             method: 'POST',
             headers: {
@@ -371,11 +371,11 @@ async function confirmarSolicitacao() {
                 'Authorization': `Bearer ${token}`
             }
         });
-        
+
         if (!response.ok) {
             let errorMessage = 'Erro ao solicitar doação';
             const contentType = response.headers.get('content-type');
-            
+
             try {
                 if (contentType && contentType.includes('application/json')) {
                     const errorData = await response.json();
@@ -401,23 +401,23 @@ async function confirmarSolicitacao() {
                 console.error('Erro ao processar resposta de erro:', e);
                 errorMessage = `Erro ${response.status}: ${response.statusText}`;
             }
-            
+
             throw new Error(errorMessage);
         }
-        
+
         // Sucesso
         const result = await response.json();
         closeModal();
         showSuccessMessage('Solicitação enviada com sucesso!');
-        
+
         // Redirecionar após 2 segundos
         setTimeout(() => {
             window.location.href = 'solicitacoes.html';
         }, 2000);
-        
+
     } catch (error) {
         console.error('Erro ao solicitar doação:', error);
-        
+
         // Extrair mensagem de erro de forma mais robusta
         let errorMessage = 'Erro ao solicitar doação';
         if (error instanceof Error) {
@@ -439,7 +439,7 @@ async function confirmarSolicitacao() {
                 }
             }
         }
-        
+
         alert('Erro ao solicitar doação: ' + errorMessage);
     } finally {
         btnConfirmar.disabled = false;
@@ -452,10 +452,10 @@ async function confirmarSolicitacao() {
  */
 function shareDoacao() {
     if (!currentDoacao) return;
-    
+
     const shareUrl = window.location.href;
     const shareText = `Confira esta doação: ${currentDoacao.titulo}`;
-    
+
     // Tentar usar Web Share API
     if (navigator.share) {
         navigator.share({
@@ -498,7 +498,7 @@ async function loadReviews(doacaoId) {
                 'Content-Type': 'application/json'
             }
         });
-        
+
         if (response.ok) {
             const reviews = await response.json();
             displayReviews(reviews);
@@ -518,7 +518,7 @@ async function loadReviews(doacaoId) {
 function displayReviews(reviews) {
     const reviewsList = document.getElementById('reviews-list');
     const reviewsSummary = document.getElementById('reviews-summary');
-    
+
     if (!reviews || reviews.length === 0) {
         reviewsList.innerHTML = `
             <div class="no-reviews">
@@ -528,18 +528,18 @@ function displayReviews(reviews) {
         `;
         return;
     }
-    
+
     // Calcular média de avaliações
     const totalRating = reviews.reduce((sum, review) => sum + (review.nota || 0), 0);
     const averageRating = (totalRating / reviews.length).toFixed(1);
-    
+
     // Exibir resumo
     reviewsSummary.innerHTML = `
         <div class="rating-average">${averageRating}</div>
         <div class="rating-stars">${getStarsHTML(averageRating)}</div>
         <div class="rating-count">${reviews.length} avaliação(ões)</div>
     `;
-    
+
     // Exibir avaliações
     reviewsList.innerHTML = reviews.map(review => `
         <div class="review-item">
@@ -566,7 +566,7 @@ function getStarsHTML(rating) {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    
+
     let html = '';
     for (let i = 0; i < fullStars; i++) {
         html += '<i class="fas fa-star"></i>';
@@ -577,7 +577,7 @@ function getStarsHTML(rating) {
     for (let i = 0; i < emptyStars; i++) {
         html += '<i class="far fa-star"></i>';
     }
-    
+
     return html;
 }
 
@@ -588,14 +588,14 @@ function getStatusInfo(dataValidade) {
     if (!dataValidade) {
         return { text: 'Disponível', class: 'available' };
     }
-    
+
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     const dataVal = new Date(dataValidade + 'T00:00:00');
     dataVal.setHours(0, 0, 0, 0);
-    
+
     const diasRestantes = Math.ceil((dataVal - hoje) / (1000 * 60 * 60 * 24));
-    
+
     if (diasRestantes < 0) {
         return { text: 'Vencido', class: 'expired' };
     } else if (diasRestantes <= 3) {
@@ -612,14 +612,14 @@ function calculateDaysRemaining(dataValidade) {
     if (!dataValidade) {
         return 'Não informado';
     }
-    
+
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     const dataVal = new Date(dataValidade + 'T00:00:00');
     dataVal.setHours(0, 0, 0, 0);
-    
+
     const diasRestantes = Math.ceil((dataVal - hoje) / (1000 * 60 * 60 * 24));
-    
+
     if (diasRestantes < 0) {
         return 'Vencido';
     } else if (diasRestantes === 0) {
@@ -646,7 +646,7 @@ function getTipoLabel(tipo) {
         'NAO_PERECIVEL': 'Não Perecível',
         'PREPARADO': 'Preparado'
     };
-    
+
     return tipoLabels[tipo] || tipo || 'Alimento';
 }
 
@@ -660,7 +660,7 @@ function getTipoUsuarioLabel(tipo) {
         'EMPRESA': 'Empresa',
         'ESTABELECIMENTO': 'Estabelecimento'
     };
-    
+
     return tipoLabels[tipo] || 'Pessoa Física';
 }
 
@@ -676,9 +676,9 @@ function showSuccessMessage(message) {
             <span style="font-weight: 600;">${message}</span>
         </div>
     `;
-    
+
     document.body.appendChild(successDiv);
-    
+
     setTimeout(() => {
         successDiv.remove();
     }, 3000);

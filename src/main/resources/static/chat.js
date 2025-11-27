@@ -128,7 +128,7 @@ const apiClient = {
 				};
 
 				// Conectar ao broker
-				stompClient.connect(headers, 
+				stompClient.connect(headers,
 					// Callback de sucesso
 					(frame) => {
 						console.log('[WebSocket] Conectado com sucesso via STOMP');
@@ -139,7 +139,7 @@ const apiClient = {
 						if (currentUserId) {
 							const userTopic = `/user/${currentUserId}/queue/messages`;
 							console.log(`[WebSocket] Inscrevendo-se no tópico: ${userTopic}`);
-							
+
 							userSubscription = stompClient.subscribe(userTopic, (message) => {
 								try {
 									const chatMessage = JSON.parse(message.body);
@@ -147,7 +147,7 @@ const apiClient = {
 
 									// Determinar se a mensagem foi enviada pelo usuário atual
 									const remetenteId = chatMessage.remetenteId;
-									const isSent = remetenteId && currentUserId && 
+									const isSent = remetenteId && currentUserId &&
 										(parseInt(remetenteId) === parseInt(currentUserId));
 
 									// Converter timestamp de LocalDateTime para ISO string se necessário
@@ -251,7 +251,7 @@ const apiClient = {
 						content: message.content || message.text || message.message,
 						type: message.type || 'CHAT'
 					};
-					
+
 					stompClient.send('/app/chat.sendMessage', {}, JSON.stringify(chatMessage));
 					return true;
 				}
@@ -465,7 +465,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	// Verificar se os elementos do chat existem antes de inicializar
 	const sidebar = document.getElementById('sidebar');
 	const chatsList = document.getElementById('chatsList');
-	
+
 	// Só inicializar automaticamente se os elementos estiverem disponíveis
 	// Caso contrário, deixar para inicialização manual
 	if (sidebar && chatsList) {
@@ -504,7 +504,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function initializeApp() {
 	console.log('[App] Iniciando aplicação...');
-	
+
 	// Carregar configurações do usuário
 	await loadUserSettings();
 
@@ -522,7 +522,7 @@ async function initializeApp() {
 	console.log('[App] Carregando lista de chats...');
 	await loadChats();
 	console.log('[App] Lista de chats carregada. Total:', state.chats.length);
-	
+
 	// Se houver userId na URL, carregar conversa com esse usuário
 	if (userId) {
 		console.log('[App] Carregando chat com usuário:', userId);
@@ -603,15 +603,15 @@ async function buildChatFromUser(userId, token, defaultName = 'Usuário', metada
 				'Authorization': `Bearer ${token}`
 			}
 		});
-		
+
 		if (!userResponse.ok) {
 			return null;
 		}
-		
+
 		const userInfo = await userResponse.json();
 		let lastMessage = '';
 		let lastTimestamp = new Date().toISOString();
-		
+
 		// Buscar última mensagem
 		try {
 			const messagesResponse = await fetch(`http://localhost:8080/api/chat/conversations/${userId}`, {
@@ -630,16 +630,16 @@ async function buildChatFromUser(userId, token, defaultName = 'Usuário', metada
 		} catch (e) {
 			console.error('[App] Erro ao buscar última mensagem:', e);
 		}
-		
+
 		const userName = userInfo.nome || userInfo.name || defaultName;
 		const hasMessages = lastMessage && lastMessage.trim() !== '';
-		
+
 		// Se tem mensagens, sempre considerar ativo (histórico de conversa)
 		// Se é uma solicitação aceita (em_andamento), sempre considerar ativo
 		// Caso contrário, usar o isActive dos metadados
 		const isSolicitacaoAceita = metadata.solicitacaoStatus === 'em_andamento';
 		const isActive = hasMessages || isSolicitacaoAceita || (metadata.isActive !== false);
-		
+
 		return {
 			id: userInfo.id,
 			name: userName,
@@ -671,30 +671,30 @@ async function loadChats() {
 		}
 
 		console.log('[App] Token encontrado, buscando chats com tokens...');
-		
+
 		// Buscar chats usando a nova API que retorna chats com tokens
 		const chatsResponse = await fetch('http://localhost:8080/api/chat/chats', {
 			headers: {
 				'Authorization': `Bearer ${token}`
 			}
 		});
-		
+
 		if (!chatsResponse.ok) {
 			console.error('[App] Erro ao buscar chats:', chatsResponse.status);
 			state.chats = [];
 			renderChatList();
 			return;
 		}
-		
+
 		const chatsData = await chatsResponse.json();
 		console.log('[App] Chats recebidos da API:', chatsData.length);
-		
+
 		// Transformar os dados da API no formato esperado pelo frontend
 		state.chats = chatsData.map(chatData => {
 			const outroParticipante = chatData.outroParticipante;
 			const ultimaMensagem = chatData.ultimaMensagem;
 			const solicitacao = chatData.solicitacao;
-			
+
 			// Determinar timestamp (última mensagem ou criação do chat)
 			let timestamp = new Date().toISOString();
 			if (ultimaMensagem && ultimaMensagem.criadoEm) {
@@ -702,7 +702,7 @@ async function loadChats() {
 			} else if (chatData.criadoEm) {
 				timestamp = chatData.criadoEm;
 			}
-			
+
 			// Determinar última mensagem para preview
 			let lastMessage = '';
 			if (ultimaMensagem && ultimaMensagem.conteudo) {
@@ -710,11 +710,11 @@ async function loadChats() {
 			} else if (solicitacao && solicitacao.doacaoTitulo) {
 				lastMessage = `Doação: ${solicitacao.doacaoTitulo}`;
 			}
-			
+
 			// Nome do outro participante
 			const nome = outroParticipante.nome || 'Usuário';
 			const avatar = nome.substring(0, 2).toUpperCase();
-			
+
 			return {
 				id: outroParticipante.id,
 				chatId: chatData.id, // ID do chat no banco
@@ -733,12 +733,12 @@ async function loadChats() {
 				solicitacaoId: solicitacao ? solicitacao.id : null
 			};
 		});
-		
+
 		// Ordenar por timestamp (mais recentes primeiro)
 		state.chats.sort((a, b) => {
 			return new Date(b.timestamp) - new Date(a.timestamp);
 		});
-		
+
 		console.log('[App] Total de chats carregados:', state.chats.length);
 		console.log('[App] Chats detalhados:', state.chats.map(c => ({
 			id: c.id,
@@ -825,10 +825,10 @@ async function setupChatWithUser(user, userId, requestId) {
 	// Criar ou encontrar chat com esse usuário
 	const userName = user.nome || user.name || 'Usuário';
 	const userAvatar = userName.substring(0, 2).toUpperCase();
-	
+
 	// Verificar se já existe um chat com esse usuário
 	let chat = state.chats.find(c => c.userId === otherUserId || (c.id && parseInt(c.id) === otherUserId));
-	
+
 	if (!chat) {
 		// Criar novo chat
 		chat = {
@@ -887,7 +887,7 @@ async function setupChatWithUser(user, userId, requestId) {
 	state.currentChatId = otherUserId;
 	state.currentChatUserId = otherUserId;
 	state.lastMessageTimestamp = null; // Resetar timestamp ao abrir novo chat
-	
+
 	// Reiniciar polling para o novo chat
 	if (state.currentUserId) {
 		startPolling();
@@ -917,7 +917,7 @@ async function loadChatHistory(otherUserId) {
 
 		if (response.ok) {
 			const messages = await response.json();
-			
+
 			// Buscar informações do usuário atual para comparar
 			const token = localStorage.getItem('token') || localStorage.getItem('jwtToken');
 			let currentUserId = null;
@@ -946,7 +946,7 @@ async function loadChatHistory(otherUserId) {
 					remetenteId === parseInt(currentUserId) ||
 					parseInt(remetenteId) === parseInt(currentUserId)
 				);
-				
+
 				return {
 					id: msg.id || msg.id_mensagem,
 					text: msg.conteudo || msg.content,
@@ -973,12 +973,12 @@ async function loadChatHistory(otherUserId) {
 
 function renderChatList() {
 	console.log('[App] renderChatList() chamado. Total de chats:', state.chats.length);
-	
+
 	if (!elements.chatsList) {
 		console.error('[App] Elemento chatsList não encontrado');
 		return;
 	}
-	
+
 	elements.chatsList.innerHTML = '';
 
 	if (state.chats.length === 0) {
@@ -991,17 +991,17 @@ function renderChatList() {
         `;
 		return;
 	}
-	
+
 	console.log('[App] Renderizando', state.chats.length, 'chats');
 
 	state.chats.forEach(chat => {
 		const chatElement = document.createElement('div');
-		
+
 		// Chats com token sempre aparecem (são criados quando solicitação é aceita)
 		// Apenas marcar como inativo se explicitamente desativado
 		const isInactive = chat.isActive === false;
 		const statusClass = isInactive ? 'inactive' : '';
-		
+
 		chatElement.className = `chat-item ${chat.id === state.currentChatId ? 'active' : ''} ${chat.unread > 0 ? 'unread' : ''} ${statusClass}`;
 		chatElement.setAttribute('role', 'button');
 		chatElement.setAttribute('tabindex', '0');
@@ -1010,7 +1010,7 @@ function renderChatList() {
 		const time = formatTime(chat.timestamp);
 		const unreadBadge = chat.unread > 0 ? `<span class="unread-badge">${chat.unread}</span>` : '';
 		const onlineIndicator = chat.online && !isInactive ? '<span class="online-dot"></span>' : '';
-		
+
 		// Badge de status para chats cancelados ou concluídos (mesmo que tenham mensagens)
 		let statusBadge = '';
 		if (chat.solicitacaoStatus) {
@@ -1023,10 +1023,10 @@ function renderChatList() {
 
 		// Buscar avatar do usuário
 		const avatarUrl = chat.avatarUrl || null;
-		const avatarHTML = avatarUrl 
+		const avatarHTML = avatarUrl
 			? `<img src="http://localhost:8080${avatarUrl}" alt="${chat.name}" onerror="this.parentElement.innerHTML='${chat.avatar}'">`
 			: chat.avatar;
-		
+
 		chatElement.innerHTML = `
             <div class="chat-avatar">${avatarHTML}</div>
             <div class="chat-info">
@@ -1063,7 +1063,7 @@ function renderChatList() {
 async function loadChat(chatId) {
 	// Converter para número se necessário
 	const chatUserId = typeof chatId === 'string' ? parseInt(chatId) : chatId;
-	
+
 	if (state.currentChatId === chatUserId) {
 		console.log('[App] Chat já está carregado, recarregando mensagens do banco...');
 		// Recarregar mensagens do banco mesmo se já estiver no chat
@@ -1080,7 +1080,7 @@ async function loadChat(chatId) {
 	const chat = state.chats.find(c => (c.id && parseInt(c.id) === chatUserId) || c.userId === chatUserId);
 	if (chat) {
 		elements.contactName.textContent = chat.name;
-		
+
 		// Atualizar avatar com foto se disponível
 		if (chat.avatarUrl) {
 			elements.contactAvatar.innerHTML = `<img src="http://localhost:8080${chat.avatarUrl}" alt="${chat.name}" onerror="this.parentElement.textContent='${chat.avatar}'">`;
@@ -1121,7 +1121,7 @@ async function loadChat(chatId) {
 	// Limpar área de mensagens
 	const existingMessages = elements.messagesContainer.querySelectorAll('.message, .empty-chat-state');
 	existingMessages.forEach(msg => msg.remove());
-	
+
 	// Recriar typing indicator se não existir
 	if (!elements.messagesContainer.querySelector('#typingIndicator')) {
 		elements.typingIndicator = document.createElement('div');
@@ -1164,13 +1164,13 @@ async function loadChat(chatId) {
 			if (response.ok) {
 				const messages = await response.json();
 				console.log('[App] Mensagens carregadas do banco:', messages.length);
-				
+
 				// Buscar informações do usuário atual para comparar
 				let currentUserId = state.currentUserId;
 				if (!currentUserId && state.currentUser) {
 					currentUserId = state.currentUser.id;
 				}
-				
+
 				if (!currentUserId) {
 					// Tentar buscar do token
 					try {
@@ -1196,7 +1196,7 @@ async function loadChat(chatId) {
 					const isSent = remetenteId && currentUserId && (
 						parseInt(remetenteId) === parseInt(currentUserId)
 					);
-					
+
 					// Converter timestamp de LocalDateTime para ISO string se necessário
 					let timestamp = msg.criadoEm || msg.criado_em || msg.timestamp;
 					if (timestamp && typeof timestamp === 'string' && !timestamp.includes('T')) {
@@ -1205,7 +1205,7 @@ async function loadChat(chatId) {
 					if (!timestamp) {
 						timestamp = new Date().toISOString();
 					}
-					
+
 					const messageObj = {
 						id: msg.id || msg.id_mensagem,
 						text: msg.conteudo || msg.content || '',
@@ -1213,7 +1213,7 @@ async function loadChat(chatId) {
 						timestamp: timestamp,
 						status: msg.lido ? 'read' : 'delivered'
 					};
-					
+
 					console.log('[App] Mensagem convertida:', messageObj);
 					return messageObj;
 				});
@@ -1222,21 +1222,21 @@ async function loadChat(chatId) {
 				loadingMessage.remove();
 
 				console.log('[App] Total de mensagens no estado:', state.messages.length);
-				
+
 				// Atualizar timestamp da última mensagem para polling
 				if (state.messages.length > 0) {
 					const lastMsg = state.messages[state.messages.length - 1];
 					state.lastMessageTimestamp = lastMsg.timestamp;
 				}
-				
+
 				renderMessages();
 				scrollToBottom();
-				
+
 				// Iniciar polling para verificar novas mensagens
 				if (state.currentUserId && state.currentChatUserId) {
 					startPolling();
 				}
-				
+
 				return;
 			} else {
 				console.error('[App] Erro ao carregar mensagens:', response.status, response.statusText);
@@ -1293,7 +1293,7 @@ function renderMessages() {
 			console.warn('[App] Mensagem inválida ignorada:', message);
 			return;
 		}
-		
+
 		const messageElement = createMessageElement(message);
 		if (messageElement) {
 			const typingIndicator = elements.messagesContainer.querySelector('#typingIndicator');
@@ -1307,9 +1307,9 @@ function renderMessages() {
 			console.warn('[App] Falha ao criar elemento de mensagem:', message);
 		}
 	});
-	
+
 	console.log('[App] Total de elementos de mensagem no DOM:', elements.messagesContainer.querySelectorAll('.message').length);
-	
+
 	// Scroll para o final após renderizar
 	scrollToBottom();
 }
@@ -1373,7 +1373,7 @@ async function sendMessage() {
 	if (!state.messages) {
 		state.messages = [];
 	}
-	
+
 	state.messages.push(tempMessage);
 	console.log('[App] Mensagem temporária adicionada. Total:', state.messages.length);
 	renderMessages();
@@ -1401,7 +1401,7 @@ async function sendMessage() {
 		if (response.ok) {
 			const sentMessage = await response.json();
 			console.log('[App] Mensagem salva no banco:', sentMessage);
-			
+
 			// Atualizar mensagem temporária com dados reais do banco
 			const index = state.messages.findIndex(m => m.id === tempMessage.id);
 			if (index !== -1) {
@@ -1410,7 +1410,7 @@ async function sendMessage() {
 				const isSent = remetenteId && state.currentUserId && (
 					parseInt(remetenteId) === parseInt(state.currentUserId)
 				);
-				
+
 				state.messages[index] = {
 					id: sentMessage.id || sentMessage.id_mensagem,
 					text: sentMessage.conteudo || sentMessage.content || text,
@@ -1419,10 +1419,10 @@ async function sendMessage() {
 					status: 'delivered'
 				};
 				console.log('[App] Mensagem atualizada com dados do banco:', state.messages[index]);
-				
+
 				// Atualizar timestamp da última mensagem
 				state.lastMessageTimestamp = state.messages[index].timestamp;
-				
+
 				renderMessages();
 				scrollToBottom();
 			}
@@ -1546,15 +1546,15 @@ function connectWebSocket() {
 function startPolling() {
 	// Parar polling anterior se existir
 	stopPolling();
-	
+
 	// Só iniciar polling se houver um chat aberto
 	if (!state.currentChatUserId || !state.currentUserId) {
 		console.log('[Polling] Não há chat aberto, aguardando...');
 		return;
 	}
-	
+
 	console.log('[Polling] Iniciando verificação periódica de novas mensagens para chat:', state.currentChatUserId);
-	
+
 	// Verificar novas mensagens a cada 3 segundos
 	state.pollingInterval = setInterval(async () => {
 		if (!state.currentChatUserId || !state.currentUserId) {
@@ -1562,56 +1562,56 @@ function startPolling() {
 			stopPolling();
 			return;
 		}
-		
+
 		try {
 			const token = localStorage.getItem('token') || localStorage.getItem('jwtToken');
 			if (!token) return;
-			
+
 			// Buscar mensagens mais recentes que a última conhecida
 			const response = await fetch(`http://localhost:8080/api/chat/conversations/${state.currentChatUserId}`, {
 				headers: {
 					'Authorization': `Bearer ${token}`
 				}
 			});
-			
+
 			if (response.ok) {
 				const messages = await response.json();
-				
+
 				// Filtrar apenas mensagens novas
 				const newMessages = messages.filter(msg => {
 					// Se não temos timestamp de última mensagem, considerar todas como novas na primeira vez
 					if (!state.lastMessageTimestamp) {
 						return true;
 					}
-					
+
 					const msgTimestamp = msg.criadoEm || msg.criado_em || msg.timestamp;
 					if (!msgTimestamp) return false;
-					
+
 					// Converter para Date para comparação
 					let msgDate = msgTimestamp;
 					if (typeof msgDate === 'string' && !msgDate.includes('T')) {
 						msgDate = msgDate.replace(' ', 'T');
 					}
-					
+
 					return new Date(msgDate) > new Date(state.lastMessageTimestamp);
 				});
-				
+
 				if (newMessages.length > 0) {
 					console.log('[Polling] Encontradas', newMessages.length, 'novas mensagens');
-					
+
 					// Buscar ID do usuário atual se não tiver
 					let currentUserId = state.currentUserId;
 					if (!currentUserId && state.currentUser) {
 						currentUserId = state.currentUser.id;
 					}
-					
+
 					// Adicionar novas mensagens ao estado
 					newMessages.forEach(msg => {
 						const remetenteId = msg.remetente ? (msg.remetente.id || msg.remetente.id_usuario) : null;
 						const isSent = remetenteId && currentUserId && (
 							parseInt(remetenteId) === parseInt(currentUserId)
 						);
-						
+
 						let timestamp = msg.criadoEm || msg.criado_em || msg.timestamp;
 						if (timestamp && typeof timestamp === 'string' && !timestamp.includes('T')) {
 							timestamp = timestamp.replace(' ', 'T');
@@ -1619,7 +1619,7 @@ function startPolling() {
 						if (!timestamp) {
 							timestamp = new Date().toISOString();
 						}
-						
+
 						const newMessage = {
 							id: msg.id || msg.id_mensagem,
 							text: msg.conteudo || msg.content || '',
@@ -1627,7 +1627,7 @@ function startPolling() {
 							timestamp: timestamp,
 							status: msg.lido ? 'read' : 'delivered'
 						};
-						
+
 						// Verificar se já existe
 						const exists = state.messages.some(m => m.id === newMessage.id);
 						if (!exists) {
@@ -1635,7 +1635,7 @@ function startPolling() {
 							console.log('[Polling] Nova mensagem adicionada:', newMessage.text.substring(0, 50));
 						}
 					});
-					
+
 					// Atualizar timestamp da última mensagem
 					if (newMessages.length > 0) {
 						const lastMsg = newMessages[newMessages.length - 1];
@@ -1648,11 +1648,11 @@ function startPolling() {
 							state.lastMessageTimestamp = ts;
 						}
 					}
-					
+
 					// Renderizar mensagens
 					renderMessages();
 					scrollToBottom();
-					
+
 					// Atualizar preview
 					if (state.currentChatId && newMessages.length > 0) {
 						const lastNewMsg = newMessages[newMessages.length - 1];
@@ -1676,36 +1676,36 @@ function stopPolling() {
 
 function handleWebSocketMessage(message) {
 	console.log('[WebSocket] Processando mensagem:', message);
-	
+
 	switch (message.type) {
 		case 'new_message':
 			// Verificar se a mensagem tem data
 			const messageData = message.data || message;
 			const remetenteId = messageData.remetenteId;
-			
+
 			if (!remetenteId) {
 				console.warn('[WebSocket] Mensagem sem remetenteId:', messageData);
 				return;
 			}
-			
+
 			// Determinar se a mensagem é do chat atual
 			// A mensagem é do chat atual se:
 			// 1. O remetente é o usuário com quem estamos conversando (currentChatUserId)
 			// 2. OU o remetente é o usuário atual e estamos em um chat (confirmação de envio)
 			// 3. OU o destinatário é o usuário atual e o remetente é o currentChatUserId
-			
+
 			const isFromCurrentChatUser = remetenteId && state.currentChatUserId && (
 				parseInt(remetenteId) === parseInt(state.currentChatUserId)
 			);
 			const isFromCurrentUser = remetenteId && state.currentUserId && (
 				parseInt(remetenteId) === parseInt(state.currentUserId)
 			);
-			
+
 			// Lógica simplificada: mensagem é do chat atual se:
 			// 1. O remetente é o usuário com quem estamos conversando (currentChatUserId)
 			// 2. OU o remetente é o usuário atual (confirmação de envio) e estamos em um chat
 			// 3. OU estamos conversando com o remetente (currentChatUserId === remetenteId)
-			
+
 			// Verificar se a mensagem é para o chat atual
 			// Se o remetente é o usuário com quem estamos conversando, é do chat atual
 			// Se o remetente é o usuário atual e estamos em um chat, também é do chat atual (confirmação)
@@ -1715,7 +1715,7 @@ function handleWebSocketMessage(message) {
 				// Mensagem enviada: remetente é o usuário atual e estamos em um chat
 				(parseInt(remetenteId) === parseInt(state.currentUserId) && state.currentChatUserId)
 			);
-			
+
 			console.log('[WebSocket] Verificando chat:', {
 				remetenteId,
 				currentChatUserId: state.currentChatUserId,
@@ -1725,20 +1725,20 @@ function handleWebSocketMessage(message) {
 				isCurrentChat,
 				shouldShowMessage
 			});
-			
+
 			if (shouldShowMessage) {
 				// Determinar se a mensagem foi enviada pelo usuário atual
 				const isSent = remetenteId && state.currentUserId && (
 					parseInt(remetenteId) === parseInt(state.currentUserId)
 				);
-				
+
 				// Obter texto da mensagem
 				const messageText = messageData.text || messageData.content || '';
 				if (!messageText) {
 					console.warn('[WebSocket] Mensagem sem texto:', messageData);
 					return;
 				}
-				
+
 				// Adicionar mensagem ao chat atual
 				const newMessage = {
 					id: messageData.id || 'ws-' + Date.now(),
@@ -1747,9 +1747,9 @@ function handleWebSocketMessage(message) {
 					timestamp: messageData.timestamp || new Date().toISOString(),
 					status: messageData.status || 'delivered'
 				};
-				
+
 				console.log('[WebSocket] Nova mensagem criada:', newMessage);
-				
+
 				// Evitar duplicatas - verificar por ID ou por texto e timestamp
 				const exists = state.messages.some(m => {
 					if (m.id && newMessage.id && m.id === newMessage.id) return true;
@@ -1759,7 +1759,7 @@ function handleWebSocketMessage(message) {
 					}
 					return false;
 				});
-				
+
 				if (!exists) {
 					// Se a mensagem foi enviada pelo usuário atual, atualizar a mensagem temporária
 					if (isSent) {
@@ -1782,15 +1782,15 @@ function handleWebSocketMessage(message) {
 						console.log('[WebSocket] Adicionando nova mensagem do contato');
 						state.messages.push(newMessage);
 					}
-					
+
 					console.log('[WebSocket] Total de mensagens:', state.messages.length);
-					
+
 					// Atualizar timestamp da última mensagem
 					state.lastMessageTimestamp = newMessage.timestamp;
-					
+
 					renderMessages();
 					scrollToBottom();
-					
+
 					// Atualizar preview do chat
 					if (state.currentChatId) {
 						updateChatPreview(state.currentChatId, newMessage.text);
@@ -1804,8 +1804,8 @@ function handleWebSocketMessage(message) {
 				updateChatPreview(otherChatId, messageData.text || messageData.content);
 
 				// Incrementar contador de não lidas
-				const chat = state.chats.find(c => 
-					(c.id && parseInt(c.id) === parseInt(otherChatId)) || 
+				const chat = state.chats.find(c =>
+					(c.id && parseInt(c.id) === parseInt(otherChatId)) ||
 					c.userId === parseInt(otherChatId)
 				);
 				if (chat) {
@@ -2063,7 +2063,7 @@ function setupEventListeners() {
 
 	// Inicializar seletor de emojis
 	initializeEmojiPicker();
-	
+
 	// Botão de emoji - toggle do seletor
 	elements.emojiBtn.addEventListener('click', (e) => {
 		e.stopPropagation();
@@ -2072,11 +2072,11 @@ function setupEventListeners() {
 			elements.emojiPicker.style.display = isVisible ? 'none' : 'block';
 		}
 	});
-	
+
 	// Fechar seletor de emojis ao clicar fora
 	document.addEventListener('click', (e) => {
-		if (elements.emojiPicker && 
-			!elements.emojiPicker.contains(e.target) && 
+		if (elements.emojiPicker &&
+			!elements.emojiPicker.contains(e.target) &&
 			!elements.emojiBtn.contains(e.target)) {
 			elements.emojiPicker.style.display = 'none';
 		}
@@ -2219,38 +2219,38 @@ function hideEmptyChatState() {
 // Inicializar seletor de emojis
 function initializeEmojiPicker() {
 	if (!elements.emojiGrid) return;
-	
+
 	// Limpar grid
 	elements.emojiGrid.innerHTML = '';
-	
+
 	// Adicionar emojis ao grid
 	emojis.forEach(emoji => {
 		const emojiItem = document.createElement('div');
 		emojiItem.className = 'emoji-item';
 		emojiItem.textContent = emoji;
 		emojiItem.setAttribute('aria-label', `Emoji ${emoji}`);
-		
+
 		emojiItem.addEventListener('click', () => {
 			const textarea = elements.messageInput;
 			const start = textarea.selectionStart;
 			const end = textarea.selectionEnd;
 			const text = textarea.value;
-			
+
 			textarea.value = text.substring(0, start) + emoji + text.substring(end);
 			textarea.focus();
 			textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
-			
+
 			adjustTextareaHeight();
-			
+
 			// Fechar seletor após escolher emoji
 			if (elements.emojiPicker) {
 				elements.emojiPicker.style.display = 'none';
 			}
-			
+
 			// Atualizar estado do botão de envio
 			elements.sendBtn.disabled = textarea.value.trim() === '' || !state.currentChatUserId;
 		});
-		
+
 		elements.emojiGrid.appendChild(emojiItem);
 	});
 }
@@ -2268,7 +2268,7 @@ style.textContent = `
             opacity: 1;
         }
     }
-    
+
     @keyframes slideOutRight {
         from {
             transform: translateX(0);
@@ -2279,7 +2279,7 @@ style.textContent = `
             opacity: 0;
         }
     }
-    
+
     .online-dot {
         display: inline-block;
         width: 6px;
