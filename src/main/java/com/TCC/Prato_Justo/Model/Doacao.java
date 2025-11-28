@@ -21,6 +21,7 @@ public class Doacao {
 
     @ManyToOne
     @JoinColumn(name = "id_estabelecimento")
+    @JsonIgnoreProperties({"usuario", "senhaEstabelecimento"})
     private Estabelecimento estabelecimentoDestino;
 
     @Column(name = "titulo", length = 150, nullable = false)

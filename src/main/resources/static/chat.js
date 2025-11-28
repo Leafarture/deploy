@@ -1,7 +1,26 @@
+// Função auxiliar para obter URL base da API
+function getApiBaseUrl() {
+	const apiBase = window.API_BASE_URL || (() => {
+		const protocol = window.location.protocol;
+		const hostname = window.location.hostname;
+		const currentPort = window.location.port;
+		let apiPort = '';
+		if (hostname === 'localhost' || hostname === '127.0.0.1') {
+			apiPort = ':8080';
+		} else if (currentPort && currentPort !== '80' && currentPort !== '443') {
+			apiPort = `:${currentPort}`;
+		}
+		return `${protocol}//${hostname}${apiPort}`;
+	})();
+	return apiBase;
+}
+
 // Módulo de cliente API para backend real
 const apiClient = {
-	// Configuração da API
-	baseURL: 'http://localhost:8080/api/chat', // Altere para sua URL
+	// Configuração da API - Usa configuração global se disponível
+	get baseURL() {
+		return `${getApiBaseUrl()}/api/chat`;
+	},
 	headers: {
 		'Content-Type': 'application/json',
 		'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
@@ -116,7 +135,7 @@ const apiClient = {
 				}
 
 				// Criar conexão SockJS
-				const socket = new SockJS('http://localhost:8080/ws-chat');
+				const socket = new SockJS(`${getApiBaseUrl()}/ws-chat`);
 				stompClient = Stomp.over(socket);
 
 				// Desabilitar logs de debug do STOMP (opcional)
@@ -438,25 +457,47 @@ const state = {
 	lastMessageTimestamp: null // Timestamp da última mensagem recebida
 };
 
-// Elementos DOM
-const elements = {
-	sidebar: document.getElementById('sidebar'),
-	chatsList: document.getElementById('chatsList'),
-	messagesContainer: document.getElementById('messagesContainer'),
-	messageInput: document.getElementById('messageInput'),
-	sendBtn: document.getElementById('sendBtn'),
-	emojiBtn: document.getElementById('emojiBtn'),
-	emojiPicker: document.getElementById('emojiPicker'),
-	emojiGrid: document.getElementById('emojiGrid'),
-	contactName: document.getElementById('contactName'),
-	contactAvatar: document.getElementById('contactAvatar'),
-	contactStatus: document.getElementById('contactStatus'),
-	typingIndicator: document.getElementById('typingIndicator'),
-	chatInputContainer: document.querySelector('.chat-input-container'),
-	connectionStatus: document.getElementById('connectionStatus'),
-	themeToggle: document.getElementById('themeToggle'),
-	menuToggle: document.getElementById('menuToggle')
-};
+// Elementos DOM - Função para garantir que os elementos sejam encontrados
+function getElements() {
+	return {
+		sidebar: document.getElementById('sidebar'),
+		chatsList: document.getElementById('chatsList'),
+		messagesContainer: document.getElementById('messagesContainer'),
+		messageInput: document.getElementById('messageInput'),
+		sendBtn: document.getElementById('sendBtn'),
+		emojiBtn: document.getElementById('emojiBtn'),
+		emojiPicker: document.getElementById('emojiPicker'),
+		emojiGrid: document.getElementById('emojiGrid'),
+		contactName: document.getElementById('contactName'),
+		contactAvatar: document.getElementById('contactAvatar'),
+		contactStatus: document.getElementById('contactStatus'),
+		typingIndicator: document.getElementById('typingIndicator'),
+		chatInputContainer: document.querySelector('.chat-input-container'),
+		connectionStatus: document.getElementById('connectionStatus'),
+		menuToggle: document.getElementById('menuToggle'),
+		searchInput: document.getElementById('searchInput'),
+		chatMenuBtn: document.getElementById('chatMenuBtn'),
+		chatMenuDropdown: document.getElementById('chatMenuDropdown'),
+		viewProfileMenuItem: document.getElementById('viewProfileMenuItem'),
+		shareLocationMenuItem: document.getElementById('shareLocationMenuItem'),
+		clearChatMenuItem: document.getElementById('clearChatMenuItem'),
+		muteNotificationsMenuItem: document.getElementById('muteNotificationsMenuItem'),
+		chatInfoMenuItem: document.getElementById('chatInfoMenuItem'),
+		// Novas camadas
+		chatSelectionLayer: document.getElementById('chatSelectionLayer'),
+		chatActiveLayer: document.getElementById('chatActiveLayer')
+	};
+}
+
+// Inicializar elementos
+let elements = getElements();
+
+// Função para atualizar elementos (chamada quando necessário)
+function updateElements() {
+	elements = getElements();
+	console.log('[Chat] Elementos atualizados. chatInputContainer:', elements.chatInputContainer);
+	console.log('[Chat] messageInput:', elements.messageInput);
+}
 
 // Lista de emojis populares
 const emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾'];
@@ -472,6 +513,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 	if (sidebar && chatsList) {
 		try {
 			console.log('[Chat] Elementos encontrados, inicializando...');
+			// Garantir que a camada de seleção esteja visível inicialmente
+			const selectionLayer = document.getElementById('chatSelectionLayer');
+			const activeLayer = document.getElementById('chatActiveLayer');
+			if (selectionLayer) {
+				selectionLayer.classList.remove('hidden');
+				selectionLayer.style.display = 'flex';
+			}
+			if (activeLayer) {
+				activeLayer.classList.add('hidden');
+				activeLayer.style.display = 'none';
+			}
 			await initializeApp();
 		} catch (error) {
 			console.error('[Chat] Erro na inicialização automática:', error);
@@ -537,22 +589,19 @@ async function initializeApp() {
 		startPolling();
 	}
 
+	// Atualizar elementos antes de configurar listeners
+	updateElements();
+	
 	// Configurar event listeners
 	setupEventListeners();
 
 	// Não carregar primeira conversa automaticamente - deixar usuário escolher
-	// Mostrar estado vazio se não houver conversas e esconder barra de input
+	// Mostrar camada de seleção se não houver userId na URL
 	if (!userId) {
-		if (state.chats.length === 0) {
-			showEmptyChatState();
-		} else {
-			showEmptyChatState();
-		}
-	}
-
-	// Inicialmente, esconder barra de input até que um chat seja selecionado
-	if (elements.chatInputContainer) {
-		elements.chatInputContainer.style.display = 'none';
+		showSelectionLayer();
+	} else {
+		// Se houver userId na URL, mostrar camada de chat ativo
+		showActiveChatLayer();
 	}
 
 	console.log('[App] Aplicação inicializada com sucesso');
@@ -579,7 +628,7 @@ async function loadUserSettings() {
 
 	// Buscar informações do usuário atual
 	try {
-		const response = await fetch('http://localhost:8080/api/user/me', {
+		const response = await fetch(`${getApiBaseUrl()}/api/user/me`, {
 			headers: {
 				'Authorization': `Bearer ${token}`
 			}
@@ -604,7 +653,7 @@ async function loadUserSettings() {
 // Função auxiliar para buscar informações do usuário e última mensagem
 async function buildChatFromUser(userId, token, defaultName = 'Usuário', metadata = {}) {
 	try {
-		const userResponse = await fetch(`http://localhost:8080/api/user/${userId}`, {
+		const userResponse = await fetch(`${getApiBaseUrl()}/api/user/${userId}`, {
 			headers: {
 				'Authorization': `Bearer ${token}`
 			}
@@ -620,7 +669,7 @@ async function buildChatFromUser(userId, token, defaultName = 'Usuário', metada
 
 		// Buscar última mensagem
 		try {
-			const messagesResponse = await fetch(`http://localhost:8080/api/chat/conversations/${userId}`, {
+			const messagesResponse = await fetch(`${getApiBaseUrl()}/api/chat/conversations/${userId}`, {
 				headers: {
 					'Authorization': `Bearer ${token}`
 				}
@@ -679,7 +728,7 @@ async function loadChats() {
 		console.log('[App] Token encontrado, buscando chats com tokens...');
 
 		// Buscar chats usando a nova API que retorna chats com tokens
-		const chatsResponse = await fetch('http://localhost:8080/api/chat/chats', {
+		const chatsResponse = await fetch(`${getApiBaseUrl()}/api/chat/chats`, {
 			headers: {
 				'Authorization': `Bearer ${token}`
 			}
@@ -790,7 +839,7 @@ async function loadChatWithUser(userId, requestId) {
 		// Se não encontrou no localStorage, buscar informações do usuário do banco
 		if (!user) {
 			try {
-				const userResponse = await fetch(`http://localhost:8080/api/user/${userId}`, {
+				const userResponse = await fetch(`${getApiBaseUrl()}/api/user/${userId}`, {
 					headers: {
 						'Authorization': `Bearer ${token}`
 					}
@@ -857,8 +906,32 @@ async function setupChatWithUser(user, userId, requestId) {
 		elements.contactName.textContent = userName;
 	}
 	if (elements.contactAvatar) {
-		elements.contactAvatar.textContent = userAvatar;
+		// Criar iniciais do nome se não houver avatar
+		const initials = userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : userAvatar;
+		elements.contactAvatar.textContent = initials;
 		elements.contactAvatar.style.display = 'flex';
+		elements.contactAvatar.style.cursor = 'pointer';
+		elements.contactAvatar.title = 'Ver perfil';
+		// Remover listeners antigos e adicionar novo
+		const newAvatar = elements.contactAvatar.cloneNode(true);
+		elements.contactAvatar.parentNode.replaceChild(newAvatar, elements.contactAvatar);
+		elements.contactAvatar = newAvatar;
+		// Obter o ID do usuário com quem está conversando (NÃO o usuário atual)
+		const contactUserId = otherUserId;
+		console.log('[Chat] Configurando avatar - Usuário atual:', state.currentUserId, 'Usuário do chat:', contactUserId);
+		// Adicionar listener para ir ao perfil do usuário com quem está conversando
+		elements.contactAvatar.addEventListener('click', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			// Usar o ID do usuário com quem está conversando (contactUserId), não o usuário atual
+			const userId = contactUserId || state.currentChatUserId || otherUserId;
+			if (userId && userId !== state.currentUserId) {
+				console.log('[Chat] Redirecionando para perfil do usuário:', userId, '(usuário atual:', state.currentUserId, ')');
+				window.location.href = `paginaUsuario.html?userId=${userId}`;
+			} else {
+				console.warn('[Chat] Erro: userId inválido ou igual ao usuário atual. userId:', userId, 'currentUserId:', state.currentUserId);
+			}
+		});
 	}
 	if (elements.contactStatus) {
 		updateContactStatus('online');
@@ -883,15 +956,17 @@ async function setupChatWithUser(user, userId, requestId) {
 		chatArea.classList.add('active');
 	}
 
-	// Esconder estado vazio
-	hideEmptyChatState();
+	// Mostrar camada de chat ativo
+	showActiveChatLayer();
 
 	// Carregar histórico de mensagens
 	await loadChatHistory(otherUserId);
 
 	// Definir chat atual - usar ID do usuário
 	state.currentChatId = otherUserId;
+	// IMPORTANTE: currentChatUserId é o ID do usuário com quem está conversando (NÃO o usuário atual)
 	state.currentChatUserId = otherUserId;
+	console.log('[Chat] Chat configurado - currentChatUserId:', state.currentChatUserId, 'currentUserId (usuário atual):', state.currentUserId);
 	state.lastMessageTimestamp = null; // Resetar timestamp ao abrir novo chat
 
 	// Reiniciar polling para o novo chat
@@ -915,7 +990,7 @@ async function loadChatHistory(otherUserId) {
 		}
 
 		// Buscar histórico de mensagens
-		const response = await fetch(`http://localhost:8080/api/chat/conversations/${otherUserId}`, {
+		const response = await fetch(`${getApiBaseUrl()}/api/chat/conversations/${otherUserId}`, {
 			headers: {
 				'Authorization': `Bearer ${token}`
 			}
@@ -929,7 +1004,7 @@ async function loadChatHistory(otherUserId) {
 			let currentUserId = null;
 			if (token) {
 				try {
-					const meResponse = await fetch('http://localhost:8080/api/user/me', {
+					const meResponse = await fetch(`${getApiBaseUrl()}/api/user/me`, {
 						headers: {
 							'Authorization': `Bearer ${token}`
 						}
@@ -977,8 +1052,8 @@ async function loadChatHistory(otherUserId) {
 	}
 }
 
-function renderChatList() {
-	console.log('[App] renderChatList() chamado. Total de chats:', state.chats.length);
+function renderChatList(filterText = '') {
+	console.log('[App] renderChatList() chamado. Total de chats:', state.chats.length, 'Filtro:', filterText);
 
 	if (!elements.chatsList) {
 		console.error('[App] Elemento chatsList não encontrado');
@@ -987,20 +1062,31 @@ function renderChatList() {
 
 	elements.chatsList.innerHTML = '';
 
-	if (state.chats.length === 0) {
-		console.log('[App] Nenhum chat encontrado, mostrando estado vazio');
+	// Filtrar chats se houver texto de busca
+	let chatsToRender = state.chats;
+	if (filterText && filterText.trim() !== '') {
+		const searchLower = filterText.toLowerCase().trim();
+		chatsToRender = state.chats.filter(chat => {
+			const nameMatch = chat.name && chat.name.toLowerCase().includes(searchLower);
+			const messageMatch = chat.lastMessage && chat.lastMessage.toLowerCase().includes(searchLower);
+			return nameMatch || messageMatch;
+		});
+	}
+
+	if (chatsToRender.length === 0) {
+		console.log('[App] Nenhum chat encontrado após filtro');
 		elements.chatsList.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-comments" style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;"></i>
-                <p style="color: var(--text-light); text-align: center;">Nenhuma conversa encontrada</p>
+                <p style="color: var(--text-light); text-align: center;">${filterText ? 'Nenhuma conversa encontrada para "' + filterText + '"' : 'Nenhuma conversa encontrada'}</p>
             </div>
         `;
 		return;
 	}
 
-	console.log('[App] Renderizando', state.chats.length, 'chats');
+	console.log('[App] Renderizando', chatsToRender.length, 'chats');
 
-	state.chats.forEach(chat => {
+	chatsToRender.forEach(chat => {
 		const chatElement = document.createElement('div');
 
 		// Chats com token sempre aparecem (são criados quando solicitação é aceita)
@@ -1030,7 +1116,7 @@ function renderChatList() {
 		// Buscar avatar do usuário
 		const avatarUrl = chat.avatarUrl || null;
 		const avatarHTML = avatarUrl
-			? `<img src="http://localhost:8080${avatarUrl}" alt="${chat.name}" onerror="this.parentElement.innerHTML='${chat.avatar}'">`
+			? `<img src="${getApiBaseUrl()}${avatarUrl}" alt="${chat.name}" onerror="this.parentElement.innerHTML='${chat.avatar}'">`
 			: chat.avatar;
 
 		chatElement.innerHTML = `
@@ -1074,11 +1160,15 @@ async function loadChat(chatId) {
 		console.log('[App] Chat já está carregado, recarregando mensagens do banco...');
 		// Recarregar mensagens do banco mesmo se já estiver no chat
 		await loadChatHistory(chatUserId);
+		// Garantir que a camada de chat ativo esteja visível
+		showActiveChatLayer();
 		return;
 	}
 
 	state.currentChatId = chatUserId;
+	// IMPORTANTE: currentChatUserId é o ID do usuário com quem está conversando (NÃO o usuário atual)
 	state.currentChatUserId = chatUserId;
+	console.log('[Chat] Chat carregado - currentChatUserId:', state.currentChatUserId, 'currentUserId (usuário atual):', state.currentUserId);
 	state.messages = [];
 	state.lastMessageTimestamp = null; // Resetar timestamp ao trocar de chat
 
@@ -1089,11 +1179,35 @@ async function loadChat(chatId) {
 
 		// Atualizar avatar com foto se disponível
 		if (chat.avatarUrl) {
-			elements.contactAvatar.innerHTML = `<img src="http://localhost:8080${chat.avatarUrl}" alt="${chat.name}" onerror="this.parentElement.textContent='${chat.avatar}'">`;
+			elements.contactAvatar.innerHTML = `<img src="${getApiBaseUrl()}${chat.avatarUrl}" alt="${chat.name}" onerror="this.parentElement.textContent='${chat.avatar}'">`;
 		} else {
-			elements.contactAvatar.textContent = chat.avatar;
+			// Criar iniciais do nome
+			const initials = chat.name ? chat.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : chat.avatar;
+			elements.contactAvatar.textContent = initials;
 		}
 		elements.contactAvatar.style.display = 'flex';
+		elements.contactAvatar.style.cursor = 'pointer';
+		elements.contactAvatar.title = 'Ver perfil';
+		// Remover listeners antigos e adicionar novo
+		const newAvatar = elements.contactAvatar.cloneNode(true);
+		elements.contactAvatar.parentNode.replaceChild(newAvatar, elements.contactAvatar);
+		elements.contactAvatar = newAvatar;
+		// Obter o ID do usuário com quem está conversando (NÃO o usuário atual)
+		const contactUserId = chat.userId || chat.id || state.currentChatUserId || chatUserId;
+		console.log('[Chat] Configurando avatar - Usuário atual:', state.currentUserId, 'Usuário do chat:', contactUserId);
+		// Adicionar listener para ir ao perfil do usuário com quem está conversando
+		elements.contactAvatar.addEventListener('click', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			// Usar o ID do usuário com quem está conversando (contactUserId), não o usuário atual
+			const userId = contactUserId || state.currentChatUserId || chatUserId;
+			if (userId && userId !== state.currentUserId) {
+				console.log('[Chat] Redirecionando para perfil do usuário:', userId, '(usuário atual:', state.currentUserId, ')');
+				window.location.href = `paginaUsuario.html?userId=${userId}`;
+			} else {
+				console.warn('[Chat] Erro: userId inválido ou igual ao usuário atual. userId:', userId, 'currentUserId:', state.currentUserId);
+			}
+		});
 		updateContactStatus(chat.online ? 'online' : 'offline');
 		const statusSpan = elements.contactStatus.querySelector('span');
 		if (statusSpan) {
@@ -1121,8 +1235,8 @@ async function loadChat(chatId) {
 		}
 	}
 
-	// Esconder estado vazio
-	hideEmptyChatState();
+	// Mostrar camada de chat ativo (esconde a camada de seleção automaticamente)
+	showActiveChatLayer();
 
 	// Limpar área de mensagens
 	const existingMessages = elements.messagesContainer.querySelectorAll('.message, .empty-chat-state');
@@ -1161,7 +1275,7 @@ async function loadChat(chatId) {
 		// Carregar histórico de mensagens usando API REST
 		const token = localStorage.getItem('token') || localStorage.getItem('jwtToken');
 		if (token) {
-			const response = await fetch(`http://localhost:8080/api/chat/conversations/${chatUserId}`, {
+			const response = await fetch(`${getApiBaseUrl()}/api/chat/conversations/${chatUserId}`, {
 				headers: {
 					'Authorization': `Bearer ${token}`
 				}
@@ -1180,7 +1294,7 @@ async function loadChat(chatId) {
 				if (!currentUserId) {
 					// Tentar buscar do token
 					try {
-						const meResponse = await fetch('http://localhost:8080/api/user/me', {
+						const meResponse = await fetch(`${getApiBaseUrl()}/api/user/me`, {
 							headers: {
 								'Authorization': `Bearer ${token}`
 							}
@@ -1275,9 +1389,6 @@ function renderMessages() {
 		return;
 	}
 
-	// Esconder estado vazio
-	hideEmptyChatState();
-
 	// Limpar mensagens existentes (exceto o indicador de digitação e estado vazio)
 	const existingMessages = elements.messagesContainer.querySelectorAll('.message');
 	existingMessages.forEach(msg => {
@@ -1286,9 +1397,16 @@ function renderMessages() {
 		}
 	});
 
-	// Se não houver mensagens, mostrar estado vazio
+	// Se não houver mensagens, mostrar mensagem dentro da área de chat ativo
 	if (!state.messages || state.messages.length === 0) {
-		showEmptyChatState('Nenhuma mensagem ainda. Comece a conversa!');
+		// Não chamar showEmptyChatState aqui, pois estamos na camada de chat ativo
+		// Apenas limpar o container de mensagens
+		elements.messagesContainer.innerHTML = `
+			<div class="empty-messages-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: var(--spacing-xl); text-align: center;">
+				<i class="fas fa-comment-dots" style="font-size: 3rem; color: var(--text-light); margin-bottom: var(--spacing-md); opacity: 0.5;"></i>
+				<p style="color: var(--text-light); font-size: 1.1rem;">Nenhuma mensagem ainda. Comece a conversa!</p>
+			</div>
+		`;
 		return;
 	}
 
@@ -1392,7 +1510,7 @@ async function sendMessage() {
 		}
 
 		// SEMPRE enviar via API REST primeiro para garantir que seja salva no banco
-		const response = await fetch('http://localhost:8080/api/chat/messages', {
+		const response = await fetch(`${getApiBaseUrl()}/api/chat/messages`, {
 			method: 'POST',
 			headers: {
 				'Authorization': `Bearer ${token}`,
@@ -1574,7 +1692,7 @@ function startPolling() {
 			if (!token) return;
 
 			// Buscar mensagens mais recentes que a última conhecida
-			const response = await fetch(`http://localhost:8080/api/chat/conversations/${state.currentChatUserId}`, {
+			const response = await fetch(`${getApiBaseUrl()}/api/chat/conversations/${state.currentChatUserId}`, {
 				headers: {
 					'Authorization': `Bearer ${token}`
 				}
@@ -1822,7 +1940,7 @@ function handleWebSocketMessage(message) {
 					// Buscar informações do usuário do banco
 					const token = localStorage.getItem('token') || localStorage.getItem('jwtToken');
 					if (token) {
-						fetch(`http://localhost:8080/api/user/${otherChatId}`, {
+						fetch(`${getApiBaseUrl()}/api/user/${otherChatId}`, {
 							headers: { 'Authorization': `Bearer ${token}` }
 						}).then(res => {
 							if (res.ok) {
@@ -1989,12 +2107,8 @@ function setTheme(theme) {
 
 	if (theme === 'dark') {
 		document.body.classList.add('dark-theme');
-		elements.themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-		elements.themeToggle.setAttribute('aria-label', 'Alternar para tema claro');
 	} else {
 		document.body.classList.remove('dark-theme');
-		elements.themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-		elements.themeToggle.setAttribute('aria-label', 'Alternar para tema escuro');
 	}
 
 	// Salvar preferência
@@ -2033,6 +2147,19 @@ function scrollToBottom() {
 }
 
 function setupEventListeners() {
+	// Atualizar elementos antes de configurar listeners
+	updateElements();
+	
+	// Verificar se os elementos existem antes de adicionar listeners
+	if (!elements.sendBtn) {
+		console.error('[Chat] sendBtn não encontrado!');
+		return;
+	}
+	if (!elements.messageInput) {
+		console.error('[Chat] messageInput não encontrado!');
+		return;
+	}
+	
 	// Enviar mensagem ao clicar no botão
 	elements.sendBtn.addEventListener('click', sendMessage);
 
@@ -2047,10 +2174,23 @@ function setupEventListeners() {
 	// Ajustar altura do textarea
 	elements.messageInput.addEventListener('input', adjustTextareaHeight);
 
-	// Alternar tema
-	elements.themeToggle.addEventListener('click', () => {
-		setTheme(state.theme === 'light' ? 'dark' : 'light');
-	});
+	// Tema toggle removido - mantido dark theme por padrão
+
+	// Funcionalidade de busca de conversas
+	if (elements.searchInput) {
+		elements.searchInput.addEventListener('input', (e) => {
+			const searchText = e.target.value;
+			renderChatList(searchText);
+		});
+		
+		// Limpar busca ao pressionar Escape
+		elements.searchInput.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') {
+				elements.searchInput.value = '';
+				renderChatList('');
+			}
+		});
+	}
 
 	// Alternar menu em dispositivos móveis
 	elements.menuToggle.addEventListener('click', (e) => {
@@ -2066,6 +2206,179 @@ function setupEventListeners() {
 			elements.sidebar.classList.remove('active');
 		}
 	});
+
+	// Menu do chat (lado direito)
+	if (elements.chatMenuBtn && elements.chatMenuDropdown) {
+		console.log('[Chat] Configurando menu do chat');
+		elements.chatMenuBtn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			console.log('[Chat] Menu clicado, toggle dropdown');
+			elements.chatMenuDropdown.classList.toggle('show');
+			elements.chatMenuBtn.classList.toggle('active');
+			console.log('[Chat] Dropdown show:', elements.chatMenuDropdown.classList.contains('show'));
+		});
+
+		// Fechar menu ao clicar fora
+		document.addEventListener('click', (e) => {
+			if (elements.chatMenuBtn && elements.chatMenuDropdown &&
+				!elements.chatMenuBtn.contains(e.target) && !elements.chatMenuDropdown.contains(e.target)) {
+				elements.chatMenuDropdown.classList.remove('show');
+				elements.chatMenuBtn.classList.remove('active');
+			}
+		});
+	} else {
+		console.error('[Chat] Elementos do menu não encontrados:', {
+			chatMenuBtn: !!elements.chatMenuBtn,
+			chatMenuDropdown: !!elements.chatMenuDropdown
+		});
+	}
+
+	// Ver perfil do contato
+	if (elements.viewProfileMenuItem) {
+		elements.viewProfileMenuItem.addEventListener('click', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			// Usar currentChatUserId (usuário com quem está conversando), não currentUserId (usuário atual)
+			const userId = state.currentChatUserId;
+			if (userId && userId !== state.currentUserId) {
+				console.log('[Chat] Menu - Redirecionando para perfil do usuário:', userId, '(usuário atual:', state.currentUserId, ')');
+				window.location.href = `paginaUsuario.html?userId=${userId}`;
+			} else if (userId === state.currentUserId) {
+				console.warn('[Chat] Menu - Erro: Tentando ir ao próprio perfil. currentChatUserId:', userId, 'currentUserId:', state.currentUserId);
+			} else {
+				console.warn('[Chat] Menu - currentChatUserId não definido. currentUserId:', state.currentUserId);
+			}
+			elements.chatMenuDropdown.classList.remove('show');
+			elements.chatMenuBtn.classList.remove('active');
+		});
+	}
+
+	// Avatar clicável - ir ao perfil do usuário com quem está conversando
+	if (elements.contactAvatar) {
+		// Remover listeners antigos
+		const newAvatar = elements.contactAvatar.cloneNode(true);
+		elements.contactAvatar.parentNode.replaceChild(newAvatar, elements.contactAvatar);
+		elements.contactAvatar = newAvatar;
+		// Adicionar listener - usar currentChatUserId (usuário com quem está conversando)
+		elements.contactAvatar.addEventListener('click', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			// Obter o ID do usuário com quem está conversando
+			const userId = state.currentChatUserId;
+			if (userId && userId !== state.currentUserId) {
+				console.log('[Chat] Redirecionando para perfil do usuário:', userId, '(usuário atual:', state.currentUserId, ')');
+				window.location.href = `paginaUsuario.html?userId=${userId}`;
+			} else if (userId === state.currentUserId) {
+				console.warn('[Chat] Erro: Tentando ir ao próprio perfil. currentChatUserId:', userId, 'currentUserId:', state.currentUserId);
+			} else {
+				console.warn('[Chat] currentChatUserId não definido. currentUserId:', state.currentUserId);
+			}
+		});
+	}
+
+	// Compartilhar localização
+	if (elements.shareLocationMenuItem) {
+		elements.shareLocationMenuItem.addEventListener('click', async () => {
+			if (navigator.geolocation) {
+				try {
+					const position = await new Promise((resolve, reject) => {
+						navigator.geolocation.getCurrentPosition(resolve, reject);
+					});
+					
+					const { latitude, longitude } = position.coords;
+					const locationMessage = `📍 Localização: https://www.google.com/maps?q=${latitude},${longitude}`;
+					
+					// Enviar mensagem com localização
+					if (elements.messageInput) {
+						elements.messageInput.value = locationMessage;
+						sendMessage();
+					}
+				} catch (error) {
+					alert('Erro ao obter localização. Verifique as permissões do navegador.');
+					console.error('[Chat] Erro ao obter localização:', error);
+				}
+			} else {
+				alert('Geolocalização não é suportada neste navegador.');
+			}
+			elements.chatMenuDropdown.classList.remove('show');
+			elements.chatMenuBtn.classList.remove('active');
+		});
+	}
+
+	// Limpar conversa (apenas do frontend por enquanto)
+	if (elements.clearChatMenuItem) {
+		elements.clearChatMenuItem.addEventListener('click', async () => {
+			if (!state.currentChatId && !state.currentChatUserId) return;
+			
+			const confirmClear = confirm('Tem certeza que deseja limpar esta conversa? As mensagens serão removidas apenas da sua visualização.');
+			if (!confirmClear) {
+				elements.chatMenuDropdown.classList.remove('show');
+				elements.chatMenuBtn.classList.remove('active');
+				return;
+			}
+
+			// Limpar mensagens localmente
+			state.messages = [];
+			renderMessages();
+			
+			// Marcar como limpo no localStorage
+			const clearedChats = JSON.parse(localStorage.getItem('clearedChats') || '[]');
+			const chatKey = state.currentChatId || `user_${state.currentChatUserId}`;
+			if (!clearedChats.includes(chatKey)) {
+				clearedChats.push(chatKey);
+				localStorage.setItem('clearedChats', JSON.stringify(clearedChats));
+			}
+			
+			elements.chatMenuDropdown.classList.remove('show');
+			elements.chatMenuBtn.classList.remove('active');
+		});
+	}
+
+	// Silenciar notificações
+	if (elements.muteNotificationsMenuItem) {
+		elements.muteNotificationsMenuItem.addEventListener('click', () => {
+			// Toggle do estado de silenciado
+			const chatId = state.currentChatId || `user_${state.currentChatUserId}`;
+			if (chatId) {
+				const mutedChats = JSON.parse(localStorage.getItem('mutedChats') || '[]');
+				const isMuted = mutedChats.includes(chatId);
+				
+				if (isMuted) {
+					const index = mutedChats.indexOf(chatId);
+					mutedChats.splice(index, 1);
+					elements.muteNotificationsMenuItem.innerHTML = '<i class="fas fa-bell-slash"></i><span>Silenciar Notificações</span>';
+					alert('Notificações reativadas para esta conversa.');
+				} else {
+					mutedChats.push(chatId);
+					elements.muteNotificationsMenuItem.innerHTML = '<i class="fas fa-bell"></i><span>Ativar Notificações</span>';
+					alert('Notificações silenciadas para esta conversa.');
+				}
+				
+				localStorage.setItem('mutedChats', JSON.stringify(mutedChats));
+			}
+			elements.chatMenuDropdown.classList.remove('show');
+			elements.chatMenuBtn.classList.remove('active');
+		});
+	}
+
+	// Informações do chat
+	if (elements.chatInfoMenuItem) {
+		elements.chatInfoMenuItem.addEventListener('click', () => {
+			const chat = state.chats.find(c => c.id === state.currentChatId || c.userId === state.currentChatUserId);
+			if (chat) {
+				const info = `
+Informações do Chat:
+- Contato: ${chat.name}
+- Total de mensagens: ${state.messages.length}
+- Status: ${chat.online ? 'Online' : 'Offline'}
+- Última mensagem: ${chat.timestamp ? new Date(chat.timestamp).toLocaleString('pt-BR') : 'N/A'}
+				`.trim();
+				alert(info);
+			}
+			elements.chatMenuDropdown.classList.remove('show');
+			elements.chatMenuBtn.classList.remove('active');
+		});
+	}
 
 	// Inicializar seletor de emojis
 	initializeEmojiPicker();
@@ -2200,35 +2513,82 @@ function showNotification(message, type = 'info') {
 	}, 3000);
 }
 
-function showEmptyChatState(message = 'Selecione uma conversa para começar') {
-	const emptyState = document.getElementById('emptyChatState');
-	if (emptyState) {
-		emptyState.style.display = 'flex';
-		emptyState.style.flexDirection = 'column';
-		emptyState.style.alignItems = 'center';
-		emptyState.style.justifyContent = 'center';
-		emptyState.style.height = '100%';
-		const p = emptyState.querySelector('p');
-		if (p) {
-			p.textContent = message;
-		}
+// Função para mostrar a camada de seleção
+function showSelectionLayer() {
+	console.log('[Chat] Mostrando camada de seleção');
+	updateElements();
+	
+	if (elements.chatSelectionLayer) {
+		elements.chatSelectionLayer.classList.remove('hidden');
+		elements.chatSelectionLayer.style.display = 'flex';
+		elements.chatSelectionLayer.style.visibility = 'visible';
+		elements.chatSelectionLayer.style.opacity = '1';
 	}
-
-	// Esconder barra de input quando não há chat selecionado
-	if (elements.chatInputContainer) {
-		elements.chatInputContainer.style.display = 'none';
+	
+	if (elements.chatActiveLayer) {
+		elements.chatActiveLayer.classList.add('hidden');
+		elements.chatActiveLayer.style.display = 'none';
+		elements.chatActiveLayer.style.visibility = 'hidden';
+		elements.chatActiveLayer.style.opacity = '0';
 	}
 }
 
-function hideEmptyChatState() {
-	const emptyState = document.getElementById('emptyChatState');
-	if (emptyState) {
-		emptyState.style.display = 'none';
+// Função para mostrar a camada de chat ativo
+function showActiveChatLayer() {
+	console.log('[Chat] Mostrando camada de chat ativo');
+	updateElements();
+	
+	if (elements.chatSelectionLayer) {
+		elements.chatSelectionLayer.classList.add('hidden');
+		elements.chatSelectionLayer.style.display = 'none';
+		elements.chatSelectionLayer.style.visibility = 'hidden';
+		elements.chatSelectionLayer.style.opacity = '0';
 	}
-
-	// Mostrar barra de input quando um chat está ativo
+	
+	if (elements.chatActiveLayer) {
+		elements.chatActiveLayer.classList.remove('hidden');
+		elements.chatActiveLayer.style.display = 'flex';
+		elements.chatActiveLayer.style.visibility = 'visible';
+		elements.chatActiveLayer.style.opacity = '1';
+	}
+	
+	// Garantir que o campo de input esteja visível
 	if (elements.chatInputContainer) {
 		elements.chatInputContainer.style.display = 'flex';
+		elements.chatInputContainer.style.visibility = 'visible';
+	}
+	
+	if (elements.messageInput) {
+		elements.messageInput.disabled = false;
+		elements.messageInput.style.visibility = 'visible';
+	}
+	
+	if (elements.sendBtn) {
+		elements.sendBtn.style.visibility = 'visible';
+	}
+}
+
+// Função antiga mantida para compatibilidade (deprecated)
+function showEmptyChatState(message = 'Selecione uma conversa para começar') {
+	showSelectionLayer();
+}
+
+function hideEmptyChatState() {
+	console.log('[Chat] hideEmptyChatState() chamado - mostrando camada de chat ativo');
+	// Mostrar camada de chat ativo
+	showActiveChatLayer();
+	
+	// Garantir que o campo de mensagem esteja habilitado
+	updateElements();
+	
+	if (elements.messageInput) {
+		elements.messageInput.disabled = false;
+	}
+	
+	// Habilitar botão de envio se houver texto
+	if (elements.sendBtn && elements.messageInput) {
+		const hasText = elements.messageInput.value.trim() !== '';
+		elements.sendBtn.disabled = !hasText || !state.currentChatUserId;
 	}
 }
 

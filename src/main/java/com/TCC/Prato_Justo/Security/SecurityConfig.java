@@ -1,5 +1,6 @@
 package com.TCC.Prato_Justo.Security;
 
+import com.TCC.Prato_Justo.Config.CorsConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,10 +22,14 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @Autowired
+    private CorsConfig corsConfig;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/auth/login", "/auth/registro", "/auth/cadastros").permitAll()
@@ -32,6 +37,8 @@ public class SecurityConfig {
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/static/**").permitAll()
                         // Permitir WebSocket endpoint e recursos relacionados
                         .requestMatchers("/ws-chat/**", "/ws-chat").permitAll()
+                        // Permitir OPTIONS (preflight CORS) para todos os endpoints
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Permitir GETs públicos em doações (listar, ver detalhes, buscar próximas)
                         .requestMatchers(HttpMethod.GET, "/doacoes").permitAll()
                         .requestMatchers(HttpMethod.GET, "/doacoes/proximas").permitAll()  // Deve vir antes de /doacoes/*

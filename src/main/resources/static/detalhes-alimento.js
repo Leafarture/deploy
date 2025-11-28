@@ -1,6 +1,27 @@
 // ===== DETALHES DO ALIMENTO - JAVASCRIPT =====
 
-const API_BASE_URL = 'http://localhost:8080';
+// API Base URL - Usa configuração global se disponível, senão detecta automaticamente
+const API_BASE_URL = window.API_BASE_URL || (() => {
+    const protocol = window.location.protocol; // 'http:' ou 'https:'
+    const hostname = window.location.hostname;
+    const currentPort = window.location.port;
+    
+    // Detectar porta da API
+    let apiPort = '';
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        // Desenvolvimento local - usar porta 8080
+        apiPort = ':8080';
+    } else {
+        // Produção - usar a mesma porta da página
+        if (currentPort && currentPort !== '80' && currentPort !== '443') {
+            apiPort = `:${currentPort}`;
+        } else {
+            apiPort = ''; // Usa porta padrão do protocolo
+        }
+    }
+    
+    return `${protocol}//${hostname}${apiPort}`;
+})();
 
 // Elementos da página
 const loadingElement = document.getElementById('loading');

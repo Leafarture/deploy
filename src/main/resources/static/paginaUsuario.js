@@ -5,6 +5,8 @@
 class ProfileManager {
     constructor() {
         this.currentUser = null;
+        this.viewingUserId = null; // ID do usuário que está sendo visualizado (pode ser diferente do usuário logado)
+        this.isViewingOwnProfile = true; // Se está vendo o próprio perfil
         this.userStats = {
             totalDonations: 0,
             averageRating: 0,
@@ -25,6 +27,24 @@ class ProfileManager {
             console.log('Usuário não autenticado, redirecionando...');
             this.redirectToLogin();
             return;
+        }
+
+        // Verificar se há userId na URL (visualizando perfil de outro usuário)
+        const urlParams = new URLSearchParams(window.location.search);
+        const userIdParam = urlParams.get('userId');
+        
+        if (userIdParam) {
+            this.viewingUserId = parseInt(userIdParam);
+            console.log('Visualizando perfil do usuário ID:', this.viewingUserId);
+            
+            // Verificar se é o próprio perfil
+            const currentUser = window.authManager ? window.authManager.getCurrentUser() : null;
+            this.isViewingOwnProfile = currentUser && currentUser.id && parseInt(currentUser.id) === this.viewingUserId;
+            console.log('É o próprio perfil?', this.isViewingOwnProfile);
+        } else {
+            // Se não há userId na URL, mostrar perfil do usuário logado
+            this.isViewingOwnProfile = true;
+            console.log('Mostrando perfil do usuário logado');
         }
 
         console.log('Usuário autenticado, carregando dados...');
@@ -56,6 +76,8 @@ class ProfileManager {
         console.log('=== DEBUG loadUserData ===');
         console.log('authManager existe:', !!window.authManager);
         console.log('authManager autenticado:', window.authManager ? window.authManager.isAuthenticated() : false);
+        console.log('viewingUserId:', this.viewingUserId);
+        console.log('isViewingOwnProfile:', this.isViewingOwnProfile);
         
         try {
             // Buscar dados ATUALIZADOS da API (incluindo campos de endereço)
@@ -63,7 +85,15 @@ class ProfileManager {
                 const token = window.authManager.getToken();
                 console.log('Buscando dados atualizados da API...');
                 
-                const response = await fetch('/api/user/me', {
+                // Se há viewingUserId, buscar dados desse usuário específico
+                // Caso contrário, buscar dados do usuário logado
+                const apiUrl = this.viewingUserId 
+                    ? `/api/user/${this.viewingUserId}` 
+                    : '/api/user/me';
+                
+                console.log('URL da API:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -73,19 +103,27 @@ class ProfileManager {
                     this.currentUser = await response.json();
                     console.log('✅ Dados do usuário carregados da API:', this.currentUser);
                     
-                    // Atualizar também o localStorage para manter sincronizado
-                    localStorage.setItem('user', JSON.stringify(this.currentUser));
+                    // Se for o próprio perfil, atualizar localStorage
+                    if (this.isViewingOwnProfile) {
+                        localStorage.setItem('user', JSON.stringify(this.currentUser));
 
-                    // Notificar outras partes da UI (header) que o usuário foi atualizado
-                    document.dispatchEvent(new CustomEvent('authStateChanged', {
-                        detail: { isAuthenticated: true, user: this.currentUser }
-                    }));
+                        // Notificar outras partes da UI (header) que o usuário foi atualizado
+                        document.dispatchEvent(new CustomEvent('authStateChanged', {
+                            detail: { isAuthenticated: true, user: this.currentUser }
+                        }));
+                    }
 
                     this.updateProfileDisplay();
                 } else {
                     console.error('❌ Erro ao buscar dados da API:', response.status);
+                    const errorText = await response.text();
+                    console.error('Erro:', errorText);
                     // Fallback para dados do localStorage se a API falhar
-                    this.loadFromAuthManager();
+                    if (this.isViewingOwnProfile) {
+                        this.loadFromAuthManager();
+                    } else {
+                        this.showNotification('Erro ao carregar perfil do usuário', 'error');
+                    }
                 }
             } else {
                 console.log('Não autenticado, usando dados padrão');
@@ -94,7 +132,11 @@ class ProfileManager {
         } catch (error) {
             console.error('❌ Erro ao carregar dados do usuário:', error);
             // Fallback para dados do localStorage se houver erro
-            this.loadFromAuthManager();
+            if (this.isViewingOwnProfile) {
+                this.loadFromAuthManager();
+            } else {
+                this.showNotification('Erro ao carregar perfil do usuário', 'error');
+            }
         }
     }
 
@@ -153,11 +195,31 @@ class ProfileManager {
     updateProfileDisplay() {
         console.log('=== DEBUG updateProfileDisplay ===');
         console.log('currentUser:', this.currentUser);
+        console.log('isViewingOwnProfile:', this.isViewingOwnProfile);
         
         if (!this.currentUser) {
             console.log('currentUser é null, retornando');
             return;
         }
+
+        // Esconder botão "Editar Perfil" se estiver vendo perfil de outro usuário
+        const editProfileBtn = document.getElementById('edit-profile-btn');
+        if (editProfileBtn) {
+            if (this.isViewingOwnProfile) {
+                editProfileBtn.style.display = 'flex';
+            } else {
+                editProfileBtn.style.display = 'none';
+            }
+        }
+
+        // Esconder botões de editar cards se estiver vendo perfil de outro usuário
+        document.querySelectorAll('.btn-edit-card').forEach(btn => {
+            if (this.isViewingOwnProfile) {
+                btn.style.display = 'flex';
+            } else {
+                btn.style.display = 'none';
+            }
+        });
 
         // Informações básicas
         const userNameElement = document.getElementById('profile-user-name');
@@ -180,41 +242,56 @@ class ProfileManager {
         }
         document.getElementById('user-type-text').textContent = this.getUserTypeLabel(this.currentUser.tipoUsuario);
         
-        // Avatar
-        const avatarImg = document.getElementById('user-avatar');
-        const avatarPlaceholder = document.getElementById('user-avatar-placeholder');
-        const avatarContainer = avatarImg ? avatarImg.closest('.avatar-container') : null;
-        
-        if (this.currentUser.avatarUrl) {
-            // NÃO salvar userAvatar globalmente - o avatar sempre vem do objeto user (identificado via JWT)
+            // Avatar
+            const avatarImg = document.getElementById('user-avatar');
+            const avatarPlaceholder = document.getElementById('user-avatar-placeholder');
+            const avatarContainer = avatarImg ? avatarImg.closest('.avatar-container') : null;
             
-            // Configurar handler de erro se ainda não foi configurado
-            if (avatarImg && !avatarImg.hasAttribute('data-error-handler')) {
-                avatarImg.setAttribute('data-error-handler', 'true');
-                avatarImg.addEventListener('error', () => {
-                    console.warn('Avatar não encontrado:', this.currentUser.avatarUrl);
-                    if (avatarImg) avatarImg.style.display = 'none';
-                    if (avatarPlaceholder) {
-                        avatarPlaceholder.style.display = 'flex';
-                        const userInitial = this.currentUser.nome ? this.currentUser.nome.charAt(0).toUpperCase() : 'U';
-                        avatarPlaceholder.textContent = userInitial;
-                    }
-                    if (avatarContainer) avatarContainer.classList.remove('has-avatar');
-                });
+            if (this.currentUser.avatarUrl) {
+                // Configurar handler de erro se ainda não foi configurado
+                if (avatarImg && !avatarImg.hasAttribute('data-error-handler')) {
+                    avatarImg.setAttribute('data-error-handler', 'true');
+                    avatarImg.addEventListener('error', () => {
+                        console.warn('Avatar não encontrado:', this.currentUser.avatarUrl);
+                        if (avatarImg) avatarImg.style.display = 'none';
+                        if (avatarPlaceholder) {
+                            avatarPlaceholder.style.display = 'flex';
+                            const userInitial = this.currentUser.nome ? this.currentUser.nome.charAt(0).toUpperCase() : 'U';
+                            avatarPlaceholder.textContent = userInitial;
+                        }
+                        if (avatarContainer) avatarContainer.classList.remove('has-avatar');
+                    });
+                }
+                
+                // Construir URL completa do avatar
+                let avatarUrl = this.currentUser.avatarUrl;
+                // Se a URL não começa com http, adicionar o base URL da API
+                if (!avatarUrl.startsWith('http')) {
+                    // Obter base URL da API
+                    const apiBaseUrl = window.API_BASE_URL || (() => {
+                        const protocol = window.location.protocol;
+                        const hostname = window.location.hostname;
+                        const port = (hostname === 'localhost' || hostname === '127.0.0.1') ? ':8080' : (window.location.port ? ':' + window.location.port : '');
+                        return `${protocol}//${hostname}${port}`;
+                    })();
+                    avatarUrl = apiBaseUrl + (avatarUrl.startsWith('/') ? '' : '/') + avatarUrl;
+                }
+                
+                // Adicionar cache-busting para garantir que a imagem atualize
+                const updatedAt = localStorage.getItem('avatarUpdatedAt');
+                const urlWithVersion = avatarUrl + (avatarUrl.includes('?') ? '&' : '?') + 'v=' + (updatedAt || Date.now());
+                avatarImg.src = urlWithVersion;
+                avatarImg.style.display = 'block';
+                avatarPlaceholder.style.display = 'none';
+                if (avatarContainer) avatarContainer.classList.add('has-avatar');
+            } else {
+                avatarImg.style.display = 'none';
+                avatarPlaceholder.style.display = 'flex';
+                // Criar iniciais do nome
+                const userInitial = this.currentUser.nome ? this.currentUser.nome.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'U';
+                avatarPlaceholder.textContent = userInitial;
+                if (avatarContainer) avatarContainer.classList.remove('has-avatar');
             }
-            
-            // Adicionar cache-busting para garantir que a imagem atualize
-            const updatedAt = localStorage.getItem('avatarUpdatedAt');
-            const urlWithVersion = this.currentUser.avatarUrl + (this.currentUser.avatarUrl.includes('?') ? '&' : '?') + 'v=' + (updatedAt || Date.now());
-            avatarImg.src = urlWithVersion;
-            avatarImg.style.display = 'block';
-            avatarPlaceholder.style.display = 'none';
-            if (avatarContainer) avatarContainer.classList.add('has-avatar');
-        } else {
-            avatarImg.style.display = 'none';
-            avatarPlaceholder.style.display = 'flex';
-            if (avatarContainer) avatarContainer.classList.remove('has-avatar');
-        }
 
         // Badge de verificação
         const verificationBadge = document.getElementById('verification-badge');
@@ -276,7 +353,18 @@ class ProfileManager {
         try {
             if (window.authManager && window.authManager.isAuthenticated()) {
                 const token = window.authManager.getToken();
-                const response = await fetch('/doacoes/minhas', {
+                
+                // Se está visualizando perfil de outro usuário, usar endpoint específico
+                // Caso contrário, usar endpoint de doações próprias
+                let apiUrl = '/doacoes/minhas';
+                
+                // Se há viewingUserId e não é o próprio perfil, buscar doações desse usuário
+                if (this.viewingUserId && !this.isViewingOwnProfile) {
+                    apiUrl = `/doacoes/usuario/${this.viewingUserId}`;
+                    console.log('Buscando doações do usuário:', this.viewingUserId, 'via:', apiUrl);
+                }
+                
+                const response = await fetch(apiUrl, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -284,6 +372,9 @@ class ProfileManager {
 
                 if (response.ok) {
                     this.userDonations = await response.json();
+                    console.log('Doações carregadas:', this.userDonations.length);
+                    
+                    console.log('Doações carregadas:', this.userDonations.length);
                     
                     // Buscar solicitações de cada doação para determinar status correto
                     await this.loadDonationRequests(token);
@@ -435,11 +526,14 @@ class ProfileManager {
      */
     async loadUserRatings() {
         try {
-            if (window.authManager && window.authManager.isAuthenticated()) {
+            if (window.authManager && window.authManager.isAuthenticated() && this.currentUser) {
                 const token = window.authManager.getToken();
                 
+                // Usar o ID do usuário que está sendo visualizado
+                const userId = this.currentUser.id;
+                
                 // Buscar avaliações recebidas (avaliações de solicitações)
-                const avaliacoesResponse = await fetch(`/avaliacoes-solicitacao/usuario/${this.currentUser.id}`, {
+                const avaliacoesResponse = await fetch(`/avaliacoes-solicitacao/usuario/${userId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -452,7 +546,7 @@ class ProfileManager {
                 }
 
                 // Buscar média de avaliações
-                const mediaResponse = await fetch(`/avaliacoes-solicitacao/usuario/${this.currentUser.id}/media`, {
+                const mediaResponse = await fetch(`/avaliacoes-solicitacao/usuario/${userId}/media`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -557,41 +651,32 @@ class ProfileManager {
     async calculateUserStats() {
         // Usar dados reais da API
         try {
-            if (window.authManager && window.authManager.isAuthenticated()) {
+            if (window.authManager && window.authManager.isAuthenticated() && this.currentUser) {
                 const token = window.authManager.getToken();
                 
-                // Buscar estatísticas de doações
-                const statsResponse = await fetch('/api/user/me/stats', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (statsResponse.ok) {
-                    const stats = await statsResponse.json();
-                    this.userStats.totalDonations = stats.totalDonations || 0;
-                } else {
-                    // Fallback para dados locais
-                    this.userStats.totalDonations = this.userDonations.length;
-                }
-
-                // Buscar média de avaliações de solicitações
-                if (this.currentUser && this.currentUser.id) {
-                    const mediaResponse = await fetch(`/avaliacoes-solicitacao/usuario/${this.currentUser.id}/media`, {
+                // Se for o próprio perfil, usar endpoint de stats
+                // Caso contrário, calcular baseado nas doações e avaliações carregadas
+                if (this.isViewingOwnProfile) {
+                    const statsResponse = await fetch('/api/user/me/stats', {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
                     });
 
-                    if (mediaResponse.ok) {
-                        const mediaData = await mediaResponse.json();
-                        this.userStats.averageRating = mediaData.media || 0.0;
-                        this.userStats.totalRatings = mediaData.total || 0;
+                    if (statsResponse.ok) {
+                        const stats = await statsResponse.json();
+                        this.userStats.totalDonations = stats.totalDonations || 0;
                     } else {
-                        this.userStats.averageRating = 0.0;
-                        this.userStats.totalRatings = 0;
+                        // Fallback para dados locais
+                        this.userStats.totalDonations = this.userDonations.length;
                     }
+                } else {
+                    // Para perfil de outro usuário, usar contagem de doações carregadas
+                    this.userStats.totalDonations = this.userDonations.length;
                 }
+
+                // Buscar média de avaliações de solicitações (já carregada em loadUserRatings)
+                // As estatísticas de avaliação já foram atualizadas em loadUserRatings
             } else {
                 this.userStats.totalDonations = this.userDonations.length;
                 this.userStats.averageRating = 0.0;

@@ -264,6 +264,33 @@ public class DoacaoController {
         }
     }
 
+    @GetMapping("/usuario/{userId}")
+    public ResponseEntity<?> doacoesPorUsuario(@PathVariable Long userId,
+                                                @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Token não fornecido");
+            }
+
+            String token = authHeader.substring(7);
+            if (!authService.isTokenValid(token)) {
+                return ResponseEntity.status(401).body("Token inválido");
+            }
+
+            // Verificar se o usuário está autenticado (não precisa ser o dono das doações)
+            Usuario usuario = authService.getCurrentUser(token);
+            if (usuario == null) {
+                return ResponseEntity.status(404).body("Usuário não encontrado");
+            }
+
+            // Buscar doações do usuário especificado
+            List<Doacao> doacoes = doacaoService.listarPorDoador(userId);
+            return ResponseEntity.ok(doacoes);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro interno: " + e.getMessage());
+        }
+    }
+
     @PostMapping("/upload-image")
     public ResponseEntity<?> uploadFoodImage(
             @RequestParam("image") MultipartFile file,
