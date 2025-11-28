@@ -48,10 +48,14 @@ html {
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
+	/* Prevenir zoom indesejado em mobile */
+	touch-action: manipulation;
+	-webkit-text-size-adjust: 100%;
 }
 
 body {
 	height: 100vh;
+	height: 100dvh; /* Dynamic viewport height para mobile */
 	width: 100vw;
 	margin: 0;
 	padding: 0;
@@ -62,6 +66,9 @@ body {
 	transition: background-color 0.3s, color 0.3s;
 	display: flex;
 	flex-direction: column;
+	/* Prevenir scroll horizontal em mobile */
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
 }
 
 body.dark-theme {
@@ -132,8 +139,11 @@ body.dark-theme {
 	display: flex;
 	flex: 1;
 	height: calc(100vh - 80px);
+	height: calc(100dvh - 80px); /* Dynamic viewport height para mobile */
 	min-height: calc(100vh - 80px);
+	min-height: calc(100dvh - 80px);
 	max-height: calc(100vh - 80px);
+	max-height: calc(100dvh - 80px);
 	width: 100%;
 	margin: 0;
 	padding: 0;
@@ -143,6 +153,8 @@ body.dark-theme {
 	background: radial-gradient(circle at top left, #1e293b 0%, #020617 45%, #111827 100%);
 	overflow: hidden;
 	align-self: stretch;
+	/* Prevenir scroll horizontal */
+	overflow-x: hidden;
 }
 
 /* Sidebar - visual escuro em cartão */
@@ -920,7 +932,7 @@ body.dark-theme {
 	display: none !important;
 }
 
-/* Responsividade */
+/* Responsividade - Tablet e Mobile */
 @media (max-width: 768px) {
 	.app-container {
 		width: 100%;
@@ -928,23 +940,46 @@ body.dark-theme {
 		min-height: calc(100vh - 80px);
 		max-height: calc(100vh - 80px);
 		margin-top: 80px;
+		position: relative;
 	}
 
+	/* Sidebar em mobile - overlay com backdrop */
 	.sidebar {
-		position: absolute;
-		top: 0;
+		position: fixed;
+		top: 80px;
 		left: 0;
-		height: 100%;
-		width: 100%;
-		max-width: 100%;
-		min-width: 100%;
-		z-index: 10;
+		height: calc(100vh - 80px);
+		width: 85%;
+		max-width: 320px;
+		min-width: 280px;
+		z-index: 1000;
 		transform: translateX(-100%);
-		transition: transform 0.3s ease;
+		transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
 	}
 
 	.sidebar.active {
 		transform: translateX(0);
+	}
+
+	/* Overlay para fechar sidebar ao clicar fora */
+	.sidebar-overlay {
+		position: fixed;
+		top: 80px;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.5);
+		z-index: 999;
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity 0.3s ease, visibility 0.3s ease;
+		backdrop-filter: blur(2px);
+	}
+
+	.sidebar-overlay.active {
+		opacity: 1;
+		visibility: visible;
 	}
 
 	.chat-area {
@@ -963,46 +998,315 @@ body.dark-theme {
 		height: 100%;
 	}
 
+	/* Mensagens mais largas em mobile */
 	.message {
 		max-width: 85%;
+		padding: 10px 14px;
+		font-size: 0.95rem;
+		margin-bottom: 10px;
+	}
+
+	.message-time {
+		font-size: 0.65rem;
+		margin-top: 4px;
 	}
 
 	.menu-toggle {
 		display: flex;
+		position: fixed;
+		top: 90px;
+		left: 16px;
+		z-index: 1001;
+		width: 44px;
+		height: 44px;
 	}
 
+	/* Header do chat em mobile */
 	.chat-header {
-		padding: var(--spacing-sm) var(--spacing-md);
+		padding: 12px 16px;
+		min-height: 64px;
+		position: sticky;
+		top: 0;
+		z-index: 100;
 	}
 
 	.contact-avatar {
-		width: 35px;
-		height: 35px;
-		min-width: 35px;
+		width: 40px;
+		height: 40px;
+		min-width: 40px;
+		margin-right: 10px;
+	}
+
+	.contact-info h2 {
+		font-size: 1rem;
+	}
+
+	.contact-status {
+		font-size: 0.8rem;
 	}
 
 	.chat-avatar {
-		width: 45px;
-		height: 45px;
+		width: 48px;
+		height: 48px;
+		margin-right: 12px;
+	}
+
+	/* Container de mensagens em mobile */
+	.messages-container {
+		padding: 16px 12px;
+		padding-bottom: 20px;
+	}
+
+	/* Input container em mobile - ajustado para teclado virtual */
+	.chat-input-container {
+		padding: 12px 16px;
+		min-height: 72px;
+		padding-bottom: max(12px, env(safe-area-inset-bottom));
+		position: sticky;
+		bottom: 0;
+		z-index: 100;
+	}
+
+	.message-input {
+		font-size: 0.95rem;
+		padding: 10px 14px;
+		min-height: 44px;
+		max-height: 100px;
+	}
+
+	.send-btn {
+		width: 44px;
+		height: 44px;
+		margin-left: 8px;
+		font-size: 1rem;
+	}
+
+	.emoji-btn {
+		width: 40px;
+		height: 40px;
+		margin-right: 8px;
+		font-size: 1.2rem;
 	}
 
 	.emoji-picker {
-		width: 280px;
-		left: -10px;
+		width: calc(100vw - 32px);
+		max-width: 300px;
+		left: 0;
+		bottom: 70px;
+		max-height: 200px;
+	}
+
+	/* Botão de voltar para lista em mobile */
+	.back-to-chats-btn {
+		display: flex !important;
+		width: 40px;
+		height: 40px;
+		margin-right: 10px;
+	}
+
+	/* Search box em mobile */
+	.search-container {
+		padding: 12px;
+	}
+
+	.search-box {
+		padding: 10px 12px;
+	}
+
+	.search-box input {
+		font-size: 0.9rem;
+	}
+
+	/* Chat items em mobile */
+	.chat-item {
+		padding: 12px;
+	}
+
+	.chat-name {
+		font-size: 0.95rem;
+	}
+
+	.chat-preview {
+		font-size: 0.85rem;
+	}
+
+	.chat-time {
+		font-size: 0.75rem;
+	}
+
+	/* Selection layer em mobile */
+	.selection-content {
+		padding: 24px 16px;
+	}
+
+	.selection-icon {
+		font-size: 4rem;
+		margin-bottom: 16px;
+	}
+
+	.selection-title {
+		font-size: 1.5rem;
+		margin-bottom: 12px;
+	}
+
+	.selection-description {
+		font-size: 1rem;
+		margin-bottom: 24px;
+	}
+
+	.feature-item {
+		font-size: 0.9rem;
+	}
+
+	/* Menu dropdown em mobile */
+	.chat-menu-dropdown {
+		min-width: 200px;
+		right: 8px;
+		top: calc(100% + 4px);
+	}
+}
+
+/* Responsividade - Mobile pequeno (até 480px) */
+@media (max-width: 480px) {
+	.app-container {
+		height: calc(100vh - 70px);
+		margin-top: 70px;
+	}
+
+	.sidebar {
+		width: 90%;
+		max-width: 100%;
+		top: 70px;
+		height: calc(100vh - 70px);
+	}
+
+	.sidebar-overlay {
+		top: 70px;
+	}
+
+	.menu-toggle {
+		top: 80px;
+		left: 12px;
+		width: 40px;
+		height: 40px;
+	}
+
+	.chat-header {
+		padding: 10px 12px;
+		min-height: 60px;
+	}
+
+	.contact-avatar {
+		width: 36px;
+		height: 36px;
+		min-width: 36px;
+		margin-right: 8px;
+	}
+
+	.contact-info h2 {
+		font-size: 0.95rem;
+	}
+
+	.contact-status {
+		font-size: 0.75rem;
+	}
+
+	.message {
+		max-width: 90%;
+		padding: 8px 12px;
+		font-size: 0.9rem;
+		margin-bottom: 8px;
+	}
+
+	.messages-container {
+		padding: 12px 8px;
+		padding-bottom: 16px;
 	}
 
 	.chat-input-container {
-		padding: var(--spacing-sm) var(--spacing-md);
+		padding: 10px 12px;
+		min-height: 68px;
+	}
+
+	.message-input {
+		font-size: 0.9rem;
+		padding: 8px 12px;
+		min-height: 40px;
 	}
 
 	.send-btn {
 		width: 40px;
 		height: 40px;
+		margin-left: 6px;
 	}
 
 	.emoji-btn {
 		width: 36px;
 		height: 36px;
+		margin-right: 6px;
+		font-size: 1.1rem;
+	}
+
+	.emoji-picker {
+		width: calc(100vw - 24px);
+		max-height: 180px;
+	}
+
+	.chat-avatar {
+		width: 42px;
+		height: 42px;
+		margin-right: 10px;
+	}
+
+	.chat-item {
+		padding: 10px;
+	}
+
+	.chat-name {
+		font-size: 0.9rem;
+	}
+
+	.chat-preview {
+		font-size: 0.8rem;
+	}
+
+	.selection-icon {
+		font-size: 3.5rem;
+	}
+
+	.selection-title {
+		font-size: 1.3rem;
+	}
+
+	.selection-description {
+		font-size: 0.95rem;
+	}
+}
+
+/* Ajustes para orientação landscape em mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+	.app-container {
+		height: calc(100vh - 70px);
+		margin-top: 70px;
+	}
+
+	.chat-header {
+		min-height: 56px;
+		padding: 8px 16px;
+	}
+
+	.messages-container {
+		padding: 12px;
+	}
+
+	.chat-input-container {
+		min-height: 64px;
+		padding: 8px 16px;
+	}
+
+	.message-input {
+		min-height: 40px;
+		max-height: 80px;
 	}
 }
 
@@ -1024,9 +1328,13 @@ body.dark-theme {
 	margin-right: 12px;
 	transition: all 0.3s ease;
 	backdrop-filter: blur(10px);
-	display: flex;
+	display: none;
 	align-items: center;
 	justify-content: center;
+	/* Melhorar área de toque em mobile */
+	touch-action: manipulation;
+	-webkit-tap-highlight-color: transparent;
+	z-index: 1001;
 }
 
 .menu-toggle:hover {
@@ -1050,6 +1358,10 @@ body.dark-theme {
 	display: none;
 	align-items: center;
 	justify-content: center;
+	flex-shrink: 0;
+	/* Melhorar área de toque em mobile */
+	touch-action: manipulation;
+	-webkit-tap-highlight-color: transparent;
 }
 
 .back-to-chats-btn:hover {
@@ -1308,11 +1620,19 @@ body.dark-theme {
 /* Ajustar z-index para mobile */
 @media (max-width: 768px) {
 	.sidebar {
-		z-index: 100;
+		z-index: 1000;
+	}
+
+	.sidebar-overlay {
+		z-index: 999;
 	}
 
 	.chat-area {
 		z-index: 1;
+	}
+
+	.menu-toggle {
+		z-index: 1001;
 	}
 }
 

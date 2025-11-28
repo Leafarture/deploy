@@ -461,6 +461,7 @@ const state = {
 function getElements() {
 	return {
 		sidebar: document.getElementById('sidebar'),
+		sidebarOverlay: document.getElementById('sidebarOverlay'),
 		chatsList: document.getElementById('chatsList'),
 		messagesContainer: document.getElementById('messagesContainer'),
 		messageInput: document.getElementById('messageInput'),
@@ -475,6 +476,7 @@ function getElements() {
 		chatInputContainer: document.querySelector('.chat-input-container'),
 		connectionStatus: document.getElementById('connectionStatus'),
 		menuToggle: document.getElementById('menuToggle'),
+		backToChatsBtn: document.getElementById('backToChatsBtn'),
 		searchInput: document.getElementById('searchInput'),
 		chatMenuBtn: document.getElementById('chatMenuBtn'),
 		chatMenuDropdown: document.getElementById('chatMenuDropdown'),
@@ -950,6 +952,9 @@ async function setupChatWithUser(user, userId, requestId) {
 	// Esconder sidebar em mobile e mostrar área de chat
 	if (elements.sidebar && window.innerWidth < 769) {
 		elements.sidebar.classList.remove('active');
+		if (elements.sidebarOverlay) {
+			elements.sidebarOverlay.classList.remove('active');
+		}
 	}
 	const chatArea = document.querySelector('.chat-area');
 	if (chatArea) {
@@ -1134,6 +1139,9 @@ function renderChatList(filterText = '') {
 			loadChat(chat.id);
 			if (window.innerWidth < 769) {
 				elements.sidebar.classList.remove('active');
+				if (elements.sidebarOverlay) {
+					elements.sidebarOverlay.classList.remove('active');
+				}
 			}
 		});
 
@@ -1144,6 +1152,9 @@ function renderChatList(filterText = '') {
 				loadChat(chat.id);
 				if (window.innerWidth < 769) {
 					elements.sidebar.classList.remove('active');
+					if (elements.sidebarOverlay) {
+						elements.sidebarOverlay.classList.remove('active');
+					}
 				}
 			}
 		});
@@ -2192,20 +2203,72 @@ function setupEventListeners() {
 		});
 	}
 
+	// Função para abrir/fechar sidebar em mobile
+	function toggleSidebar() {
+		if (window.innerWidth < 769) {
+			const isActive = elements.sidebar.classList.contains('active');
+			if (isActive) {
+				elements.sidebar.classList.remove('active');
+				if (elements.sidebarOverlay) {
+					elements.sidebarOverlay.classList.remove('active');
+				}
+			} else {
+				elements.sidebar.classList.add('active');
+				if (elements.sidebarOverlay) {
+					elements.sidebarOverlay.classList.add('active');
+				}
+			}
+		}
+	}
+
 	// Alternar menu em dispositivos móveis
-	elements.menuToggle.addEventListener('click', (e) => {
-		e.stopPropagation();
-		elements.sidebar.classList.toggle('active');
-	});
+	if (elements.menuToggle) {
+		elements.menuToggle.addEventListener('click', (e) => {
+			e.stopPropagation();
+			toggleSidebar();
+		});
+	}
+
+	// Fechar sidebar ao clicar no overlay
+	if (elements.sidebarOverlay) {
+		elements.sidebarOverlay.addEventListener('click', () => {
+			if (window.innerWidth < 769) {
+				elements.sidebar.classList.remove('active');
+				elements.sidebarOverlay.classList.remove('active');
+			}
+		});
+	}
 
 	// Fechar menu ao clicar fora (em mobile)
 	document.addEventListener('click', (e) => {
 		if (window.innerWidth < 769 &&
+			elements.sidebar &&
+			elements.sidebar.classList.contains('active') &&
 			!elements.sidebar.contains(e.target) &&
-			!elements.menuToggle.contains(e.target)) {
+			elements.menuToggle &&
+			!elements.menuToggle.contains(e.target) &&
+			elements.sidebarOverlay &&
+			!elements.sidebarOverlay.contains(e.target)) {
 			elements.sidebar.classList.remove('active');
+			if (elements.sidebarOverlay) {
+				elements.sidebarOverlay.classList.remove('active');
+			}
 		}
 	});
+
+	// Botão de voltar para lista de chats (mobile)
+	if (elements.backToChatsBtn) {
+		elements.backToChatsBtn.addEventListener('click', () => {
+			if (window.innerWidth < 769) {
+				// Mostrar sidebar e esconder chat ativo
+				showSelectionLayer();
+				toggleSidebar();
+			} else {
+				// Em desktop, apenas mostrar seleção
+				showSelectionLayer();
+			}
+		});
+	}
 
 	// Menu do chat (lado direito)
 	if (elements.chatMenuBtn && elements.chatMenuDropdown) {
