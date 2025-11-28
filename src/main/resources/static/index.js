@@ -2,88 +2,41 @@
 // JAVASCRIPT - PRATO JUSTO
 // Funcionalidades completas e interatividade
 
-
 // Animação de scroll para as seções
 document.addEventListener('DOMContentLoaded', function() {
-    // Animação de entrada das seções
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate');
-            }
-        });
-    }, observerOptions);
-
-    // Observar todos os elementos com data-animate
-    document.querySelectorAll('[data-animate]').forEach(el => {
-        observer.observe(el);
-    });
-
-    // Smooth scroll para a próxima seção
-    const scrollIndicator = document.querySelector('.scroll-indicator-premium');
-    if (scrollIndicator) {
-        scrollIndicator.addEventListener('click', function() {
-            const nextSection = document.querySelector('.missao-section-premium');
-            if (nextSection) {
-                nextSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    }
-
-    // Botão "Seja Parceiro"
-    const sejaParceiroBtn = document.getElementById('sejaParceiroBtn');
-    if (sejaParceiroBtn) {
-        sejaParceiroBtn.addEventListener('click', function() {
-            alert('Obrigado pelo interesse em ser nosso parceiro! Em breve entraremos em contato.');
-        });
-    }
-
-    // Menu mobile
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const navMenu = document.getElementById('nav-menu');
-    const headerActions = document.getElementById('header-actions');
-    const mobileOverlay = document.getElementById('mobile-overlay');
-
-    if (mobileMenuBtn) {
-        mobileMenuBtn.addEventListener('click', function() {
-            const isExpanded = this.getAttribute('aria-expanded') === 'true';
-            this.setAttribute('aria-expanded', !isExpanded);
-            navMenu.classList.toggle('active');
-            headerActions.classList.toggle('active');
-            mobileOverlay.classList.toggle('active');
-            document.body.style.overflow = isExpanded ? 'auto' : 'hidden';
-        });
-    }
-
-    // Fechar menu ao clicar no overlay
-    if (mobileOverlay) {
-        mobileOverlay.addEventListener('click', function() {
-            mobileMenuBtn.setAttribute('aria-expanded', 'false');
-            navMenu.classList.remove('active');
-            headerActions.classList.remove('active');
-            this.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        });
-    }
-
-    // Header scroll effect
-    window.addEventListener('scroll', function() {
-        const header = document.getElementById('main-header');
-        if (window.scrollY > 100) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Prato Justo - Site carregado com sucesso!');
+
+    // ===== EFEITO DE ALIMENTOS CAINDO REMOVIDO =====
+    function createModernFallingFoods() {
+        // Esta função agora está vazia para remover as animações
+        console.log('🚫 Animação de alimentos caindo desativada');
+
+        // Remover qualquer container existente
+        const heroSection = document.querySelector('.hero');
+        if (heroSection) {
+            const oldContainers = heroSection.querySelectorAll('.falling-foods-container, .hero-particles');
+            oldContainers.forEach(container => container.remove());
+        }
+    }
+
+    // ===== EFEITO DE BRILHO NO TÍTULO =====
+    function addModernGlowEffect() {
+        const heroTitle = document.querySelector('.hero__title');
+        if (heroTitle) {
+            heroTitle.classList.add('glow-text');
+        }
+
+        // Aplicar efeito específico para as palavras com gradiente azul e vermelho
+        const gradientWords = document.querySelectorAll('.hero__title-gradient');
+        gradientWords.forEach(word => {
+            word.style.background = 'linear-gradient(135deg, #2563eb 0%, #dc2626 50%, #2563eb 100%)';
+            word.style.backgroundSize = '200% 200%';
+            word.style.animation = 'gradientShift 4s ease-in-out infinite';
+            word.style.webkitBackgroundClip = 'text';
+            word.style.webkitTextFillColor = 'transparent';
+            word.style.backgroundClip = 'text';
+        });
+    }
 
     // ===== MENU MOBILE =====
     const navMenu = document.getElementById('nav-menu');
@@ -103,8 +56,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fechar menu ao clicar em um link
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
-            navMenu.classList.remove('show-menu');
-            navToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            if (navMenu.classList.contains('show-menu')) {
+                navMenu.classList.remove('show-menu');
+                if (navToggle) {
+                    navToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            }
         });
     });
 
@@ -112,6 +69,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const header = document.getElementById('header');
 
     function scrollHeader() {
+        if (!header) return;
+
         if (window.scrollY >= 50) {
             header.style.background = 'rgba(255, 255, 255, 0.98)';
             header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
@@ -120,6 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
             header.style.boxShadow = 'none';
         }
     }
+
     window.addEventListener('scroll', scrollHeader);
 
     // ===== ANIMAÇÃO DOS NÚMEROS =====
@@ -225,18 +185,45 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // ===== ANIMAÇÃO DOS ELEMENTOS FLUTUANTES =====
+    // ===== EFEITO DE PULSO NO BOTÃO DE DOAÇÃO =====
+    const donateBtn = document.getElementById('donate-btn');
+    if (donateBtn) {
+        // Adicionar animação de pulso contínua com gradiente azul e vermelho
+        donateBtn.style.animation = 'pulseModern 2s infinite 1.2s';
+        donateBtn.style.background = 'linear-gradient(135deg, #2563eb, #dc2626)';
+
+        // Efeito hover melhorado
+        donateBtn.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-3px) scale(1.05)';
+            this.style.background = 'linear-gradient(135deg, #1d4ed8, #b91c1c)';
+        });
+
+        donateBtn.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+            this.style.background = 'linear-gradient(135deg, #2563eb, #dc2626)';
+        });
+    }
+
+    // ===== ANIMAÇÃO DOS ELEMENTOS FLUTUANTES (SEM ANIMAÇÃO) =====
     const floatingItems = document.querySelectorAll('.floating-item');
 
     floatingItems.forEach(item => {
+        // Atualizar cores para combinar com o tema azul e vermelho
+        item.style.background = 'linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(220, 38, 38, 0.2))';
+        item.style.border = '2px solid rgba(37, 99, 235, 0.3)';
+
         item.addEventListener('mouseenter', function() {
             this.style.transform = 'scale(1.2) translateY(-10px)';
-            this.style.background = 'rgba(255, 255, 255, 0.2)';
+            this.style.background = 'linear-gradient(135deg, rgba(37, 99, 235, 0.3), rgba(220, 38, 38, 0.3))';
+            this.style.boxShadow = '0 12px 35px rgba(37, 99, 235, 0.4)';
+            this.style.borderColor = 'rgba(220, 38, 38, 0.5)';
         });
 
         item.addEventListener('mouseleave', function() {
             this.style.transform = 'scale(1) translateY(0)';
-            this.style.background = 'rgba(255, 255, 255, 0.1)';
+            this.style.background = 'linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(220, 38, 38, 0.2))';
+            this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.3)';
+            this.style.borderColor = 'rgba(37, 99, 235, 0.3)';
         });
     });
 
@@ -289,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 requiredFields.forEach(field => {
                     if (!field.value.trim()) {
                         isValid = false;
-                        field.style.borderColor = 'var(--crisis-red)';
+                        field.style.borderColor = '#dc2626';
 
                         // Resetar cor após 2 segundos
                         setTimeout(() => {
@@ -318,17 +305,19 @@ document.addEventListener('DOMContentLoaded', function() {
             </button>
         `;
 
-        // Estilos da notificação
+        // Cores baseadas no tema azul e vermelho do projeto
+        const backgroundColor = type === 'error' ? '#dc2626' : '#10b981';
+
         notification.style.cssText = `
             position: fixed;
             top: 100px;
             right: 20px;
-            background: ${type === 'error' ? 'var(--crisis-red)' : 'var(--hope-green)'};
+            background: ${backgroundColor};
             color: white;
             padding: 1rem 1.5rem;
             border-radius: 0.5rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: var(--z-modal);
+            z-index: 10000;
             display: flex;
             align-items: center;
             gap: 0.75rem;
@@ -453,7 +442,12 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeFormValidation();
         scrollHeader(); // Executar uma vez no carregamento
 
-        console.log('✅ Prato Justo - Todas as funcionalidades inicializadas!');
+        // Apenas inicializar o efeito de brilho, sem animação de alimentos
+        addModernGlowEffect();
+
+        // Não chamar createModernFallingFoods()
+
+        console.log('✅ Prato Justo - Header atualizado e animações removidas!');
     }
 
     // Inicializar aplicação
@@ -468,11 +462,53 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== PERFORMANCE MONITORING =====
     window.addEventListener('load', function() {
         // Medir tempo de carregamento
-        const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
-        console.log(`📊 Tempo de carregamento: ${loadTime}ms`);
+        if (performance.timing) {
+            const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+            console.log(`📊 Tempo de carregamento: ${loadTime}ms`);
 
-        if (loadTime > 3000) {
-            console.warn('⚠️  Tempo de carregamento alto. Considere otimizar recursos.');
+            if (loadTime > 3000) {
+                console.warn('⚠️  Tempo de carregamento alto. Considere otimizar recursos.');
+            }
+        }
+    });
+
+    // ===== MENU MOBILE MODERNO =====
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const modernNavMenu = document.getElementById('nav-menu');
+    const headerActions = document.getElementById('header-actions');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', function() {
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', !isExpanded);
+            modernNavMenu.classList.toggle('active');
+            if (headerActions) headerActions.classList.toggle('active');
+            if (mobileOverlay) mobileOverlay.classList.toggle('active');
+            document.body.style.overflow = isExpanded ? 'auto' : 'hidden';
+        });
+    }
+
+    // Fechar menu ao clicar no overlay
+    if (mobileOverlay) {
+        mobileOverlay.addEventListener('click', function() {
+            if (mobileMenuBtn) mobileMenuBtn.setAttribute('aria-expanded', 'false');
+            if (modernNavMenu) modernNavMenu.classList.remove('active');
+            if (headerActions) headerActions.classList.remove('active');
+            this.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+    }
+
+    // Header scroll effect moderno
+    window.addEventListener('scroll', function() {
+        const header = document.getElementById('main-header');
+        if (header) {
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
         }
     });
 });
@@ -494,18 +530,76 @@ window.PratoJusto = {
     // Função para simular login (para demonstração)
     simulateLogin: function() {
         localStorage.setItem('userLoggedIn', 'true');
-        window.showNotification('Login realizado com sucesso!', 'success');
+        this.showNotification('Login realizado com sucesso!', 'success');
     },
 
     // Função para verificar autenticação
     isAuthenticated: function() {
         return localStorage.getItem('userLoggedIn') === 'true';
+    },
+
+    // Função para aplicar gradiente azul e vermelho em elementos
+    applyGradientEffect: function(element) {
+        if (element) {
+            element.style.background = 'linear-gradient(135deg, #2563eb 0%, #dc2626 50%, #2563eb 100%)';
+            element.style.backgroundSize = '200% 200%';
+            element.style.animation = 'gradientShift 4s ease-in-out infinite';
+            element.style.webkitBackgroundClip = 'text';
+            element.style.webkitTextFillColor = 'transparent';
+            element.style.backgroundClip = 'text';
+        }
     }
 };
 
 // Listener global para notificações
 document.addEventListener('showNotification', function(e) {
     const { message, type } = e.detail;
-    // Reimplementar showNotification aqui ou usar um sistema global
-    console.log(`Notification: ${message} (${type})`);
+
+    // Reimplementar showNotification
+    const notification = document.createElement('div');
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'}"></i>
+        <span>${message}</span>
+    `;
+
+    notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: ${type === 'error' ? '#dc2626' : '#10b981'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        max-width: 400px;
+        animation: slideInRight 0.3s ease;
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
 });
+
+// Aplicar gradiente azul e vermelho em elementos específicos após o carregamento
+document.addEventListener('DOMContentLoaded', function() {
+    // Aplicar gradiente nos elementos com a classe específica
+    const gradientElements = document.querySelectorAll('.hero__title-gradient');
+    gradientElements.forEach(element => {
+        window.PratoJusto.applyGradientEffect(element);
+    });
+});
+
+// Prevenir erros de console em navegadores antigos
+if (typeof console === "undefined") {
+    console = {
+        log: function() {},
+        warn: function() {},
+        error: function() {}
+    };
+}
