@@ -425,15 +425,15 @@ class MinhasDoacoesApp {
                 
                 ${hasCompletedRequests ? `
                     <!-- Status da Doação Concluída -->
-                    <div class="request-status-container" style="margin: 1rem 0; padding: 1rem; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; border: 2px solid rgba(16, 185, 129, 0.2); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
-                        <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;">
-                            <span class="request-status-badge status-concluida" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #10b981, #059669); color: white;">
+                    <div class="request-status-container completed-status">
+                        <div class="status-badge-wrapper">
+                            <span class="request-status-badge status-concluida">
                                 <i class="fas fa-check-circle"></i>
                                 Concluída
                             </span>
                         </div>
-                        <div style="text-align: center; font-size: 0.85rem; color: #6c757d; font-weight: 500;">
-                            <i class="fas fa-calendar-check" style="margin-right: 0.4rem;"></i> 
+                        <div class="status-date">
+                            <i class="fas fa-calendar-check"></i> 
                             Concluída em: ${dataConclusao ? new Date(dataConclusao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Data não informada'}
                         </div>
                     </div>

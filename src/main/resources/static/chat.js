@@ -452,6 +452,7 @@ const elements = {
 	contactAvatar: document.getElementById('contactAvatar'),
 	contactStatus: document.getElementById('contactStatus'),
 	typingIndicator: document.getElementById('typingIndicator'),
+	chatInputContainer: document.querySelector('.chat-input-container'),
 	connectionStatus: document.getElementById('connectionStatus'),
 	themeToggle: document.getElementById('themeToggle'),
 	menuToggle: document.getElementById('menuToggle')
@@ -540,13 +541,18 @@ async function initializeApp() {
 	setupEventListeners();
 
 	// Não carregar primeira conversa automaticamente - deixar usuário escolher
-	// Mostrar estado vazio se não houver conversas
+	// Mostrar estado vazio se não houver conversas e esconder barra de input
 	if (!userId) {
 		if (state.chats.length === 0) {
 			showEmptyChatState();
 		} else {
-			hideEmptyChatState();
+			showEmptyChatState();
 		}
+	}
+
+	// Inicialmente, esconder barra de input até que um chat seja selecionado
+	if (elements.chatInputContainer) {
+		elements.chatInputContainer.style.display = 'none';
 	}
 
 	console.log('[App] Aplicação inicializada com sucesso');
@@ -2207,12 +2213,22 @@ function showEmptyChatState(message = 'Selecione uma conversa para começar') {
 			p.textContent = message;
 		}
 	}
+
+	// Esconder barra de input quando não há chat selecionado
+	if (elements.chatInputContainer) {
+		elements.chatInputContainer.style.display = 'none';
+	}
 }
 
 function hideEmptyChatState() {
 	const emptyState = document.getElementById('emptyChatState');
 	if (emptyState) {
 		emptyState.style.display = 'none';
+	}
+
+	// Mostrar barra de input quando um chat está ativo
+	if (elements.chatInputContainer) {
+		elements.chatInputContainer.style.display = 'flex';
 	}
 }
 

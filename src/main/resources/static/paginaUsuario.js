@@ -284,19 +284,56 @@ class ProfileManager {
 
                 if (response.ok) {
                     this.userDonations = await response.json();
+                    
+                    // Buscar solicitações de cada doação para determinar status correto
+                    await this.loadDonationRequests(token);
+                    
                     this.displayUserDonations();
                 } else {
                     console.error('Erro ao carregar doações:', response.statusText);
                     this.displayEmptyDonations();
                 }
-    } else {
+            } else {
                 this.displayEmptyDonations();
             }
         } catch (error) {
             console.error('Erro ao carregar doações:', error);
             this.displayEmptyDonations();
+        }
     }
-  }
+
+    /**
+     * Carrega as solicitações de cada doação para determinar o status
+     */
+    async loadDonationRequests(token) {
+        try {
+            // Buscar solicitações para cada doação (limitado às 5 mais recentes para performance)
+            const donationsToCheck = this.userDonations.slice(0, 5);
+            
+            for (const donation of donationsToCheck) {
+                try {
+                    const response = await fetch(`/doacoes/${donation.id}/solicitacoes`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const requests = await response.json();
+                        // Armazenar as solicitações na doação para uso no getDonationStatus
+                        donation.solicitacoes = requests;
+                    } else {
+                        donation.solicitacoes = [];
+                    }
+                } catch (error) {
+                    console.error(`Erro ao buscar solicitações da doação ${donation.id}:`, error);
+                    donation.solicitacoes = [];
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao carregar solicitações das doações:', error);
+        }
+    }
 
   /**
      * Exibe as doações do usuário na interface
@@ -344,12 +381,38 @@ class ProfileManager {
     }
 
     /**
-     * Determina o status da doação
+     * Determina o status da doação baseado nas solicitações
      */
     getDonationStatus(donation) {
-        if (!donation.ativo) return 'cancelled';
-        // Lógica simplificada - pode ser expandida
-        return 'pending';
+        const requests = donation.solicitacoes || [];
+        
+        // Verificar se tem solicitações concluídas
+        const completedRequests = requests.filter(r => r.status === 'concluida');
+        const inProgressRequests = requests.filter(r => r.status === 'em_andamento');
+        const pendingRequests = requests.filter(r => r.status === 'solicitada');
+        
+        // Se não está ativa E tem solicitações concluídas = Concluída (não cancelada!)
+        if (!donation.ativo && completedRequests.length > 0) {
+            return 'delivered';
+        }
+        
+        // Se tem solicitações em andamento
+        if (inProgressRequests.length > 0) {
+            return 'in_progress';
+        }
+        
+        // Se tem solicitações pendentes (aguardando)
+        if (pendingRequests.length > 0) {
+            return 'pending';
+        }
+        
+        // Se não está ativa e não tem solicitações concluídas = Cancelada/Inativa
+        if (!donation.ativo) {
+            return 'cancelled';
+        }
+        
+        // Doação ativa sem solicitações = Disponível
+        return 'available';
     }
 
     /**
@@ -358,11 +421,13 @@ class ProfileManager {
     getDonationStatusLabel(donation) {
         const status = this.getDonationStatus(donation);
         const labels = {
-            'delivered': 'Entregue',
-            'pending': 'Pendente',
-            'cancelled': 'Cancelada'
+            'delivered': '✓ Concluída',
+            'in_progress': 'Em Andamento',
+            'pending': 'Aguardando',
+            'available': 'Disponível',
+            'cancelled': 'Inativa'
         };
-        return labels[status] || 'Pendente';
+        return labels[status] || 'Disponível';
     }
 
     /**
