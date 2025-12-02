@@ -605,6 +605,7 @@ body {
     overflow: hidden;
     text-align: center;
     background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(153, 27, 27, 0.8) 100%);
+    min-height: 100vh;
 }
 
 .hero__container {
@@ -779,51 +780,190 @@ body {
     animation: fadeInUp 1s ease-out 0.8s both;
 }
 
-.hero__image {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    animation: fadeIn 1s ease-out 1s both;
-}
-
-.hero__floating {
-    position: relative;
-    width: 400px;
-    height: 400px;
-}
-
-.floating-item {
+/* ===== ALIMENTOS CAINDO - DESIGN MODERNO E PROFISSIONAL ===== */
+.hero__falling-foods {
     position: absolute;
-    width: 70px;
-    height: 70px;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(220, 38, 38, 0.2));
-    border-radius: 50%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.falling-food {
+    position: absolute;
+    left: var(--x-start);
+    top: -120px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: rgba(255, 255, 255, 0.85);
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+    animation: fallDownModern var(--speed) linear infinite;
+    animation-delay: var(--delay);
+    transform: scale(var(--size));
+    will-change: transform;
+    transition: all 0.3s ease;
+}
+
+.falling-food i {
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.falling-food:hover {
+    transform: scale(calc(var(--size) * 1.3)) !important;
+    filter: drop-shadow(0 6px 20px rgba(251, 191, 36, 0.6));
+    animation-play-state: paused;
+    z-index: 10;
+}
+
+.falling-food:hover i {
+    color: #fbbf24;
+    transform: rotate(15deg);
+}
+
+/* Cores específicas para diferentes alimentos */
+.falling-food:nth-child(1) i { color: #ef4444; } /* Maçã - Vermelho */
+.falling-food:nth-child(2) i { color: #f59e0b; } /* Pão - Laranja */
+.falling-food:nth-child(3) i { color: #f97316; } /* Cenoura - Laranja escuro */
+.falling-food:nth-child(4) i { color: #fbbf24; } /* Queijo - Amarelo */
+.falling-food:nth-child(5) i { color: #fde047; } /* Limão - Amarelo claro */
+.falling-food:nth-child(6) i { color: #dc2626; } /* Frango - Vermelho escuro */
+.falling-food:nth-child(7) i { color: #3b82f6; } /* Peixe - Azul */
+.falling-food:nth-child(8) i { color: #10b981; } /* Verduras - Verde */
+.falling-food:nth-child(9) i { color: #fef3c7; } /* Ovo - Amarelo claro */
+.falling-food:nth-child(10) i { color: #f97316; } /* Pimenta - Laranja */
+.falling-food:nth-child(11) i { color: #92400e; } /* Cookie - Marrom */
+.falling-food:nth-child(12) i { color: #dc2626; } /* Bacon - Vermelho */
+
+@keyframes fallDownModern {
+    0% {
+        transform: translateY(-120px) translateX(0) rotate(0deg) scale(var(--size));
+        opacity: 0;
+    }
+    3% {
+        opacity: 0.9;
+    }
+    50% {
+        transform: translateY(calc(50vh)) translateX(calc((var(--x-start) - 50%) * 0.2)) rotate(180deg) scale(var(--size));
+    }
+    97% {
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateY(calc(100vh + 120px)) translateX(calc((var(--x-start) - 50%) * 0.4)) rotate(360deg) scale(var(--size));
+        opacity: 0;
+    }
+}
+
+/* Garantir que o conteúdo fique acima dos cards caindo */
+.hero__container {
+    position: relative;
+    z-index: 2;
+}
+
+.hero__content {
+    position: relative;
+    z-index: 3;
+}
+
+/* ===== ALIMENTOS CAINDO MINIMALISTAS NAS OUTRAS SEÇÕES ===== */
+.section-falling-foods {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.falling-food-minimal {
+    position: absolute;
+    left: var(--x-start);
+    top: -80px;
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.8rem;
-    color: #fbbf24;
-    backdrop-filter: blur(15px);
-    border: 2px solid rgba(37, 99, 235, 0.3);
-    /* ANIMAÇÃO REMOVIDA */
-    animation: none !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-    transition: all 0.4s ease;
+    color: rgba(255, 255, 255, 0.5);
+    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.3));
+    animation: fallDownMinimal var(--speed) linear infinite;
+    animation-delay: var(--delay);
+    will-change: transform;
+    opacity: 0.55;
+    transition: all 0.3s ease;
 }
 
-.floating-item:hover {
-    transform: scale(1.3) rotate(15deg);
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.3), rgba(220, 38, 38, 0.3));
-    box-shadow: 0 12px 35px rgba(37, 99, 235, 0.4);
-    border-color: rgba(220, 38, 38, 0.5);
+.falling-food-minimal:hover {
+    opacity: 0.85;
+    transform: scale(1.2);
+    animation-play-state: paused;
+    filter: drop-shadow(0 4px 12px rgba(251, 191, 36, 0.4));
 }
 
-.floating-item:nth-child(1) { top: 15%; left: 15%; }
-.floating-item:nth-child(2) { top: 65%; right: 12%; }
-.floating-item:nth-child(3) { top: 45%; left: 25%; }
-.floating-item:nth-child(4) { bottom: 15%; right: 25%; }
-.floating-item:nth-child(5) { top: 8%; right: 35%; }
+.falling-food-minimal i {
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.falling-food-minimal:hover i {
+    transform: rotate(15deg);
+}
+
+/* Cores mais visíveis para alimentos minimalistas */
+.falling-food-minimal:nth-child(1) i { color: rgba(239, 68, 68, 0.7); }
+.falling-food-minimal:nth-child(2) i { color: rgba(245, 158, 11, 0.7); }
+.falling-food-minimal:nth-child(3) i { color: rgba(251, 191, 36, 0.7); }
+.falling-food-minimal:nth-child(4) i { color: rgba(16, 185, 129, 0.7); }
+.falling-food-minimal:nth-child(5) i { color: rgba(59, 130, 246, 0.7); }
+
+@keyframes fallDownMinimal {
+    0% {
+        transform: translateY(-80px) translateX(0) rotate(0deg);
+        opacity: 0;
+    }
+    5% {
+        opacity: 0.55;
+    }
+    50% {
+        transform: translateY(calc(50vh)) translateX(calc((var(--x-start) - 50%) * 0.15)) rotate(180deg);
+    }
+    95% {
+        opacity: 0.55;
+    }
+    100% {
+        transform: translateY(calc(100vh + 80px)) translateX(calc((var(--x-start) - 50%) * 0.3)) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Garantir que o conteúdo das seções fique acima */
+.stats,
+.impact,
+.how,
+.urgency,
+.cta {
+    position: relative;
+}
+
+.stats__container,
+.impact__container,
+.how__container,
+.urgency__container,
+.cta__container {
+    position: relative;
+    z-index: 2;
+}
 
 /* ===== REMOVER ANIMAÇÕES DOS ALIMENTOS CAINDO ===== */
 .falling-foods-container,
@@ -966,15 +1106,25 @@ body {
         gap: 1rem;
     }
 
-    .hero__floating {
-        width: 300px;
-        height: 300px;
+    .falling-food {
+        width: 50px;
+        height: 50px;
+        font-size: 2rem;
     }
-
-    .floating-item {
-        width: 55px;
-        height: 55px;
-        font-size: 1.4rem;
+    
+    .hero__falling-foods .falling-food:nth-child(n+9) {
+        display: none;
+    }
+    
+    .falling-food-minimal {
+        width: 42px;
+        height: 42px;
+        font-size: 1.5rem;
+        opacity: 0.5;
+    }
+    
+    .section-falling-foods .falling-food-minimal:nth-child(n+3) {
+        display: none;
     }
 }
 
@@ -1020,6 +1170,8 @@ body {
     border-radius: 2rem;
     margin: 2rem auto;
     max-width: 1200px;
+    position: relative;
+    overflow: hidden;
 }
 
 .stats__grid {
@@ -1073,6 +1225,11 @@ body {
 }
 
 /* ===== IMPACT SECTION ===== */
+.impact {
+    position: relative;
+    overflow: hidden;
+}
+
 .impact__grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -1122,6 +1279,11 @@ body {
 }
 
 /* ===== HOW IT WORKS ===== */
+.how {
+    position: relative;
+    overflow: hidden;
+}
+
 .how__steps {
     max-width: 800px;
     margin: 0 auto;
@@ -1180,6 +1342,8 @@ body {
     border-radius: 2rem;
     margin: 2rem auto;
     max-width: 1200px;
+    position: relative;
+    overflow: hidden;
 }
 
 .urgency__badge {
@@ -1318,6 +1482,8 @@ body {
     margin: 2rem auto;
     max-width: 1200px;
     text-align: center;
+    position: relative;
+    overflow: hidden;
 }
 
 .cta__title {
@@ -1565,9 +1731,25 @@ body {
         justify-content: center;
     }
 
-    .hero__floating {
-        width: 300px;
-        height: 300px;
+    .falling-food {
+        width: 45px;
+        height: 45px;
+        font-size: 1.8rem;
+    }
+    
+    .hero__falling-foods .falling-food:nth-child(n+7) {
+        display: none;
+    }
+    
+    .falling-food-minimal {
+        width: 38px;
+        height: 38px;
+        font-size: 1.3rem;
+        opacity: 0.45;
+    }
+    
+    .section-falling-foods .falling-food-minimal:nth-child(n+2) {
+        display: none;
     }
 
     .section__title {
@@ -1612,6 +1794,28 @@ body {
     .button--large {
         width: 100%;
         justify-content: center;
+    }
+
+    .falling-food {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+    }
+    
+    /* Reduzir quantidade de alimentos em telas muito pequenas */
+    .hero__falling-foods .falling-food:nth-child(n+6) {
+        display: none;
+    }
+    
+    .falling-food-minimal {
+        width: 28px;
+        height: 28px;
+        font-size: 1rem;
+    }
+    
+    /* Ocultar alimentos minimalistas em telas muito pequenas */
+    .section-falling-foods {
+        display: none;
     }
 
     .cta__title {
