@@ -880,7 +880,7 @@ body {
 	background: linear-gradient(90deg, var(--primary-red), var(--secondary-orange));
 	border-radius: 2px;
 	transition: width 0.5s ease;
-	width: 25%;
+	width: 0%;
 }
 
 .progress-steps {

@@ -25,6 +25,7 @@ class InteractiveExperience {
 		this.initTypewriter();
 		this.initCounters();
 		this.initScrollAnimations();
+		this.initPageFoodFalling();
 
 		console.log('🚀 Experiência interativa carregada!');
 	}
@@ -316,6 +317,8 @@ class InteractiveExperience {
 		this.setupJourneyNavigation();
 		this.setupStepInteractions();
 		this.setupConnectionInteractions();
+		// Inicializar estado visual da jornada
+		this.updateJourney();
 	}
 
 	setupJourneyNavigation() {
@@ -401,10 +404,13 @@ class InteractiveExperience {
 	updateJourney() {
 		// Atualizar progresso
 		const progressFill = document.getElementById('journey-progress');
-		const progressPercentage = ((this.currentStep - 1) / (this.totalSteps - 1)) * 100;
+		// Calcular porcentagem: quando no step 1 = 0%, step 2 = 33%, step 3 = 67%, step 4 = 100%
+		const progressPercentage = this.totalSteps > 1 
+			? ((this.currentStep - 1) / (this.totalSteps - 1)) * 100 
+			: 0;
 
 		if (progressFill) {
-			progressFill.style.width = `${progressPercentage}%`;
+			progressFill.style.width = `${Math.max(0, Math.min(100, progressPercentage))}%`;
 		}
 
 		// Atualizar steps
@@ -449,6 +455,67 @@ class InteractiveExperience {
 	initAnimations() {
 		this.createFloatingIcons();
 		this.initScrollAnimations();
+	}
+
+	// Alimentos caindo igual à página index.html (com início mais discreto)
+	initPageFoodFalling() {
+		// Criar container na seção hero
+		const heroSection = document.querySelector('.hero-interactive');
+		if (heroSection && !heroSection.querySelector('.hero__falling-foods')) {
+			const heroFallingContainer = document.createElement('div');
+			heroFallingContainer.className = 'hero__falling-foods';
+			
+			// Ícones Font Awesome para alimentos - quantidade reduzida no início
+			const heroFoods = [
+				{ icon: 'fa-apple-alt', delay: '3s', speed: '12s', xStart: '15%', size: '0.8' },
+				{ icon: 'fa-bread-slice', delay: '5s', speed: '14s', xStart: '45%', size: '0.9' },
+				{ icon: 'fa-carrot', delay: '7s', speed: '11s', xStart: '75%', size: '0.75' },
+				{ icon: 'fa-cheese', delay: '9s', speed: '13s', xStart: '30%', size: '0.95' },
+				{ icon: 'fa-lemon', delay: '11s', speed: '15s', xStart: '60%', size: '0.8' }
+			];
+
+			heroFoods.forEach(food => {
+				const foodElement = document.createElement('div');
+				foodElement.className = 'falling-food';
+				foodElement.style.setProperty('--delay', food.delay);
+				foodElement.style.setProperty('--speed', food.speed);
+				foodElement.style.setProperty('--x-start', food.xStart);
+				foodElement.style.setProperty('--size', food.size);
+				foodElement.innerHTML = `<i class="fas ${food.icon}"></i>`;
+				heroFallingContainer.appendChild(foodElement);
+			});
+
+			heroSection.insertBefore(heroFallingContainer, heroSection.firstChild);
+		}
+
+		// Criar containers nas outras seções
+		const sections = document.querySelectorAll('.simple-steps, .impact-simulator, .interactive-journey, .rewards-section');
+		sections.forEach((section, sectionIndex) => {
+			if (!section.querySelector('.section-falling-foods')) {
+				const sectionFallingContainer = document.createElement('div');
+				sectionFallingContainer.className = 'section-falling-foods';
+				
+				// Ícones minimalistas para outras seções
+				const minimalFoods = [
+					{ icon: 'fa-apple-alt', delay: `${sectionIndex * 2}s`, speed: '18s', xStart: '12%' },
+					{ icon: 'fa-bread-slice', delay: `${sectionIndex * 2 + 4}s`, speed: '20s', xStart: '78%' },
+					{ icon: 'fa-carrot', delay: `${sectionIndex * 2 + 8}s`, speed: '22s', xStart: '45%' }
+				];
+
+				minimalFoods.forEach(food => {
+					const foodElement = document.createElement('div');
+					foodElement.className = 'falling-food-minimal';
+					foodElement.style.setProperty('--delay', food.delay);
+					foodElement.style.setProperty('--speed', food.speed);
+					foodElement.style.setProperty('--x-start', food.xStart);
+					foodElement.innerHTML = `<i class="fas ${food.icon}"></i>`;
+					sectionFallingContainer.appendChild(foodElement);
+				});
+
+				section.style.position = 'relative';
+				section.insertBefore(sectionFallingContainer, section.firstChild);
+			}
+		});
 	}
 
 	createFloatingIcons() {
@@ -842,6 +909,185 @@ const dynamicStyles = `
     top: -100px;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
     transition: opacity 0.3s ease;
+}
+
+/* ===== ALIMENTOS CAINDO - DESIGN MODERNO E PROFISSIONAL (igual index.html) ===== */
+.hero__falling-foods {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.falling-food {
+    position: absolute;
+    left: var(--x-start);
+    top: -120px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));
+    animation: fallDownModern var(--speed) linear infinite;
+    animation-delay: var(--delay);
+    transform: scale(var(--size));
+    will-change: transform;
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+.falling-food i {
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.falling-food:hover {
+    transform: scale(calc(var(--size) * 1.3)) !important;
+    filter: drop-shadow(0 6px 20px rgba(251, 191, 36, 0.6));
+    animation-play-state: paused;
+    z-index: 10;
+}
+
+.falling-food:hover i {
+    color: #fbbf24;
+    transform: rotate(15deg);
+}
+
+/* Cores específicas para diferentes alimentos */
+.falling-food:nth-child(1) i { color: #ef4444; } /* Maçã - Vermelho */
+.falling-food:nth-child(2) i { color: #f59e0b; } /* Pão - Laranja */
+.falling-food:nth-child(3) i { color: #f97316; } /* Cenoura - Laranja escuro */
+.falling-food:nth-child(4) i { color: #fbbf24; } /* Queijo - Amarelo */
+.falling-food:nth-child(5) i { color: #fde047; } /* Limão - Amarelo claro */
+.falling-food:nth-child(6) i { color: #dc2626; } /* Frango - Vermelho escuro */
+.falling-food:nth-child(7) i { color: #3b82f6; } /* Peixe - Azul */
+.falling-food:nth-child(8) i { color: #10b981; } /* Verduras - Verde */
+.falling-food:nth-child(9) i { color: #fef3c7; } /* Ovo - Amarelo claro */
+.falling-food:nth-child(10) i { color: #f97316; } /* Pimenta - Laranja */
+.falling-food:nth-child(11) i { color: #92400e; } /* Cookie - Marrom */
+.falling-food:nth-child(12) i { color: #dc2626; } /* Bacon - Vermelho */
+
+@keyframes fallDownModern {
+    0% {
+        transform: translateY(-120px) translateX(0) rotate(0deg) scale(var(--size));
+        opacity: 0;
+    }
+    5% {
+        opacity: 0.6;
+    }
+    50% {
+        transform: translateY(calc(50vh)) translateX(calc((var(--x-start) - 50%) * 0.2)) rotate(180deg) scale(var(--size));
+        opacity: 0.8;
+    }
+    97% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateY(calc(100vh + 120px)) translateX(calc((var(--x-start) - 50%) * 0.4)) rotate(360deg) scale(var(--size));
+        opacity: 0;
+    }
+}
+
+/* ===== ALIMENTOS CAINDO MINIMALISTAS NAS OUTRAS SEÇÕES ===== */
+.section-falling-foods {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.falling-food-minimal {
+    position: absolute;
+    left: var(--x-start);
+    top: -80px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.3));
+    animation: fallDownMinimal var(--speed) linear infinite;
+    animation-delay: var(--delay);
+    will-change: transform;
+    opacity: 0.55;
+    transition: all 0.3s ease;
+}
+
+.falling-food-minimal:hover {
+    opacity: 0.85;
+    transform: scale(1.2);
+    animation-play-state: paused;
+    filter: drop-shadow(0 4px 12px rgba(251, 191, 36, 0.4));
+}
+
+.falling-food-minimal i {
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.falling-food-minimal:hover i {
+    transform: rotate(15deg);
+}
+
+/* Cores mais visíveis para alimentos minimalistas */
+.falling-food-minimal:nth-child(1) i { color: rgba(239, 68, 68, 0.7); }
+.falling-food-minimal:nth-child(2) i { color: rgba(245, 158, 11, 0.7); }
+.falling-food-minimal:nth-child(3) i { color: rgba(251, 191, 36, 0.7); }
+.falling-food-minimal:nth-child(4) i { color: rgba(16, 185, 129, 0.7); }
+.falling-food-minimal:nth-child(5) i { color: rgba(59, 130, 246, 0.7); }
+
+@keyframes fallDownMinimal {
+    0% {
+        transform: translateY(-80px) translateX(0) rotate(0deg);
+        opacity: 0;
+    }
+    5% {
+        opacity: 0.55;
+    }
+    50% {
+        transform: translateY(calc(50vh)) translateX(calc((var(--x-start) - 50%) * 0.15)) rotate(180deg);
+    }
+    95% {
+        opacity: 0.55;
+    }
+    100% {
+        transform: translateY(calc(100vh + 80px)) translateX(calc((var(--x-start) - 50%) * 0.3)) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Garantir que o conteúdo fique acima dos alimentos caindo */
+.hero-interactive {
+    position: relative;
+}
+
+.hero-interactive .container,
+.simple-steps .container,
+.impact-simulator .container,
+.interactive-journey .container,
+.rewards-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.simple-steps,
+.impact-simulator,
+.interactive-journey,
+.rewards-section {
+    position: relative;
 }
 
 .particle {
