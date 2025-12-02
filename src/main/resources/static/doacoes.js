@@ -34,9 +34,136 @@ const clearFiltersBtn = document.getElementById('clear-filters');
 let allDoacoes = [];
 let filteredDoacoes = [];
 
+// Inicializar efeitos de fundo
+function initBackgroundEffects() {
+    // Criar partículas flutuantes
+    createFloatingParticles();
+    
+    // Criar alimentos caindo discretos
+    createFallingFoods();
+}
+
+// Criar partículas flutuantes
+function createFloatingParticles() {
+    const particleContainer = document.querySelector('.particle-bg');
+    if (!particleContainer) return;
+    
+    for (let i = 0; i < 15; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'floating-particle';
+        particle.style.cssText = `
+            position: absolute;
+            width: ${Math.random() * 4 + 2}px;
+            height: ${Math.random() * 4 + 2}px;
+            background: rgba(220, 38, 38, ${Math.random() * 0.3 + 0.1});
+            border-radius: 50%;
+            left: ${Math.random() * 100}%;
+            top: ${Math.random() * 100}%;
+            animation: floatParticle ${Math.random() * 20 + 10}s ease-in-out infinite;
+            animation-delay: ${Math.random() * 5}s;
+            pointer-events: none;
+        `;
+        particleContainer.appendChild(particle);
+    }
+}
+
+// Criar alimentos caindo discretos
+function createFallingFoods() {
+    const foodIcons = ['fa-apple-alt', 'fa-bread-slice', 'fa-carrot', 'fa-cheese', 'fa-lemon'];
+    const heroSection = document.querySelector('.hero-filters');
+    
+    if (!heroSection) return;
+    
+    const foodContainer = document.createElement('div');
+    foodContainer.className = 'falling-foods-container';
+    foodContainer.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+    `;
+    
+    for (let i = 0; i < 5; i++) {
+        const food = document.createElement('div');
+        const icon = foodIcons[Math.floor(Math.random() * foodIcons.length)];
+        const delay = Math.random() * 5 + 3;
+        const speed = Math.random() * 5 + 15;
+        const xStart = Math.random() * 80 + 10;
+        
+        food.className = 'falling-food-item';
+        food.innerHTML = `<i class="fas ${icon}"></i>`;
+        food.style.cssText = `
+            position: absolute;
+            left: ${xStart}%;
+            top: -50px;
+            font-size: ${Math.random() * 0.8 + 1.2}rem;
+            color: rgba(255, 255, 255, ${Math.random() * 0.2 + 0.15});
+            animation: fallFood ${speed}s linear infinite;
+            animation-delay: ${delay}s;
+            pointer-events: none;
+        `;
+        foodContainer.appendChild(food);
+    }
+    
+    heroSection.appendChild(foodContainer);
+}
+
+// Adicionar estilos de animação
+const backgroundStyles = `
+    @keyframes floatParticle {
+        0%, 100% {
+            transform: translateY(0) translateX(0);
+            opacity: 0.3;
+        }
+        25% {
+            transform: translateY(-30px) translateX(20px);
+            opacity: 0.6;
+        }
+        50% {
+            transform: translateY(-60px) translateX(-10px);
+            opacity: 0.4;
+        }
+        75% {
+            transform: translateY(-30px) translateX(15px);
+            opacity: 0.5;
+        }
+    }
+    
+    @keyframes fallFood {
+        0% {
+            transform: translateY(-50px) translateX(0) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 0.3;
+        }
+        90% {
+            opacity: 0.3;
+        }
+        100% {
+            transform: translateY(calc(100vh + 50px)) translateX(20px) rotate(360deg);
+            opacity: 0;
+        }
+    }
+    
+    .falling-food-item i {
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+`;
+
+// Injetar estilos
+const styleSheet = document.createElement('style');
+styleSheet.textContent = backgroundStyles;
+document.head.appendChild(styleSheet);
+
 // Carregar doações ao carregar a página
 document.addEventListener('DOMContentLoaded', function() {
     loadDoacoes();
+    initBackgroundEffects();
     
     // Event listeners para filtros
     if (filterBtn) {
